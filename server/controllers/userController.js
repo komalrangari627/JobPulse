@@ -150,8 +150,5 @@ export const handleOTPVerification = async (req, res) => {
     console.error(" Error verifying OTP:", err);
 <<<<<<< HEAD
     res.status(500).json({ message: "Failed to verify user OTP!", error: err });
-=======
-    res.status(500).json({ message: "Internal Server Error" });
->>>>>>> 15f41c952eba333f52f06ea2cd66e30650792f1e
   }
 };
