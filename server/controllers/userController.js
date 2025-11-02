@@ -1,13 +1,15 @@
 import nodemailer from "nodemailer";
 import dotenv from "dotenv";
-import {userModel} from "../models/userSchema.js";
+import { redisClient } from "../utils/redisClient.js";
+import { userModel } from "../models/userSchema.js";
+import bcrypt from "bcrypt";
 
 dotenv.config({ path: "./config.env" });
 
-// === Transporter setup for Gmail ===
+// ================== EMAIL TRANSPORTER ==================
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
-  port: 465, // 465 for SSL
+  port: 465,
   secure: true,
   auth: {
     user: process.env.USER_EMAIL,
@@ -15,32 +17,82 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// === Test Route ===
-let test = (req, res) => {
+// ================== OTP GENERATION ==================
+function generateRandomNumber() {
+  return Math.floor(Math.random() * 9000 + 1000);
+}
+
+// ================== SEND OTP ==================
+export async function sendOTP(email) {
+  try {
+    const otp = generateRandomNumber();
+
+    const mailOptions = {
+      from: process.env.USER_EMAIL,
+      to: email,
+      subject: "Your OTP to verify email address | Valid for 5 mins!",
+      text: `Your OTP is ${otp}. It is valid for 5 minutes.`,
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    // store OTP in Redis for 5 mins
+    await redisClient.setEx(`email:${email}`, 300, otp.toString());
+
+    console.log(`✅ OTP ${otp} sent to ${email}`);
+    return { message: "OTP sent successfully!", status: true, otp };
+  } catch (err) {
+    console.error("❌ Error sending OTP:", err);
+    return { message: "Failed to send OTP!", status: false };
+  }
+}
+
+// ================== VERIFY OTP ==================
+export async function verifyOtp(email, otp) {
+  try {
+    const storedOtp = await redisClient.get(`email:${email}`);
+
+    if (!storedOtp) return { status: false, message: "OTP expired or not found!" };
+    if (storedOtp !== otp.toString()) return { status: false, message: "Invalid OTP!" };
+
+    // delete OTP once verified
+    await redisClient.del(`email:${email}`);
+    console.log(`✅ OTP verified for ${email}`);
+
+    return { status: true, message: "OTP verified successfully!" };
+  } catch (err) {
+    console.error("❌ Error verifying OTP:", err);
+    return { status: false, message: "Error verifying OTP!" };
+  }
+}
+
+// ================== TEST ROUTE ==================
+export const test = (req, res) => {
   res.status(200).json({ message: "Welcome to user test route!" });
 };
 
-// === Register User ===
-let handleUserRegister = async (req, res) => {
+// ================== USER REGISTER ==================
+export const handleUserRegister = async (req, res) => {
   try {
-    let { name, phone, email, address, dob, qualifications, password } = req.body;
+    const { name, phone, email, address, dob, qualifications, password } = req.body;
 
-    // Validate Input
     if (!name || !phone || !email || !address || !dob || !qualifications || !password) {
-      throw new Error("Invalid or missing data!");
+      throw "Invalid/Missing data!";
     }
 
-    //  Check if user already exists
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({ message: "User already exists with this email!" });
-    }
+    // check if user exists
+    const existingUser = await userModel.findOne({ $or: [{ email }, { phone }] });
+    if (existingUser) throw "Unable to register user, please change email/phone and try again!";
 
-    //  Encrypt Password
+    // send OTP
+    const otpResult = await sendOTP(email);
+    if (!otpResult.status) throw `Unable to send OTP to ${email}`;
+
+    // hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    //  Create User Object
-    const newUser = new User({
+    // create user
+    const newUser = new userModel({
       name,
       phone,
       email,
@@ -48,32 +100,40 @@ let handleUserRegister = async (req, res) => {
       dob,
       qualifications,
       password: hashedPassword,
+      isVerified: false,
     });
 
-    //  Save User to DB
     await newUser.save();
 
-    //  Optional: Send Welcome Email
-    await transporter.sendMail({
-      from: process.env.USER_EMAIL,
-      to: email,
-      subject: "Welcome to Our Platform 🎉",
-      html: `<h3>Hi ${name},</h3><p>Thank you for registering with us!</p>`,
-    });
-
-    //  Send Response
-    res.status(201).json({
-      message: "User registered successfully!",
-      user: {
-        name: newUser.name,
-        email: newUser.email,
-        phone: newUser.phone,
-      },
+    res.status(202).json({
+      message: `User registered successfully! Please verify your email using the OTP sent to ${email}.`,
+      otp: otpResult.otp, // visible only for testing; remove later
     });
   } catch (err) {
-    console.error("Error while registering user:", err.message);
-    res.status(400).json({ message: "Unable to register user!", error: err.message });
+    console.error("❌ Error while registering user:", err);
+    res.status(400).json({ message: "Unable to register user!", error: err });
   }
 };
 
-export { test, handleUserRegister };
+// ================== OTP VERIFICATION ==================
+export const handleOTPVerification = async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+    if (!email || !otp) {
+      return res.status(400).json({ message: "Email and OTP required!" });
+    }
+
+    const result = await verifyOtp(email, otp);
+    if (!result.status) {
+      return res.status(400).json({ message: result.message });
+    }
+
+    // update user as verified
+    await userModel.findOneAndUpdate({ email }, { isVerified: true });
+
+    res.status(200).json({ message: "Email verified successfully!" });
+  } catch (err) {
+    console.error("❌ Error verifying OTP:", err);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
