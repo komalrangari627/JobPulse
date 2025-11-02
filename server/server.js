@@ -22,9 +22,9 @@ conn();
 app.get("/api/dbcheck", (req, res) => {
   const status = mongoose.connection.readyState; // 1 = connected
   if (status === 1) {
-    res.json({ message: "✅ Database connected" });
+    res.json({ message: " Database connected" });
   } else {
-    res.json({ message: "❌ Database not connected", status });
+    res.json({ message: " Database not connected", status });
   }
 });
 
@@ -43,4 +43,4 @@ app.use((req, res) => {
 
 // ===== Start server =====
 const port = process.env.PORT || 5012;
-app.listen(port, () => console.log(`🚀 Server running on port ${port}`));
+app.listen(port, () => console.log(` Server running on port ${port}`));

@@ -40,7 +40,11 @@ export async function sendOTP(email) {
     await redisClient.setEx(`email:${email}`, 300, otp.toString());
 
     console.log(` OTP ${otp} sent to ${email}`);
+<<<<<<< HEAD
     return { message: "OTP sent successfully!", status: true };
+=======
+    return { message: "OTP sent successfully!", status: true, otp };
+>>>>>>> 15f41c952eba333f52f06ea2cd66e30650792f1e
   } catch (err) {
     console.error(" Error sending OTP:", err);
     return { message: "Failed to send OTP!", status: false };
@@ -62,7 +66,11 @@ export async function verifyOtp(email, otp) {
     return { status: true, message: "OTP verified successfully!" };
   } catch (err) {
     console.error(" Error verifying OTP:", err);
+<<<<<<< HEAD
     return { status: false, message: "Unable to verify OTP!" };
+=======
+    return { status: false, message: "Error verifying OTP!" };
+>>>>>>> 15f41c952eba333f52f06ea2cd66e30650792f1e
   }
 }
 
@@ -140,6 +148,10 @@ export const handleOTPVerification = async (req, res) => {
     res.status(200).json({ message: "Email verified successfully!" });
   } catch (err) {
     console.error(" Error verifying OTP:", err);
+<<<<<<< HEAD
     res.status(500).json({ message: "Failed to verify user OTP!", error: err });
+=======
+    res.status(500).json({ message: "Internal Server Error" });
+>>>>>>> 15f41c952eba333f52f06ea2cd66e30650792f1e
   }
 };
