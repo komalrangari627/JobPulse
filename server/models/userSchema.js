@@ -1,4 +1,3 @@
-import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 import bcrypt from "bcrypt"
 
@@ -7,10 +6,10 @@ let addressObject = {
 }
 
 let emailObject = {
-    email: "", verify: false
+    useremail: "", verified: false
 }
 
-let userSchema = mongoose.Schema({
+let userShcema = mongoose.Schema({
     name: {
         type: String,
         require: true
@@ -55,8 +54,9 @@ let userSchema = mongoose.Schema({
     }
 })
 
-userSchema.pre("save", async function () {
+userShcema.pre("save", async function () {
     try {
+        console.log("user password is :", this.password)
         this.password = await bcrypt.hash(this.password, 10)
         console.log("password hased and saved !")
     } catch (err) {
@@ -65,6 +65,6 @@ userSchema.pre("save", async function () {
     }
 })
 
-let userModel = new mongoose.model("users", userSchema)
+let userModel = new mongoose.model("users", userShcema)
 
-export { userModel }
+export { userModel}
