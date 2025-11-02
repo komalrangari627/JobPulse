@@ -39,10 +39,10 @@ export async function sendOTP(email) {
     // store OTP in Redis for 5 mins
     await redisClient.setEx(`email:${email}`, 300, otp.toString());
 
-    console.log(`✅ OTP ${otp} sent to ${email}`);
+    console.log(` OTP ${otp} sent to ${email}`);
     return { message: "OTP sent successfully!", status: true, otp };
   } catch (err) {
-    console.error("❌ Error sending OTP:", err);
+    console.error(" Error sending OTP:", err);
     return { message: "Failed to send OTP!", status: false };
   }
 }
@@ -57,11 +57,11 @@ export async function verifyOtp(email, otp) {
 
     // delete OTP once verified
     await redisClient.del(`email:${email}`);
-    console.log(`✅ OTP verified for ${email}`);
+    console.log(` OTP verified for ${email}`);
 
     return { status: true, message: "OTP verified successfully!" };
   } catch (err) {
-    console.error("❌ Error verifying OTP:", err);
+    console.error(" Error verifying OTP:", err);
     return { status: false, message: "Error verifying OTP!" };
   }
 }
@@ -110,7 +110,7 @@ export const handleUserRegister = async (req, res) => {
       otp: otpResult.otp, // visible only for testing; remove later
     });
   } catch (err) {
-    console.error("❌ Error while registering user:", err);
+    console.error(" Error while registering user:", err);
     res.status(400).json({ message: "Unable to register user!", error: err });
   }
 };
@@ -133,7 +133,7 @@ export const handleOTPVerification = async (req, res) => {
 
     res.status(200).json({ message: "Email verified successfully!" });
   } catch (err) {
-    console.error("❌ Error verifying OTP:", err);
+    console.error(" Error verifying OTP:", err);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
