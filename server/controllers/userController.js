@@ -46,8 +46,8 @@ async function sendOTP(email) {
     await transporter.sendMail(mailOptions);
     await redisClient.setEx(`email:${email}`, 300, otp);
 
-    console.log(` OTP ${otp} sent to ${email}`);
-    return { message: "OTP sent successfully!", status: true };
+console.log(` OTP ${otp} sent to ${email}`);
+return { message: "OTP sent successfully!", status: true, otp };
   } catch (err) {
     console.error(" Error sending OTP:", err.message || err);
     return { message: "Unable to send OTP!", status: false };
@@ -71,6 +71,7 @@ async function sendOTPForPasswordReset(email) {
     console.log(` Password reset OTP ${otp} sent to ${email}`);
     return { message: "OTP sent successfully!", status: true };
   } catch (err) {
+
     console.error(" Error sending password reset OTP:", err.message || err);
     return { message: "Unable to send password reset OTP!", status: false };
   }
@@ -156,6 +157,7 @@ const handleOTPVerification = async (req, res) => {
   } catch (err) {
     console.error(" Error verifying OTP:", err);
     res.status(500).json({ message: "Failed to verify OTP!", error: err.message || err });
+
   }
 };
 
@@ -179,7 +181,7 @@ const handleUserLogin = async (req, res) => {
 
     if (!isMatch) {
       //  DEV-ONLY START 
-      console.warn("⚠️ Invalid password. Resetting it to the entered password (development only)...");
+      console.warn(" Invalid password. Resetting it to the entered password (development only)...");
 
       const hashed = await bcrypt.hash(password, 10);
 
