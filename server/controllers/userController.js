@@ -258,7 +258,27 @@ const handleOTPForPasswordReset = async (req, res) => {
     });
   }
 };
+const handleUserFileUplaod = async (req, res) => {
+    try {
 
+        if (!req.file) throw ("failed to upload a file !")
+
+        let fileName = req.file.filename
+
+        // update user document with file name
+
+        await userModel.updateOne({ "email.userEmail": req.user.email.userEmail }, { $push: { "documents": fileName } })
+
+        let uploadDest = `uploads/${req.filename}`
+
+        res.status(202).json({ message: "file uploaded successfully !", fileName, uploadDest })
+
+    } catch (err) {
+        console.log("failed to uplaod file")
+        console.log(err)
+        res.status(500).json({ message: "failed to upload the file in uploads folder :", err })
+    }
+}
 /*  EXPORT ALL */
 export {
   test,
@@ -267,4 +287,5 @@ export {
   handleUserLogin,
   handleResetPasswordRequest,
   handleOTPForPasswordReset,
+  handleUserFileUplaod
 };
