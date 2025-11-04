@@ -9,7 +9,7 @@ let emailObject = {
     useremail: "", verified: false
 }
 
-let userShcema = mongoose.Schema({
+let userSchema = mongoose.Schema({
     name: {
         type: String,
         require: true
@@ -54,7 +54,7 @@ let userShcema = mongoose.Schema({
     }
 })
 
-userShcema.pre("save", async function () {
+userSchema.pre("save", async function () {
     try {
         console.log("user password is :", this.password)
         this.password = await bcrypt.hash(this.password, 10)
@@ -65,6 +65,6 @@ userShcema.pre("save", async function () {
     }
 })
 
-let userModel = new mongoose.model("users", userShcema)
+let userModel = new mongoose.model("users", userSchema)
 
 export { userModel}
