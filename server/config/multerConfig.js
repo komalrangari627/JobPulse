@@ -2,9 +2,11 @@ import multer from "multer";
 import fs from "fs";
 import path from "path";
 
-let storage = multer.diskStorage({
+// Define storage logic
+    const storage = multer.diskStorage({
   //  Create upload destination folder dynamically
   destination: (req, file, cb) => {
+    const fileType = req.params.file_type || "default";
     const uploadPath = path.join("uploads", req.params.file_type);
 
     // if folder doesn't exist — create it recursively
@@ -24,6 +26,5 @@ let storage = multer.diskStorage({
   },
 });
 
-const upload = multer({ storage });
+export const upload = multer({ storage });
 
-export { upload };
