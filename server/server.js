@@ -13,10 +13,10 @@ const app = express();
 
 // ===== Middleware =====
 const corsOptions = {
-  origin: "*",  // your React dev URL
-  methods: "*",
+origin: "*",  // your React dev URL
+methods: "*",
 };
-app.use(cors());
+app.use(cors({ origin: "*", methods: ["GET", "POST"] }));
 app.use(express.json());
 
 // ===== Connect to MongoDB =====
