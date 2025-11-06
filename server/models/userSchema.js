@@ -43,7 +43,7 @@ const userSchema = new mongoose.Schema({
         required: true
     },
     qualifications: {
-        type: String,
+        type: Array,
         default: "",
     },
     documents: {
