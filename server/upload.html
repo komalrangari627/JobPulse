@@ -3,42 +3,169 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>File Upload | JobPulse</title>
+  <title>Upload Files | JobPulse</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f8f9fa;
+      padding: 40px;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+    }
+
+    h1 {
+      color: #007bff;
+      margin-bottom: 40px;
+      text-align: center;
+    }
+
+    .forms-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 40px;
+      width: 100%;
+      max-width: 1300px;
+    }
+
+    form {
+      background: #fff;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      width: 450px;
+      min-height: 400px;
+    }
+
+    h2 {
+      text-align: center;
+      color: #007bff;
+      margin-bottom: 20px;
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 10px;
+    }
+
+    input, select, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 15px;
+    }
+
+    button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      margin-top: 20px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    pre {
+      background: #f4f4f4;
+      padding: 10px;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin-top: 15px;
+    }
+
+    .preview {
+      margin-top: 15px;
+      text-align: center;
+    }
+
+    .preview img {
+      max-width: 200px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+
+    @media (max-width: 900px) {
+      .forms-container {
+        flex-direction: column;
+        align-items: center;
+      }
+      form {
+        width: 90%;
+      }
+    }
+  </style>
 </head>
 <body>
-  <h2>Upload File (Resume / Profile / Documents)</h2>
 
-  <!-- Upload form -->
-  <form id="uploadForm" enctype="multipart/form-data">
-    <label for="fileType">File Type:</label>
-    <select id="fileType" name="fileType" required>
-      <option value="resume">Resume</option>
-      <option value="profile">Profile</option>
-      <option value="documents">Documents</option>
-    </select>
-    <br /><br />
+  <h1> JobPulse File Upload Portal</h1>
 
-    <input type="file" id="fileInput" name="file" required />
-    <br /><br />
+  <div class="forms-container">
 
-    <input type="text" id="token" placeholder="Paste your JWT token here" size="80" required />
-    <br /><br />
+    <!--  USER UPLOAD FORM -->
+    <form id="uploadUserForm" enctype="multipart/form-data">
+      <h2> Upload User File</h2>
 
-    <button type="submit">Upload File</button>
-  </form>
+      <label for="fileType">Select File Type:</label>
+      <select id="fileType" name="fileType" required>
+        <option value="resume">Resume</option>
+        <option value="profile">Profile</option>
+        <option value="documents">Documents</option>
+      </select>
 
-  <h3 id="response"></h3>
+      <label for="userFile">Select File:</label>
+      <input type="file" id="userFile" name="file" required />
+
+      <label for="userToken">Paste User JWT Token:</label>
+      <input type="text" id="userToken" placeholder="Bearer token..." required />
+
+      <button type="submit">Upload User File</button>
+
+      <pre id="userResponse"></pre>
+    </form>
+
+    <!--  COMPANY UPLOAD FORM -->
+    <form id="uploadCompanyForm" enctype="multipart/form-data">
+      <h2> Upload Company Logo</h2>
+
+      <label for="companyLogo">Select Company Logo (PNG / JPG / JPEG):</label>
+      <input type="file" id="companyLogo" name="file" accept=".png,.jpg,.jpeg" required />
+
+      <label for="companyToken">Paste Company JWT Token:</label>
+      <input type="text" id="companyToken" placeholder="Bearer token..." required />
+
+      <button type="submit">Upload Company Logo</button>
+
+      <pre id="companyResponse"></pre>
+
+      <div class="preview" id="logoPreview" style="display: none;">
+        <h3>🖼️ Uploaded Company Logo Preview</h3>
+        <img id="previewImage" src="" alt="Company Logo Preview" />
+      </div>
+    </form>
+
+  </div>
 
   <script>
-    document.getElementById("uploadForm").addEventListener("submit", async (e) => {
+    // ---------- USER FILE UPLOAD ----------
+    document.getElementById("uploadUserForm").addEventListener("submit", async (e) => {
       e.preventDefault();
 
       const fileType = document.getElementById("fileType").value;
-      const file = document.getElementById("fileInput").files[0];
-      const token = document.getElementById("token").value.trim();
+      const file = document.getElementById("userFile").files[0];
+      const token = document.getElementById("userToken").value.trim();
 
       if (!file || !token) {
-        alert("Please select a file and provide your token!");
+        alert("Please select a file and provide your user token!");
         return;
       }
 
@@ -48,17 +175,53 @@
       try {
         const res = await fetch(`http://localhost:5012/api/users/upload-file/${fileType}`, {
           method: "POST",
-          headers: {
-            "Authorization": `Bearer ${token}`
-          },
+          headers: { "Authorization": `Bearer ${token}` },
           body: formData,
         });
 
         const data = await res.json();
-        document.getElementById("response").textContent = JSON.stringify(data, null, 2);
+        document.getElementById("userResponse").textContent = JSON.stringify(data, null, 2);
       } catch (err) {
-        console.error("Upload failed:", err);
-        document.getElementById("response").textContent = "Error uploading file!";
+        console.error("User upload failed:", err);
+        document.getElementById("userResponse").textContent = "❌ Error uploading user file!";
+      }
+    });
+
+    // ---------- COMPANY LOGO UPLOAD ----------
+    document.getElementById("uploadCompanyForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const file = document.getElementById("companyLogo").files[0];
+      const token = document.getElementById("companyToken").value.trim();
+
+      if (!file || !token) {
+        alert("Please select a logo and provide your company token!");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("file", file);
+
+      try {
+        const res = await fetch(`http://localhost:5012/api/company/upload-file/logo`, {
+          method: "POST",
+          headers: { "Authorization": `Bearer ${token}` },
+          body: formData,
+        });
+
+        const data = await res.json();
+        document.getElementById("companyResponse").textContent = JSON.stringify(data, null, 2);
+
+        // Show logo preview
+        if (data.path || data.file || data.fileUrl) {
+          const imagePath = data.path || data.file || data.fileUrl;
+          const imgSrc = imagePath.startsWith("http") ? imagePath : `http://localhost:5012/${imagePath}`;
+          document.getElementById("previewImage").src = imgSrc;
+          document.getElementById("logoPreview").style.display = "block";
+        }
+      } catch (err) {
+        console.error("Company upload failed:", err);
+        document.getElementById("companyResponse").textContent = "❌ Error uploading company logo!";
       }
     });
   </script>
