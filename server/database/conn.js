@@ -13,9 +13,9 @@ const conn = async () => {
       useUnifiedTopology: true,
     });
 
-    console.log("✅ Connected to MongoDB successfully!");
+    console.log(" Connected to MongoDB successfully!");
   } catch (err) {
-    console.error("❌ Unable to connect with database:", err);
+    console.error(" Unable to connect with database:", err);
   }
 };
 
