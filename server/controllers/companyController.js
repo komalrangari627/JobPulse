@@ -53,6 +53,10 @@ async function sendOTP(email, type = "company") {
 
 /* CONTROLLERS */
 
+// TEST ROUTE
+export const test = (req, res) => {
+  res.status(200).json({ message: "Welcome to company test route!" });
+};
 //  Register Company
 export const registerCompany = async (req, res) => {
   try {
@@ -92,9 +96,21 @@ export const registerCompany = async (req, res) => {
 export const verifyCompanyOtp = async (req, res) => {
   try {
     const { email, userOtp } = req.body;
+    if (!email || !userOtp) throw "Email and OTP are required!";
+
     const storedOtp = await redisClient.get(`company:${email}`);
-    if (!storedOtp) throw "OTP expired or not found!";
-    if (storedOtp !== userOtp) throw "Invalid OTP!";
+
+    if (!storedOtp) {
+      return res.status(400).json({
+        message: "OTP expired! Please request a new one.",
+      });
+    }
+
+    if (storedOtp !== userOtp) {
+      return res.status(400).json({
+        message: "Invalid OTP! Please check and try again.",
+      });
+    }
 
     await companyModel.updateOne(
       { "email.userEmail": email },
@@ -102,7 +118,10 @@ export const verifyCompanyOtp = async (req, res) => {
     );
 
     await redisClient.del(`company:${email}`);
-    res.status(200).json({ message: "Company email verified successfully!" });
+
+    res.status(200).json({
+      message: "Company email verified successfully!",
+    });
   } catch (err) {
     res.status(400).json({
       message: "OTP verification failed!",
@@ -110,6 +129,7 @@ export const verifyCompanyOtp = async (req, res) => {
     });
   }
 };
+
 
 //  Login Company
 export const loginCompany = async (req, res) => {
@@ -230,11 +250,21 @@ export const handleCompanyOTPForPasswordReset = async (req, res) => {
   try {
     const { email, userOtp, newPassword } = req.body;
     if (!email || !userOtp || !newPassword)
-      throw "Email, OTP and new password required!";
+      throw "Email, OTP, and new password are required!";
 
     const storedOtp = await redisClient.get(`companyPasswordReset:${email}`);
-    if (!storedOtp) throw "OTP expired or not found!";
-    if (storedOtp !== userOtp) throw "Invalid OTP!";
+
+    if (!storedOtp) {
+      return res.status(400).json({
+        message: "OTP expired! Please request a new password reset OTP.",
+      });
+    }
+
+    if (storedOtp !== userOtp) {
+      return res.status(400).json({
+        message: "Invalid OTP! Please try again.",
+      });
+    }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     await companyModel.updateOne(
@@ -243,8 +273,9 @@ export const handleCompanyOTPForPasswordReset = async (req, res) => {
     );
 
     await redisClient.del(`companyPasswordReset:${email}`);
+
     res.status(200).json({
-      message: "Password reset successful! Please login with new password.",
+      message: "Password reset successful! Please log in with your new password.",
     });
   } catch (err) {
     res.status(400).json({
