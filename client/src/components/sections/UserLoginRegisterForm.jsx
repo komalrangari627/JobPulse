@@ -247,8 +247,8 @@ const UserLoginRegisterForm = () => {
                       <button type='button' onClick={() => setShowPassword(!showPassword)}>
                         {
                           showPassword ?
-                            <PiEyeClosedFill  size={25} /> :
-                            <PiEyesFill  size={25} />
+                            <PiEyesFill  size={25} /> :
+                            <PiEyeClosedFill  size={25} />
                         }
                       </button>
                     </div>
@@ -282,8 +282,8 @@ const UserLoginRegisterForm = () => {
                   <button type='button' onClick={() => setShowPassword(!showPassword)}>
                     {
                       showPassword ?
-                        <PiEyeClosedFill  size={25} /> :
-                        <PiEyesFill  size={25} />
+                        <PiEyesFill  size={25} /> :
+                        <PiEyeClosedFill  size={25} />
                     }
                   </button>
                 </div>
