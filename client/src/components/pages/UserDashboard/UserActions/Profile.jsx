@@ -21,7 +21,7 @@ const Profile = () => {
             <div id='edit-pop-up-form'>
                 <div className='edit-form rounded relative'>
                     <h1>this is pop-up form</h1>
-                    <button onClick={() => { setTriggerEditForm(!triggerEditForm) }} className='absolute left-full -translate-x-1/2 top-0 -translate-y-1/2 top-0 bg-red-500 hover:bg-red-700 transition p-2 font-bold rounded-full text-light'>
+                    <button onClick={() => { setTriggerEditForm(!triggerEditForm) }} className='absolute left-full -translate-x-1/2 top-0 -translate-y-1/2 bg-red-500 hover:bg-red-700 transition p-2 font-bold rounded-full text-light'>
                         <FaTimes />
                     </button>
                 </div>

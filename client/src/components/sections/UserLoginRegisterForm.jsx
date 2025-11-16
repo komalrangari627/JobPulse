@@ -13,7 +13,6 @@ import {
 
 import { useMessage } from '../../context/messageContext';
 import { useUser } from '../../context/userContext.jsx';
-import UserDashboard from "../pages/UserDashboard/UserDashboard.jsx";
 
 const UserLoginRegisterForm = () => {
 
@@ -44,34 +43,34 @@ const UserLoginRegisterForm = () => {
 
   // LOGIN HANDLER
   const handleLoginFormSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  try {
-    setLoading(true);
+    try {
+      setLoading(true);
 
-    const result = await requestUserLogin(loginForm);
+      const result = await requestUserLogin(loginForm);
 
-    triggerMessage("success", result.data.message || "Login successful!");
-    localStorage.setItem("token", result.data.token);
+      triggerMessage("success", result.data.message || "Login successful!");
+      localStorage.setItem("token", result.data.token);
 
-    await fetchUserProfile();
-    navigate("/user/dashboard");
+      await fetchUserProfile();
+      navigate("/user/dashboard");
 
-  } catch (error) {
+    } catch (error) {
 
-    const errorMessage =
-      error?.response?.data?.message ||   
-      error?.response?.data?.err ||       
-      error?.message ||                   
-      "Login failed!";                    
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.response?.data?.err ||
+        error?.message ||
+        "Login failed!";
 
-    triggerMessage("danger", errorMessage);
-    console.log("Login error: ", error);
+      triggerMessage("danger", errorMessage);
+      console.log("Login error: ", error);
 
-  } finally {
-    setLoading(false);
-  }
-};
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleLoginChange = (e) => {
     const { name, value } = e.target;
@@ -149,14 +148,17 @@ const UserLoginRegisterForm = () => {
       <div className='content'>
         <div className='login-register-section shadow-lg rounded overflow-hidden'>
 
-          {/* LEFT SECTION (REGISTER / OTP) */}
+          {/* LEFT SIDE (REGISTER + OTP) */}
           <div className='register'>
+
             {showOtpForm ? (
-              // OTP FORM
+              /* ------------ OTP FORM -------------- */
               <form onSubmit={handleOtpFormSubmit}
                 className='h-full flex flex-col justify-center items-center p-5 gap-3'
               >
-                <h1 className='text-2xl font-bold'>Verify <span className='text-primary'>Email</span></h1>
+                <h1 className='text-2xl font-bold'>
+                  Verify <span className='text-primary'>Email</span>
+                </h1>
 
                 <span className='text-center'>
                   An OTP has been sent to:
@@ -190,112 +192,111 @@ const UserLoginRegisterForm = () => {
               </form>
 
             ) : (
-              // REGISTER FORM
+              /* ------------ REGISTER FORM -------------- */
               <form onSubmit={handleRegisterFormSubmit}
                 className='h-full flex flex-col justify-center p-5 gap-3'
               >
 
-                <h1 className='text-2xl font-bold'>Create New <span className='text-primary'>Account</span></h1>
+                <h1 className='text-2xl font-bold'>
+                  Create New <span className='text-primary'>Account</span>
+                </h1>
 
                 {/* Name & Phone */}
                 <div className='flex gap-3'>
                   <div className='grow'>
                     <span className='opacity-70'>Name</span>
                     <input name='name' value={registerForm.name} onChange={handleRegisterFormChange}
-                      type="text" className="mt-2 bg-white border border-gray-300 text-dark text-sm rounded-lg block w-full p-2.5" placeholder="Name" required />
+                      type="text" className="mt-2 bg-white border border-gray-300 text-dark text-sm rounded-lg block w-full p-2.5"
+                      placeholder="Name" required />
                   </div>
+
                   <div className='grow'>
                     <span className='opacity-70'>Phone</span>
                     <input name='phone' value={registerForm.phone} onChange={handleRegisterFormChange}
-                      type="tel" className="mt-2 bg-white border border-gray-300 text-dark text-sm rounded-lg block w-full p-2.5" placeholder="Phone" required />
+                      type="tel" className="mt-2 bg-white border border-gray-300 text-dark text-sm rounded-lg block w-full p-2.5"
+                      placeholder="Phone" required />
                   </div>
-                </div>
 
-                {/* DOB & Email */}
-                <div className='flex gap-3'>
                   <div>
-                    <span className='opacity-70'>D.O.B.</span>
-                    <input name='dob' value={registerForm.dob} onChange={handleRegisterFormChange}
-                      type="date" className="mt-2 bg-white border border-gray-300 text-dark text-sm rounded-lg block w-full p-2.5" required />
-                  </div>
-                  <div className='grow'>
-                    <span className='opacity-70'>Email</span>
-                    <input name='email' value={registerForm.email} onChange={handleRegisterFormChange}
-                      type="email" className="mt-2 bg-white border border-gray-300 text-dark text-sm rounded-lg block w-full p-2.5" placeholder="Email" required />
-                  </div>
-                </div>
+                    <span className='opacity-70'>Address</span>
+                    <div className='address-fields w-full flex flex-col gap-3'>
 
-                {/* ADDRESS */}
-                <div>
-                  <span className='opacity-70'>Address</span>
+                      <input name='street' onChange={handleRegisterFormChange} value={registerForm.street}
+                        type="text" className="grow mt-2 bg-white border border-gray-300 text-dark text-sm rounded-lg block w-full p-2.5"
+                        placeholder="Street" required />
 
-                  <div className='address-fields w-full flex flex-col gap-3'>
-                    <input name='street' value={registerForm.street} onChange={handleRegisterFormChange}
-                      type="text" className="grow mt-2 bg-white border border-gray-300 text-dark text-sm rounded-lg block w-full p-2.5" placeholder="Street" required />
+                      <div className='flex gap-3'>
+                        <input name='city' onChange={handleRegisterFormChange} value={registerForm.city}
+                          type="text" className="mt-2 bg-white border border-gray-300 text-dark text-sm rounded-lg block w-full p-2.5"
+                          placeholder="City" required />
 
-                    <div className='flex gap-3'>
-                      <input name='city' value={registerForm.city} onChange={handleRegisterFormChange}
-                        type="text" className="mt-2 bg-white border border-gray-300 text-dark text-sm rounded-lg block w-full p-2.5" placeholder="City" required />
-                      <input name='state' value={registerForm.state} onChange={handleRegisterFormChange}
-                        type="text" className="mt-2 bg-white border border-gray-300 text-dark text-sm rounded-lg block w-full p-2.5" placeholder="State" required />
-                    </div>
+                        <input name='state' onChange={handleRegisterFormChange} value={registerForm.state}
+                          type="text" className="mt-2 bg-white border border-gray-300 text-dark text-sm rounded-lg block w-full p-2.5"
+                          placeholder="State" required />
+                      </div>
 
-                    <div className='flex gap-3'>
-                      <input name='country' value={registerForm.country} onChange={handleRegisterFormChange}
-                        type="text" className="mt-2 bg-white border border-gray-300 text-dark text-sm rounded-lg block w-full p-2.5" placeholder="Country" required />
-                      <input name='pincode' value={registerForm.pincode} onChange={handleRegisterFormChange}
-                        type="number" className="mt-2 bg-white border border-gray-300 text-dark text-sm rounded-lg block w-full p-2.5" placeholder="Pincode" required />
+                      <div className='flex gap-3'>
+                        <input name='country' onChange={handleRegisterFormChange} value={registerForm.country}
+                          type="text" className="mt-2 bg-white border border-gray-300 text-dark text-sm rounded-lg block w-full p-2.5"
+                          placeholder="Country" required />
+
+                        <input name='pincode' onChange={handleRegisterFormChange} value={registerForm.pincode}
+                          type="number" className="mt-2 bg-white border border-gray-300 text-dark text-sm rounded-lg block w-full p-2.5"
+                          placeholder="Pincode" required />
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                {/* PASSWORD */}
-                <div>
-                  <span className='opacity-70'>Create Password</span>
-                  <div className='flex items-center gap-3'>
-                    <input name='password' value={registerForm.password} onChange={handleRegisterFormChange}
-                      type={showPassword ? "text" : "password"} className="mt-2 bg-white border border-gray-300 text-dark text-sm rounded-lg block w-full p-2.5" placeholder="Enter Password" required />
+                  {/* PASSWORD */}
+                  <div>
+                    <span className='opacity-70'>Create Password</span>
 
-                    <button type='button' onClick={() => setShowPassword(!showPassword)}>
-                      {showPassword ? <PiEyesFill size={25} /> : <PiEyeClosedFill size={25} />}
+                    <div className='flex items-center gap-3'>
+                      <input name='password' onChange={handleRegisterFormChange} value={registerForm.password}
+                        type={showPassword ? "text" : "password"}
+                        className="mt-2 bg-white border border-gray-300 text-dark text-sm rounded-lg block w-full p-2.5"
+                        placeholder="Please Enter Password" required />
+
+                      <button type='button' onClick={() => setShowPassword(!showPassword)}>
+                        {showPassword ? <PiEyesFill size={25} /> : <PiEyeClosedFill size={25} />}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className='flex gap-3 flex-col justify-center'>
+                    <button type='submit'
+                      className={`${loading ? "bg-gray-800 hover:bg-gray-800" : "bg-green-600"} hover:bg-green-700 text-light font-bold px-6 py-2 rounded transition-all`}
+                      disabled={loading}
+                    >
+                      {loading ? "Processing..." : "Register User"}
+                    </button>
+
+                    <hr />
+
+                    <button type='button' onClick={() => { setOpenFormLogin(true) }}
+                      className='bg-gray-300 hover:bg-gray-400 px-6 py-2 rounded transition-all'>
+                      Already Registered? Please Login
                     </button>
                   </div>
+
                 </div>
-
-                {/* SUBMIT */}
-                <div className='flex flex-col gap-3'>
-                  <button type='submit'
-                    className={`${loading ? "bg-gray-800" : "bg-green-600"} hover:bg-green-700 text-light font-bold px-6 py-2 rounded`}
-                    disabled={loading}
-                  >
-                    {loading ? "Processing..." : "Register User"}
-                  </button>
-
-                  <hr />
-
-                  <button type='button' onClick={() => setOpenFormLogin(true)}
-                    className='bg-gray-300 hover:bg-gray-400 px-6 py-2 rounded'
-                  >
-                    Already Registered? Login
-                  </button>
-                </div>
-
               </form>
             )}
+
           </div>
 
-          {/* LOGIN SECTION */}
+          {/* RIGHT SIDE (LOGIN) */}
           <div className='login'>
             <form onSubmit={handleLoginFormSubmit}
               className='h-full flex flex-col justify-center p-5 gap-7'
             >
-
               <h1 className='text-2xl font-bold'>Login</h1>
 
               <div>
                 <span className='opacity-70'>Email</span>
-                <input name='email' onChange={handleLoginChange}  value={loginForm.email}
-                  type="email" className="mt-2 bg-white border border-gray-300 text-dark text-sm rounded-lg block w-full p-2.5" placeholder="Enter Email" required />
+                <input name='email' value={loginForm.email} onChange={handleLoginChange}
+                  type="email" className="mt-2 bg-white border border-gray-300 text-dark text-sm rounded-lg block w-full p-2.5"
+                  placeholder="Enter Email" required />
               </div>
 
               <div>
@@ -306,7 +307,8 @@ const UserLoginRegisterForm = () => {
 
                 <div className='flex items-center gap-3'>
                   <input name='password' value={loginForm.password} onChange={handleLoginChange}
-                    type={showPassword ? "text" : "password"} className="mt-2 bg-white border border-gray-300 text-dark text-sm rounded-lg block w-full p-2.5" placeholder="Enter Password" required />
+                    type={showPassword ? "text" : "password"} className="mt-2 bg-white border border-gray-300 text-dark text-sm rounded-lg block w-full p-2.5"
+                    placeholder="Enter Password" required />
 
                   <button type='button' onClick={() => setShowPassword(!showPassword)}>
                     {showPassword ? <PiEyesFill size={25} /> : <PiEyeClosedFill size={25} />}
