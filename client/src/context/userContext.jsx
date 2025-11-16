@@ -1,46 +1,83 @@
-import { useState, useEffect, createContext, useContext, Children } from "react"
+import { useState, useEffect, createContext, useContext, Children} from "react";
+import { requestUserProfile } from "../api/userAPI.js";
 
-import { requestUserProfile } from "../api/userAPI.js"
-
-const userContext = createContext()
-
+const userContext = createContext();
 
 let UserProvider = ({ children }) => {
 
-    let [user, setUser] = useState({
+    const [user, setUser] = useState({
         logedIn: false
-    })
+    });
+
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
-        fetchUserProfile()
-    }, [])
+        fetchUserProfile();
+    }, []);
 
+    // FETCH USER PROFILE
+    
     const fetchUserProfile = async () => {
         try {
-            let token = localStorage.getItem('token')
+            setLoading(true);
+            setError(null);
 
-            if (!token) throw ("token not found !")
+            const token = localStorage.getItem("token");
 
-            let result = await requestUserProfile(token)
+            //  No token → logout user
+            if (!token) {
+                setUser({ logedIn: false });
+                return;
+            }
 
-            if (result.status != 200) throw ("unable to fetch user profile !")
+            const result = await requestUserProfile(token);
 
-            setUser(prev => {
-                return { ...result.data.userData, logedIn: true }
-            })
+            //  API failed
+            if (result.status !== 200) {
+                throw new Error("Unable to fetch user profile!");
+            }
+
+            //  Set user data
+            setUser({
+                ...result.data.userData,
+                logedIn: true
+            });
 
         } catch (err) {
-            console.log("profile fetching error : ", err)
+            console.log("profile fetching error:", err);
+
+            //  Remove invalid/expired token
+            localStorage.removeItem("token");
+
+            setError(err.message || "Something went wrong");
+            setUser({ logedIn: false });
+
+        } finally {
+            setLoading(false);
         }
-    }
+    };
+
+    // LOGOUT FUNCTION
+    
+    const logout = () => {
+        localStorage.removeItem("token");
+        setUser({ logedIn: false });
+    };
 
     return (
-        <userContext.Provider value={{ user, fetchUserProfile }}>
+        <userContext.Provider value={{
+            user,
+            loading,
+            error,
+            fetchUserProfile,
+            logout
+        }}>
             {children}
         </userContext.Provider>
-    )
-}
+    );
+};
 
-const useUser = () => useContext(userContext)
+const useUser = () => useContext(userContext);
 
-export { UserProvider, useUser }
+export { UserProvider, useUser };
