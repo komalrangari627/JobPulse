@@ -34,7 +34,7 @@ const Profile = () => {
         <>
 
             <div id='user-profile' className='shadow'>
-                <div className='bg-dark'></div>
+                <div className='bg-pink-300'></div>
                 <div className='information'>
                     <div className='pnpa'>
                         {/* image */}
