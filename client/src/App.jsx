@@ -23,7 +23,7 @@ const App = () => {
             <Routes>
               <Route path='/' element={<Home />} />
               <Route path='/user-login-register' element={<UserLoginRegister />} />
-              <Route path='/user/dashboard' element={<UserDashboard />} />
+              <Route path='/user-dashboard' element={<UserDashboard />} />
             </Routes>
           </Router>
         </MessageProvider>
