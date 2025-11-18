@@ -1,19 +1,90 @@
 #user-dashboard {
+  width: 100%;
+  min-height: 80vh;
+  display: grid;
+  grid-template-columns: 250px 1fr;
+  gap: 2rem;
+  padding: 2.5rem;
+
+  .sidebar-menu {
     width: 100%;
-    min-height: 80vh;
-    display: grid;
-    grid-template-columns: 25% auto;
+    height: calc(100vh - 5rem);
+    position: sticky;
+    top: 2.5rem;
+    border-radius: 14px;
 
-    .sidebar-menu{
+    background: linear-gradient(180deg, #F875AA 0%, #F875AA 100%);
+    color: var(--text-dark);
+    padding: 2rem 1.25rem;
+
+    .intro {
+      .font-bold {
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: var(--text-dark);
+      }
+
+      .text-primary {
+        color: var(--text-dark);
+      }
+
+      .actions {
+        margin-top: 2rem;
+
+        li {
+          list-style: none;
+          cursor: pointer;
+          padding: 1rem;
+          border-radius: 10px;
+          font-weight: 600;
+          background: var(--highlight);
+          color: var(--text-dark);
+          transition: 0.2s ease;
+
+          &:hover,
+          &.active {
+            background: var(--primary);
+            transform: translateX(6px);
+          }
+        }
+      }
+
+      button {
+        margin-top: 2rem;
         width: 100%;
-        height: 100%;
-        background-color: rgba(var(--dark), .9);
-    }
+        background: #E63946;
+        color: #fff;
+        border-radius: 8px;
+        padding: .6rem;
+        border: none;
+        cursor: pointer;
 
-    .content{
-        width: 100%;
-        height: 100%;
-        background-color: rgba(var(--light), .15);
+        &:hover { background: #C92733; }
+      }
     }
+  }
 
+  .content {
+    width: 100%;
+    height: 100%;
+    padding: 1.25rem 2rem;
+
+    .content-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.25rem;
+
+      .logout-btn {
+        background: #E63946;
+        color: #fff;
+        border-radius: 8px;
+        padding: .6rem 1rem;
+        border: none;
+        cursor: pointer;
+
+        &:hover { background: #C92733; }
+      }
+    }
+  }
 }
