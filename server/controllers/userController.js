@@ -241,6 +241,7 @@ const handleUserLogin = async (req, res) => {
 const handleResetPasswordRequest = async (req, res) => {
   try {
     const { email } = req.body;
+    console.log(req.body)
     if (!email) throw new Error("Email required!");
 
     const user = await userModel.findOne({ "email.userEmail": email });
@@ -297,20 +298,29 @@ const handleUserFileUpload = async (req, res) => {
     if (!req.file) throw new Error("File not found!");
 
     const fileName = req.file.filename;
-    const filePath = req.file.path;
-    const uploadDest = req.file.destination;
+    const fileType = req.params.file_type; // profile_picture, resume, etc.
+
+    let updateQuery = {};
+
+    if (fileType === "profile_picture") {
+      updateQuery = { profile_picture: fileName };
+    } else if (fileType === "resume") {
+      updateQuery = { resume: fileName };
+    } else {
+      updateQuery = { $push: { documents: fileName } };
+    }
 
     await userModel.updateOne(
       { "email.userEmail": req.user.email.userEmail },
-      { $push: { documents: fileName } }
+      updateQuery
     );
 
     res.status(200).json({
-      message: "File uploaded successfully!",
-      uploadDest,
+      message: `${fileType} uploaded successfully!`,
       fileName,
-      filePath,
+      fileType
     });
+
   } catch (error) {
     console.error(" Upload error:", error.message || error);
     res.status(500).json({
