@@ -80,6 +80,19 @@ app.get("/api/companies", async (req, res) => {
     });
   }
 });
+// server: GET /api/companies/:id
+app.get("/api/companies/:id", async (req, res) => {
+  try {
+    const company = await companyModel.findById(req.params.id).populate({
+      path: "createdJobs",
+      select: "title jobRequirements.location jobRequirements.offeredSalary"
+    });
+    if (!company) return res.status(404).json({ message: "Company not found" });
+    res.status(200).json({ company });
+  } catch (err) {
+    res.status(500).json({ message: "Error fetching company", error: err.message });
+  }
+});
 
 //  UPDATE COMPANY
 app.put("/api/companies/:id", async (req, res) => {
