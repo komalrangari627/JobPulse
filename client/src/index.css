@@ -1,8 +1,8 @@
 :root {
-    --light: 238, 238, 238;     /* #EEEEEE */
-    --secondary: 57, 62, 70;    /* #393E46 */
-    --primary: 0, 173, 181;     /* #00ADB5 */
-    --dark: 34, 40, 49;         /* #222831 */
+    --light: 239, 236, 227;
+    --secondary: 143, 171, 212;
+    --primary: 74, 112, 169;
+    --dark: 0, 0, 0;
 }
 
 @tailwind base;
