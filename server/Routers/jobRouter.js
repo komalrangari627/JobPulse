@@ -4,24 +4,29 @@ import {
   handleJobAction,
   handleJobApplication,
   getJobData,
+  getSingleJob
 } from "../controllers/jobController.js";
+
 import { AuthUser } from "../middlewares/AuthUser.js";
 import { AuthCompany } from "../middlewares/AuthCompany.js";
 
 const jobRouter = express.Router();
 
-/* JOB ROUTES */
+/* CLEAN REST JOB ROUTES */
 
-// Create a new job (Company only)
-//jobRouter.post("/add-job", AuthCompany, createJob);
+// Get ALL jobs  → /api/jobs
+jobRouter.get("/", getJobData);
 
-// Perform job actions (delete / close)
-//jobRouter.post("/job-action/:action/:jobId", AuthCompany, handleJobAction);
+// Get ONE job  → /api/jobs/:jobId
+jobRouter.get("/:jobId", getSingleJob);
 
-// Apply for a job (User only)
-jobRouter.post("/apply-for-job/:jobId", AuthUser, handleJobApplication);
+// Apply to a job  → /api/jobs/:jobId/apply
+jobRouter.post("/:jobId/apply", AuthUser, handleJobApplication);
 
-// Get all jobs (public)
-jobRouter.get("/jobsdata", getJobData);
+// Create job  → /api/jobs
+jobRouter.post("/", AuthCompany, createJob);
+
+// Job actions (delete/close)  → /api/jobs/:action/:jobId
+jobRouter.post("/:action/:jobId", AuthCompany, handleJobAction);
 
 export default jobRouter;
