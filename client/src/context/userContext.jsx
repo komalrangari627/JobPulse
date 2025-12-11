@@ -1,83 +1,52 @@
-import { useState, useEffect, createContext, useContext, Children} from "react";
-import { requestUserProfile } from "../api/userAPI.js";
+import { useState, useEffect, createContext, useContext, Children } from "react"
 
-const userContext = createContext();
+import { requestUserProfile } from "../api/userAPI.js"
+
+const userContext = createContext()
 
 let UserProvider = ({ children }) => {
 
-    const [user, setUser] = useState({
+    let [user, setUser] = useState({
         logedIn: false
-    });
-
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    })
 
     useEffect(() => {
-        fetchUserProfile();
-    }, []);
+        fetchUserProfile()
+    }, [])
 
-    // FETCH USER PROFILE
-    
     const fetchUserProfile = async () => {
         try {
-            setLoading(true);
-            setError(null);
+            let token = localStorage.getItem('token')
 
-            const token = localStorage.getItem("token");
+            if (!token) throw ("token not found !")
 
-            //  No token → logout user
-            if (!token) {
-                setUser({ logedIn: false });
-                return;
-            }
+            let result = await requestUserProfile(token)
 
-            const result = await requestUserProfile(token);
+            if (result.status != 200) throw ("unable to fetch user profile !")
 
-            //  API failed
-            if (result.status !== 200) {
-                throw new Error("Unable to fetch user profile!");
-            }
-
-            //  Set user data
-            setUser({
-                ...result.data.userData,
-                logedIn: true
-            });
+            setUser(prev => {
+                return { ...result.data.userData, logedIn: true }
+            })
 
         } catch (err) {
-            console.log("profile fetching error:", err);
-
-            //  Remove invalid/expired token
-            localStorage.removeItem("token");
-
-            setError(err.message || "Something went wrong");
-            setUser({ logedIn: false });
-
-        } finally {
-            setLoading(false);
+            console.log("profile fetching error : ", err)
         }
-    };
+    }
 
-    // LOGOUT FUNCTION
-    
     const logout = () => {
-        localStorage.removeItem("token");
-        setUser({ logedIn: false });
-    };
+        localStorage.removeItem("token")
+        setUser({
+            logedIn: false
+        })
+    }
 
     return (
-        <userContext.Provider value={{
-            user,
-            loading,
-            error,
-            fetchUserProfile,
-            logout
-        }}>
+        <userContext.Provider value={{ user, fetchUserProfile, logout }}>
             {children}
         </userContext.Provider>
-    );
-};
+    )
+}
 
-const useUser = () => useContext(userContext);
+const useUser = () => useContext(userContext)
 
-export { UserProvider, useUser };
+export { UserProvider, useUser }
