@@ -10,51 +10,44 @@ const JobsGrid = () => {
   const [companies, setCompanies] = useState([]);
 
   useEffect(() => {
-    // Fetch all jobs
-    const fetchJobs = async () => {
+    const fetchJobsAndCompanies = async () => {
       try {
-        const data = await jobAPI.getAllJobs();
-        setJobs(data);
+        const jobsData = await jobAPI.getAllJobs();
+        const companiesData = await companyAPI.getAllCompanies();
+
+        setCompanies(companiesData);
+        setJobs(jobsData); 
       } catch (err) {
-        console.error("Error fetching jobs:", err);
+        console.error("Error fetching jobs or companies:", err);
       }
     };
 
-    // Fetch all companies
-    const fetchCompanies = async () => {
-      try {
-        const data = await companyAPI.getAllCompanies();
-        setCompanies(data);
-      } catch (err) {
-        console.error("Error fetching companies:", err);
-      }
-    };
-
-    fetchJobs();
-    fetchCompanies();
+    fetchJobsAndCompanies();
   }, []);
 
-  // Find company by ID
-  const getCompany = (companyId) => companies.find((c) => c.id === companyId);
+  const getCompany = (jobCompanyName) =>
+    companies.find((c) => c.name === jobCompanyName);
 
   return (
     <div className="jobs-grid">
       {jobs.map((job) => {
-        const company = getCompany(job.companyId);
+        const company = getCompany(job.company);
+
+        if (!company) return null;
+
         return (
           <div
-            key={job.id}
+            key={job._id?.$oid || job._id} 
             className="job-card"
-            onClick={() => navigate(`/job/${job.id}`)}
+            onClick={() =>
+              navigate(`/job/${job._id?.$oid || job._id}`)
+            }
           >
-            <img
-              src={company?.logo || job.logo}
-              alt={job.title}
-              className="job-logo"
-            />
+            <img src={company.logo} alt={company.name} />
+
             <div className="job-info">
               <h3>{job.title}</h3>
-              <p>{company?.name}</p>
+              <p>{company.name}</p>
               <p>{job.location}</p>
               <p>{job.salary}</p>
             </div>

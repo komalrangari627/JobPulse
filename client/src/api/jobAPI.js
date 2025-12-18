@@ -2,33 +2,52 @@ import axios from "axios";
 
 const API_ROOT = import.meta.env.VITE_API_ROOT || "http://localhost:5012/api/jobs";
 
-// Individual functions
-export const getAllJobs = async () => {
+/* AXIOS INSTANCE */
+const api = axios.create({
+  baseURL: API_ROOT,
+  timeout: 10000,
+});
+
+/* GET ALL JOBS */
+export const getAllJobs = async (options = {}) => {
+  const { signal } = options;
   try {
-    const res = await axios.get(API_ROOT);
-    return res.data.jobs;
+    const res = await api.get("/", { signal });
+    // Ensure jobs array exists even if API response is malformed
+    return Array.isArray(res.data?.jobs) ? res.data.jobs : [];
   } catch (err) {
-    console.error("Error fetching jobs:", err);
-    throw err;
+    if (err.name !== "CanceledError" && err.name !== "AbortError") {
+      console.error("Error fetching jobs:", err);
+    }
+    return [];
   }
 };
 
-export const getJobById = async (jobId) => {
+/* GET JOB BY ID */
+export const getJobById = async (jobId, options = {}) => {
+  const { signal } = options;
+  if (!jobId) throw new Error("Job ID is required");
   try {
-    const res = await axios.get(`${API_ROOT}/${jobId}`);
-    return res.data.job;
+    const res = await api.get(`/${jobId}`, { signal });
+    return res.data?.job || null;
   } catch (err) {
     console.error(`Error fetching job ${jobId}:`, err);
-    throw err;
+    return null;
   }
 };
 
+/* APPLY FOR JOB */
 export const applyForJob = async (jobId, token) => {
+  if (!jobId || !token) throw new Error("Job ID and token are required");
   try {
-    const res = await axios.post(
-      `${API_ROOT}/${jobId}/apply`,
+    const res = await api.post(
+      `/${jobId}/apply`,
       {},
-      { headers: { Authorization: `Bearer ${token}` } }
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
     );
     return res.data;
   } catch (err) {
@@ -37,10 +56,14 @@ export const applyForJob = async (jobId, token) => {
   }
 };
 
+/* CREATE JOB */
 export const createJob = async (data, token) => {
+  if (!token) throw new Error("Token is required");
   try {
-    const res = await axios.post(API_ROOT, data, {
-      headers: { Authorization: `Bearer ${token}` },
+    const res = await api.post("/", data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     });
     return res.data;
   } catch (err) {
@@ -49,20 +72,33 @@ export const createJob = async (data, token) => {
   }
 };
 
+/* GENERIC JOB ACTION */
 export const jobAction = async (action, jobId, token) => {
+  if (!action || !jobId || !token) throw new Error("Action, Job ID, and token are required");
   try {
-    const res = await axios.post(
-      `${API_ROOT}/${action}/${jobId}`,
+    const res = await api.post(
+      `/${action}/${jobId}`,
       {},
-      { headers: { Authorization: `Bearer ${token}` } }
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
     );
     return res.data;
   } catch (err) {
-    console.error(`Error performing action ${action} on job ${jobId}:`, err);
+    console.error(`Error performing ${action} on job ${jobId}:`, err);
     throw err;
   }
 };
 
-// Optional: keep default export for backward compatibility
-const jobAPI = { getAllJobs, getJobById, applyForJob, createJob, jobAction };
+/* DEFAULT EXPORT */
+const jobAPI = {
+  getAllJobs,
+  getJobById,
+  applyForJob,
+  createJob,
+  jobAction,
+};
+
 export default jobAPI;

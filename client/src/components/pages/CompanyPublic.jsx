@@ -1,69 +1,83 @@
-import React, { useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { useCompany } from "../../context/companyContext";
-import companyAPI from "../../api/companyAPI";
+import { useParams, useSearchParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { getJobById } from "../../api/jobAPI";
+import "../sections/styles/company-public.scss";
 
 const CompanyPublic = () => {
   const { companyId } = useParams();
-  const navigate = useNavigate();
-  const { company, loadingCompany, companyError, loadCompany } = useCompany();
+  const [searchParams] = useSearchParams();
+  const jobId = searchParams.get("job");
+
+  const [job, setJob] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const company = companies.find(c => c._id === companyId);
 
   useEffect(() => {
-    if (!companyId) {
-      navigate("/");
-      return;
-    }
-    loadCompany(companyId);
-  }, [companyId]);
+    const controller = new AbortController();
 
-  if (loadingCompany) return <p className="text-center mt-4">Loading company...</p>;
-  if (companyError) return <p className="text-center mt-4">Error loading company</p>;
-  if (!company) return <p className="text-center mt-4">Company not found</p>;
+    const fetchJob = async () => {
+      try {
+        const data = await getJobById(jobId, { signal: controller.signal });
+        setJob(data);
+      } catch (err) {
+        console.error("Job load failed", err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const jobs = Array.isArray(company.createdJobs) ? company.createdJobs : company.jobs ?? [];
+    if (jobId) fetchJob();
+
+    return () => controller.abort();
+  }, [jobId]);
+
+  if (!company) return <p className="error">Company not found</p>;
+  if (loading) return <p className="loading">Loading...</p>;
+  if (!job) return <p className="error">Job not found</p>;
 
   return (
-    <div className="content-container max-w-4xl mx-auto py-8">
-      <div className="company-header mb-6">
-        <h1 className="text-3xl font-bold">{company.companyDetails?.name || company.name}</h1>
-        <p className="text-sm opacity-80">{company.companyDetails?.industry}</p>
-        <p className="mt-2">{company.companyDetails?.bio || company.about || ""}</p>
+    <section className="company-public">
+      {/* COMPANY HEADER */}
+      <header className="company-header">
+        <img src={company.logo} alt={company.name} />
+        <div>
+          <h1>{company.name}</h1>
+          <p className="industry">{company.industry}</p>
+          <p className="location">{company.location}</p>
+        </div>
+      </header>
+
+      {/* COMPANY INFO */}
+      <div className="company-info">
+        <h2>About Company</h2>
+        <p>{company.description}</p>
+
+        <div className="stats">
+          <span><b>Founded:</b> {company.founded}</span>
+          <span><b>Employees:</b> {company.employees}</span>
+        </div>
       </div>
 
-      <div className="company-jobs mt-8">
-        <h2 className="text-2xl font-semibold mb-4">Open roles</h2>
-        {company.companyDetails?.logo && (
-          <div className="logo mb-4">
-            <img
-              src={company.companyDetails.logo}
-              alt="logo"
-              className="h-20 w-auto object-contain"
-            />
-          </div>
-        )}
+      {/* JOB DETAIL */}
+      <div className="job-detail">
+        <h2>{job.title}</h2>
 
-        {jobs.length === 0 ? (
-          <p>No jobs posted yet.</p>
-        ) : (
-          <div className="grid gap-4">
-            {jobs.map((j) => (
-              <div key={j._id || j.id} className="card p-4 flex justify-between items-center">
-                <div>
-                  <h3 className="font-bold">{j.title ?? j.jobTitle}</h3>
-                  <p className="text-sm">{j.jobRequirements?.location ?? j.location ?? "Remote"}</p>
-                </div>
+        <ul className="job-meta">
+          <li><b>Experience:</b> {job.experience}</li>
+          <li><b>Salary:</b> {job.salary}</li>
+          <li><b>Location:</b> {job.location}</li>
+          <li><b>Type:</b> {job.jobType}</li>
+        </ul>
 
-                <div className="flex gap-2">
-                  <button onClick={() => navigate(`/job/${j._id || j.id}`)} className="btn btn-ghost">
-                    View Job
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+        <div className="job-description">
+          <h3>Job Description</h3>
+          <p>{job.description}</p>
+        </div>
+
+        <button className="apply-btn">Apply Now</button>
       </div>
-    </div>
+    </section>
   );
 };
 

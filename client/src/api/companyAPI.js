@@ -1,20 +1,21 @@
 import axios from "axios";
 
-const API_ROOT = import.meta.env.VITE_API_ROOT || "http://localhost:5012/api/companies";
+const API_ROOT =
+  import.meta.env.VITE_API_ROOT || "http://localhost:5012/api/companies";
 
 const companyAPI = {
-  // Get all companies
+  /* GET ALL COMPANIES */
   getAllCompanies: async () => {
     try {
       const res = await axios.get(API_ROOT);
-      return res.data.companies; // companies array with Cloudinary logos
+      return res.data.companies;
     } catch (err) {
       console.error("Error fetching companies:", err);
       throw err;
     }
   },
 
-  // Get a single company by ID
+  /* GET COMPANY BY ID (Public company page) */
   getCompanyById: async (companyId) => {
     try {
       const res = await axios.get(`${API_ROOT}/${companyId}`);
@@ -25,11 +26,18 @@ const companyAPI = {
     }
   },
 
-  // Update a company
+  /* UPDATE COMPANY */
   updateCompany: async (companyId, payload, token) => {
     try {
-      const headers = token ? { Authorization: `Bearer ${token}` } : {};
-      const res = await axios.put(`${API_ROOT}/update/${companyId}`, payload, { headers });
+      const res = await axios.put(
+        `${API_ROOT}/update/${companyId}`,
+        payload,
+        {
+          headers: token
+            ? { Authorization: `Bearer ${token}` }
+            : {},
+        }
+      );
       return res.data.company ?? res.data;
     } catch (err) {
       console.error(`Error updating company ${companyId}:`, err);
@@ -37,7 +45,7 @@ const companyAPI = {
     }
   },
 
-  // Create a new company
+  /* REGISTER COMPANY */
   createCompany: async (payload) => {
     try {
       const res = await axios.post(`${API_ROOT}/register`, payload);

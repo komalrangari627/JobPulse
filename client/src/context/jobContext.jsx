@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState, useCallback } from "react";
 import jobAPI from "../api/jobAPI";
 
 const JobContext = createContext();
@@ -6,61 +6,45 @@ const JobContext = createContext();
 export const useJobs = () => useContext(JobContext);
 
 export const JobProvider = ({ children }) => {
-  const [jobs, setJobs] = useState([]);        // will always be an array
+  const [jobs, setJobs] = useState([]);        // always array
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    let mounted = true;
+  const normalizeJobs = (data) => {
+    // Check if data is a direct array or nested in common keys
+    if (Array.isArray(data)) return data;
+    if (Array.isArray(data?.jobs)) return data.jobs; 
+    if (Array.isArray(data?.allJobs)) return data.allJobs; // Check for alternate keys
+    return [];
+  };
 
-    const loadJobs = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const data = await jobAPI.getAllJobs();
-        const jobsArray = Array.isArray(data)
-          ? data
-          : Array.isArray(data?.jobs)
-          ? data.jobs
-          : [];
-
-        if (mounted) setJobs(jobsArray);
-      } catch (err) {
-        console.error("JobProvider fetch error:", err);
-        if (mounted) {
-          setError(err);
-          setJobs([]);
-        }
-      } finally {
-        if (mounted) setLoading(false);
-      }
-    };
-
-    loadJobs();
-
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
-  const refreshJobs = async () => {
+  const loadJobs = useCallback(async (signal) => {
     setLoading(true);
+    setError(null);
     try {
-      const data = await jobAPI.getAllJobs();
-      const jobsArray = Array.isArray(data)
-        ? data
-        : Array.isArray(data?.jobs)
-        ? data.jobs
-        : [];
-      setJobs(jobsArray);
+      const data = await jobAPI.getAllJobs({ signal });
+      setJobs(normalizeJobs(data));
     } catch (err) {
-      console.error("refreshJobs error:", err);
-      setJobs([]);
-      setError(err);
+      if (err.name !== "CanceledError" && err.name !== "AbortError") {
+        console.error("JobProvider fetch error:", err);
+        setError(err?.response?.data?.message || "Failed to load jobs");
+        setJobs([]);
+      }
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    loadJobs(controller.signal);
+
+    return () => controller.abort();
+  }, [loadJobs]);
+
+  const refreshJobs = useCallback(async () => {
+    await loadJobs();
+  }, [loadJobs]);
 
   return (
     <JobContext.Provider value={{ jobs, loading, error, refreshJobs }}>

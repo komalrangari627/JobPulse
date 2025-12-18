@@ -1,58 +1,80 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import jobAPI from "../../../api/jobAPI";
-import companyAPI from "../../../api/companyAPI";
-import "../styles/job-page.scss";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import axios from "axios";
 
 const JobPage = () => {
-  const { jobId } = useParams();
-  const navigate = useNavigate();
+  const { id } = useParams();
+
   const [job, setJob] = useState(null);
   const [company, setCompany] = useState(null);
+  const [extraInfo, setExtraInfo] = useState(null);
 
   useEffect(() => {
-    if (!jobId) {
-      navigate("/");
-      return;
-    }
-
-    const fetchJob = async () => {
+    const loadData = async () => {
       try {
-        const jobData = await jobAPI.getJobById(jobId);
-        setJob(jobData);
+        const [jobsRes, companiesRes, infoRes] = await Promise.all([
+          axios.get("/jobs.json"),
+          axios.get("/companies.json"),
+          axios.get("/jobCompanyInfo.json"),
+        ]);
 
-        if (jobData?.companyId) {
-          const companyData = await companyAPI.getCompanyById(jobData.companyId);
-          setCompany(companyData);
-        }
+        const jobs = Array.isArray(jobsRes.data)
+          ? jobsRes.data
+          : jobsRes.data.jobs || [];
+
+        const companies = Array.isArray(companiesRes.data)
+          ? companiesRes.data
+          : companiesRes.data.companies || [];
+
+        const infos = Array.isArray(infoRes.data)
+          ? infoRes.data
+          : infoRes.data.jobCompanyInfo || [];
+
+        const foundJob = jobs.find(j => j._id?.$oid === id);
+        setJob(foundJob || null);
+
+        const foundCompany = companies.find(
+          c => c.companyName === foundJob?.company
+        );
+        setCompany(foundCompany || null);
+
+        const foundInfo = infos.find(
+          i => i.jobId?.$oid === id
+        );
+        setExtraInfo(foundInfo || null);
+
       } catch (err) {
-        console.error("Error fetching job or company:", err);
+        console.error("JobPage load error:", err);
       }
     };
 
-    fetchJob();
-  }, [jobId, navigate]);
+    loadData();
+  }, [id]);
 
-  if (!job) return <h1>Job not found</h1>;
+  if (!job) return <div>Loading...</div>;
 
   return (
-    <div className="job-page">
-      <div className="job-header">
-        <img
-          src={company?.logo || job.logo}
-          alt={job.title}
-          className="job-page-logo"
-        />
-        <h1>{job.title}</h1>
-        <h2>{company?.name}</h2>
-      </div>
-      <div className="job-details">
-        <p><strong>Category:</strong> {job.category}</p>
-        <p><strong>Location:</strong> {job.location}</p>
-        <p><strong>Experience:</strong> {job.experience}</p>
-        <p><strong>Salary:</strong> {job.salary}</p>
-        <p><strong>Description:</strong> {job.description}</p>
-      </div>
+    <div>
+      <h2>{job.title}</h2>
+      <p>{job.description}</p>
+
+      {company && (
+        <>
+          <h3>Company</h3>
+          <p>{company.companyName}</p>
+        </>
+      )}
+
+      {extraInfo && (
+        <>
+          <h3>Highlights</h3>
+          <ul>
+            {extraInfo.jobHighlights?.map((h, i) => (
+              <li key={i}>{h}</li>
+            ))}
+          </ul>
+        </>
+      )}
     </div>
   );
 };
