@@ -1,74 +1,66 @@
-import React from "react";
-import "../styles/job-grid.scss";
-import { useJobs } from "../../../context/jobContext";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import jobAPI from "../../../api/jobAPI";
-import { useUser } from "../../../context/userContext.jsx"; 
+import companyAPI from "../../../api/companyAPI";
+import "../styles/job-grid.scss";
 
 const JobsGrid = () => {
   const navigate = useNavigate();
-  const { jobs = [], loading, error, refreshJobs } = useJobs() || {};
-  const { user } = useUser() || {}; 
+  const [jobs, setJobs] = useState([]);
+  const [companies, setCompanies] = useState([]);
 
-  const handleApply = async (jobId) => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      alert("Please login to apply");
-      navigate("/user-login-register");
-      return;
-    }
+  useEffect(() => {
+    // Fetch all jobs
+    const fetchJobs = async () => {
+      try {
+        const data = await jobAPI.getAllJobs();
+        setJobs(data);
+      } catch (err) {
+        console.error("Error fetching jobs:", err);
+      }
+    };
 
-    try {
-      await jobAPI.applyForJob(jobId, token);
-      alert("Applied successfully");
-      if (refreshJobs) refreshJobs();
-    } catch (err) {
-      console.error(err);
-      alert(err?.response?.data?.message || "Already applied or error occurred");
-    }
-  };
+    // Fetch all companies
+    const fetchCompanies = async () => {
+      try {
+        const data = await companyAPI.getAllCompanies();
+        setCompanies(data);
+      } catch (err) {
+        console.error("Error fetching companies:", err);
+      }
+    };
 
-  if (loading) return <p className="text-center mt-4">Loading jobs...</p>;
-  if (error) return <p className="text-center mt-4">Error loading jobs</p>;
-  if (!Array.isArray(jobs) || jobs.length === 0)
-    return <p className="text-center mt-4">No jobs available</p>;
+    fetchJobs();
+    fetchCompanies();
+  }, []);
+
+  // Find company by ID
+  const getCompany = (companyId) => companies.find((c) => c.id === companyId);
 
   return (
-    <div id="job-grid">
-      <div className="content-container">
-        <div className="content grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {jobs.map((job) => (
-            <div key={job._id || job.id} className="job card p-5 flex flex-col justify-between">
-              <div>
-                <h3 className="font-bold text-lg mb-1">{job.title || job.jobTitle || "Untitled"}</h3>
-                <p className="text-sm mb-1">
-                  <strong>Company:</strong>{" "}
-                  {job.jobCreatedBy?.companyDetails?.name ||
-                    job.companyName ||
-                    "Unknown Company"}
-                </p>
-                <p className="text-sm mb-1">
-                  <strong>Location:</strong>{" "}
-                  {job.jobRequirements?.location || job.location || "Remote"}
-                </p>
-                <p className="text-sm mb-2">
-                  <strong>Salary:</strong>{" "}
-                  {job.jobRequirements?.offeredSalary ?? job.salary ?? "Not specified"}
-                </p>
-              </div>
-
-              <div className="flex gap-2 mt-3">
-                <button
-                  className="btn btn-primary flex-1"
-                  onClick={() => navigate(`/job/${job._id || job.id}`)}
-                >
-                  View Job
-                </button>
-              </div>
+    <div className="jobs-grid">
+      {jobs.map((job) => {
+        const company = getCompany(job.companyId);
+        return (
+          <div
+            key={job.id}
+            className="job-card"
+            onClick={() => navigate(`/job/${job.id}`)}
+          >
+            <img
+              src={company?.logo || job.logo}
+              alt={job.title}
+              className="job-logo"
+            />
+            <div className="job-info">
+              <h3>{job.title}</h3>
+              <p>{company?.name}</p>
+              <p>{job.location}</p>
+              <p>{job.salary}</p>
             </div>
-          ))}
-        </div>
-      </div>
+          </div>
+        );
+      })}
     </div>
   );
 };

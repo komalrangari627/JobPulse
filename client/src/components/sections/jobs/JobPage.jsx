@@ -1,43 +1,60 @@
-import React from 'react'
-import { useEffect } from 'react'
-import { useState } from 'react'
-import { useJobs } from '../../../context/jobContext'
-import { useNavigate } from 'react-router-dom'
+import React, { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import jobAPI from "../../../api/jobAPI";
+import companyAPI from "../../../api/companyAPI";
+import "../styles/job-page.scss";
 
-const JobPage = ({ jobId }) => {
+const JobPage = () => {
+  const { jobId } = useParams();
+  const navigate = useNavigate();
+  const [job, setJob] = useState(null);
+  const [company, setCompany] = useState(null);
 
-    let navigate = useNavigate()
-
+  useEffect(() => {
     if (!jobId) {
-        navigate("/")
+      navigate("/");
+      return;
     }
 
-    let { jobs } = useJobs()
+    const fetchJob = async () => {
+      try {
+        const jobData = await jobAPI.getJobById(jobId);
+        setJob(jobData);
 
-    let [filtredJob, setFiltredJob] = useState()
+        if (jobData?.companyId) {
+          const companyData = await companyAPI.getCompanyById(jobData.companyId);
+          setCompany(companyData);
+        }
+      } catch (err) {
+        console.error("Error fetching job or company:", err);
+      }
+    };
 
-    useEffect(() => {
+    fetchJob();
+  }, [jobId, navigate]);
 
-        let result = jobs.filter((job) => {
-            return job._id == jobId
-        })
+  if (!job) return <h1>Job not found</h1>;
 
-        setFiltredJob(result[0])
+  return (
+    <div className="job-page">
+      <div className="job-header">
+        <img
+          src={company?.logo || job.logo}
+          alt={job.title}
+          className="job-page-logo"
+        />
+        <h1>{job.title}</h1>
+        <h2>{company?.name}</h2>
+      </div>
+      <div className="job-details">
+        <p><strong>Category:</strong> {job.category}</p>
+        <p><strong>Location:</strong> {job.location}</p>
+        <p><strong>Experience:</strong> {job.experience}</p>
+        <p><strong>Salary:</strong> {job.salary}</p>
+        <p><strong>Description:</strong> {job.description}</p>
+      </div>
+    </div>
+  );
+};
 
-    }, [])
-
-    return (
-        <div>
-            {
-                filtredJob ?
-                    <div>
-                        <span className='text-3xl font-bold'>job page : </span>
-                        <span>{filtredJob.title}</span>
-                    </div>
-                    : <h1>job not found</h1>
-            }
-        </div>
-    )
-}
-
-export default JobPage
+export default JobPage;

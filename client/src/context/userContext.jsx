@@ -1,52 +1,54 @@
-import { useState, useEffect, createContext, useContext, Children } from "react"
+import { createContext, useContext, useEffect, useState } from "react";
+import { requestUserProfile } from "../api/userAPI";
 
-import { requestUserProfile } from "../api/userAPI.js"
+const UserContext = createContext();
 
-const userContext = createContext()
+export const UserProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
+  const [loadingUser, setLoadingUser] = useState(true);
+  const [userError, setUserError] = useState(null);
 
-let UserProvider = ({ children }) => {
+  /* FETCH USER PROFILE */
+  const fetchUserProfile = async () => {
+    try {
+      const token = localStorage.getItem("token");
 
-    let [user, setUser] = useState({
-        logedIn: false
-    })
+      // ✅ IMPORTANT FIX — prevent 401
+      if (!token) {
+        setLoadingUser(false);
+        return;
+      }
 
-    useEffect(() => {
-        fetchUserProfile()
-    }, [])
-
-    const fetchUserProfile = async () => {
-        try {
-            let token = localStorage.getItem('token')
-
-            if (!token) throw ("token not found !")
-
-            let result = await requestUserProfile(token)
-
-            if (result.status != 200) throw ("unable to fetch user profile !")
-
-            setUser(prev => {
-                return { ...result.data.userData, logedIn: true }
-            })
-
-        } catch (err) {
-            console.log("profile fetching error : ", err)
-        }
+      const res = await requestUserProfile(token);
+      setUser(res.data.user || res.data);
+      setUserError(null);
+    } catch (err) {
+      console.error("profile fetching error :", err);
+      setUser(null);
+      setUserError(err);
+    } finally {
+      setLoadingUser(false);
     }
+  };
 
-    const logout = () => {
-        localStorage.removeItem("token")
-        setUser({
-            logedIn: false
-        })
-    }
+  // ✅ FIX APPLIED HERE
+  useEffect(() => {
+    fetchUserProfile();
+  }, []);
 
-    return (
-        <userContext.Provider value={{ user, fetchUserProfile, logout }}>
-            {children}
-        </userContext.Provider>
-    )
-}
+  return (
+    <UserContext.Provider
+      value={{
+        user,
+        setUser,
+        loadingUser,
+        userError,
+        fetchUserProfile,
+      }}
+    >
+      {children}
+    </UserContext.Provider>
+  );
+};
 
-const useUser = () => useContext(userContext)
-
-export { UserProvider, useUser }
+export const useUser = () => useContext(UserContext);

@@ -10,7 +10,7 @@ import {
     fetchProfile }
  from "../controllers/userController.js"
 import { AuthUser } from "../middlewares/AuthUser.js";
-import { upload } from "../config/multerConfig.js";
+import  upload  from "../config/multerConfig.js";
 
 const router = express.Router();
 

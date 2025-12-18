@@ -1,0 +1,51 @@
+.job-page {
+    max-width: 900px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  
+    .job-header {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+  
+      .company-logo {
+        width: 80px;
+        height: 80px;
+        object-fit: contain;
+        border-radius: 12px;
+        background: #f5f5f5;
+        padding: 0.5rem;
+      }
+  
+      h1 {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #222;
+        margin: 0;
+      }
+  
+      h2 {
+        font-size: 1.2rem;
+        font-weight: 500;
+        color: #666;
+        margin: 0;
+      }
+    }
+  
+    .job-info {
+      p {
+        font-size: 1rem;
+        color: #444;
+        margin: 0.7rem 0;
+  
+        strong {
+          color: #222;
+        }
+      }
+    }
+  }
+  

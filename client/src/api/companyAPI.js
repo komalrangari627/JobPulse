@@ -1,28 +1,51 @@
 import axios from "axios";
 
-// for Vite:
-const API_ROOT = import.meta.env.VITE_API_ROOT || "http://localhost:5012";
+const API_ROOT = import.meta.env.VITE_API_ROOT || "http://localhost:5012/api/companies";
 
 const companyAPI = {
-  getCompanyById: async (companyId) => {
-    const res = await axios.get(`${API_ROOT}/api/companies/${companyId}`);
-    return res.data.company ?? res.data;
-  },
-
+  // Get all companies
   getAllCompanies: async () => {
-    const res = await axios.get(`${API_ROOT}/api/companies`);
-    return res.data.companies ?? res.data;
+    try {
+      const res = await axios.get(API_ROOT);
+      return res.data.companies; // companies array with Cloudinary logos
+    } catch (err) {
+      console.error("Error fetching companies:", err);
+      throw err;
+    }
   },
 
+  // Get a single company by ID
+  getCompanyById: async (companyId) => {
+    try {
+      const res = await axios.get(`${API_ROOT}/${companyId}`);
+      return res.data.company;
+    } catch (err) {
+      console.error(`Error fetching company ${companyId}:`, err);
+      throw err;
+    }
+  },
+
+  // Update a company
   updateCompany: async (companyId, payload, token) => {
-    const headers = token ? { Authorization: `Bearer ${token}` } : {};
-    const res = await axios.put(`${API_ROOT}/api/companies/${companyId}`, payload, { headers });
-    return res.data.company ?? res.data;
+    try {
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+      const res = await axios.put(`${API_ROOT}/update/${companyId}`, payload, { headers });
+      return res.data.company ?? res.data;
+    } catch (err) {
+      console.error(`Error updating company ${companyId}:`, err);
+      throw err;
+    }
   },
 
+  // Create a new company
   createCompany: async (payload) => {
-    const res = await axios.post(`${API_ROOT}/api/companies`, payload);
-    return res.data.company ?? res.data;
+    try {
+      const res = await axios.post(`${API_ROOT}/register`, payload);
+      return res.data.company ?? res.data;
+    } catch (err) {
+      console.error("Error creating company:", err);
+      throw err;
+    }
   },
 };
 

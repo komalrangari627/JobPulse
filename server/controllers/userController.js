@@ -10,18 +10,17 @@ dotenv.config({ path: "./config.env" });
 /* GMAIL TRANSPORTER SETUP */
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
-  port: 587, // STARTTLS
+  port: 587,
   secure: false,
   auth: {
     user: process.env.USER_EMAIL,
-    pass: process.env.USER_EMAIL_PASSWORD, // use App password!
+    pass: process.env.USER_EMAIL_PASSWORD,
   },
 });
 
-// Verify Gmail SMTP connection
 transporter.verify((error, success) => {
-  if (error) console.error(" SMTP connection failed:", error.message);
-  else console.log(" Gmail SMTP connection successful — ready to send OTP emails!");
+  if (error) console.error("SMTP connection failed:", error.message);
+  else console.log("Gmail SMTP connection successful — ready to send OTP emails!");
 });
 
 /* OTP GENERATION HELPER */
@@ -33,20 +32,18 @@ function generateRandomNumber() {
 async function sendOTP(email) {
   try {
     const otp = generateRandomNumber();
-    const mailOptions = {
+    await transporter.sendMail({
       from: process.env.USER_EMAIL,
       to: email,
       subject: "Email Verification | OTP valid for 5 mins!",
       text: `Your OTP is ${otp}. It is valid for 5 minutes.`,
-    };
+    });
 
-    await transporter.sendMail(mailOptions);
-    await redisClient.setEx(`email:${email}`, 300, otp); // store OTP for 5 min
-
-    console.log(` OTP ${otp} sent to ${email}`);
+    await redisClient.setEx(`email:${email}`, 300, otp);
+    console.log(`OTP ${otp} sent to ${email}`);
     return { message: "OTP sent successfully!", status: true, otp };
   } catch (err) {
-    console.error(" Error sending OTP:", err.message || err);
+    console.error("Error sending OTP:", err.message || err);
     return { message: "Unable to send OTP!", status: false };
   }
 }
@@ -55,20 +52,18 @@ async function sendOTP(email) {
 async function sendOTPForPasswordReset(email) {
   try {
     const otp = generateRandomNumber();
-    const mailOptions = {
+    await transporter.sendMail({
       from: process.env.USER_EMAIL,
       to: email,
       subject: "Password Reset Request | OTP valid for 5 mins!",
       text: `Your OTP for password reset is ${otp}. It is valid for 5 minutes.`,
-    };
+    });
 
-    await transporter.sendMail(mailOptions);
     await redisClient.setEx(`emailPasswordReset:${email}`, 300, otp);
-
-    console.log(` Password reset OTP ${otp} sent to ${email}`);
+    console.log(`Password reset OTP ${otp} sent to ${email}`);
     return { message: "OTP sent successfully!", status: true };
   } catch (err) {
-    console.error(" Error sending password reset OTP:", err.message || err);
+    console.error("Error sending password reset OTP:", err.message || err);
     return { message: "Unable to send password reset OTP!", status: false };
   }
 }
@@ -81,10 +76,10 @@ async function verifyOtp(email, otpKey, userOtp) {
     if (storedOtp.trim() !== userOtp.trim()) throw new Error("Invalid OTP!");
 
     await redisClient.del(`${otpKey}:${email}`);
-    console.log(` OTP verified for ${email}`);
+    console.log(`OTP verified for ${email}`);
     return true;
   } catch (err) {
-    console.error(" OTP verification failed:", err.message || err);
+    console.error("OTP verification failed:", err.message || err);
     throw err;
   }
 }
@@ -110,25 +105,14 @@ const handleUserRegister = async (req, res) => {
       password,
     } = req.body;
 
-    if (
-      !name ||
-      !phone ||
-      !email ||
-      !street ||
-      !city ||
-      !state ||
-      !country ||
-      !pincode ||
-      !dob ||
-      !password
-    )
+    if (!name || !phone || !email || !street || !city || !state || !country || !pincode || !dob || !password) {
       throw new Error("Invalid or missing data!");
+    }
 
     const existingUser = await userModel.findOne({
       $or: [{ "email.userEmail": email }, { phone }],
     });
-    if (existingUser)
-      throw new Error("User already exists, please change email/phone!");
+    if (existingUser) throw new Error("User already exists, please change email/phone!");
 
     const otpResult = await sendOTP(email);
     if (!otpResult.status) throw new Error(`Unable to send OTP to ${email}`);
@@ -147,93 +131,61 @@ const handleUserRegister = async (req, res) => {
 
     await newUser.save();
 
-    res.status(202).json({
-      message: `User registered successfully! Please verify your email using the OTP sent to ${email}.`,
+    res.status(202).json({ 
+      message: `User registered successfully! OTP sent to ${email}` 
     });
   } catch (err) {
-    console.error(" Error registering user:", err.message || err);
-    res
-      .status(400)
-      .json({ message: "Unable to register user!", error: err.message || err });
+    console.error("Error registering user:", err.message || err);
+    res.status(400).json({ message: "Unable to register user!", error: err.message || err });
   }
 };
 
 /* VERIFY EMAIL OTP */
 const handleOTPVerification = async (req, res) => {
-    try {
-        let { email, userOtp } = req.body;
+  try {
+    const { email, userOtp } = req.body;
 
-        let emailExits = await userModel.findOne({ "email.userEmail": email })
-        if (!emailExits) throw (`email ${email} is not registred !`)
+    const storedOtp = await redisClient.get(`email:${email}`);
+    if (!storedOtp || storedOtp !== userOtp) throw new Error("Invalid OTP!");
 
-        let storedOtp = await redisClient.get(`email:${email}`)
-        if (!storedOtp) throw ("otp is expried/not found !")
+    await userModel.updateOne(
+      { "email.userEmail": email },
+      { $set: { "email.verified": true } }
+    );
 
-        if (storedOtp != userOtp) throw ("invalid otp !")
+    await redisClient.del(`email:${email}`);
 
-        await userModel.updateOne(
-            { "email.userEmail": email },
-            { $set: { "email.verified": true } }
-        );
-
-        redisClient.del(`email:${email}`)
-
-        res.status(202).json({ message: "otp verified successfully please head to login !" })
-
-    } catch (err) {
-        console.log("error while verifying the otp : ", err)
-        res.status(500).json({ message: "failed to verify user otp please try again later !", err })
-    }
-}
-
-
+    res.status(202).json({ message: "OTP verified successfully! Please login." });
+  } catch (err) {
+    console.error("Error verifying OTP:", err.message || err);
+    res.status(400).json({ message: "Invalid OTP!" });
+  }
+};
 
 /* LOGIN USER */
 const handleUserLogin = async (req, res) => {
   try {
     const { email, password } = req.body;
-    if (!email || !password)
-      throw new Error("Email and password are required!");
+    if (!email || !password) throw new Error("Email and password are required!");
 
     const user = await userModel.findOne({ "email.userEmail": email });
-    if (!user) throw new Error("Email not found! Please register first.");
 
-    if (!user.email.verified) {
-      const otpResult = await sendOTP(email);
-      if (!otpResult.status)
-        throw new Error(`Unable to send verification OTP to ${email}`);
-      throw new Error(`Email not verified! OTP sent to ${email}.`);
+    if (!user || !user.email.verified) {
+      throw new Error("Invalid credentials!");
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      console.warn(
-        " Invalid password. Resetting it to the entered password (development only)..."
-      );
-      const hashed = await bcrypt.hash(password, 10);
-      await userModel.updateOne(
-        { "email.userEmail": email },
-        { $set: { password: hashed } }
-      );
-      return res.status(400).json({
-        message: `Password was invalid. It has now been reset to '${password}' (development mode). Please login again.`,
-      });
-    }
+    if (!isMatch) throw new Error("Invalid credentials!");
 
-    const token = jwt.sign({ email }, process.env.JWT_SECRET_KEY, {
-      expiresIn: "24h",
-    });
+    const token = jwt.sign({ email }, process.env.JWT_SECRET_KEY, { expiresIn: "24h" });
 
     res.status(200).json({
       message: `Welcome ${user.name}! Login successful.`,
       token,
     });
   } catch (err) {
-    console.error(" Login failed:", err.message || err);
-    res.status(400).json({
-      message: "Unable to login!",
-      error: err.message || err,
-    });
+    console.error("Login failed:", err.message || err);
+    res.status(400).json({ message: "Invalid credentials!" });
   }
 };
 
@@ -241,24 +193,18 @@ const handleUserLogin = async (req, res) => {
 const handleResetPasswordRequest = async (req, res) => {
   try {
     const { email } = req.body;
-    console.log(req.body)
     if (!email) throw new Error("Email required!");
 
     const user = await userModel.findOne({ "email.userEmail": email });
-    if (!user) throw new Error("Invalid email! Please register first.");
 
-    const otpResult = await sendOTPForPasswordReset(email);
-    if (!otpResult.status) throw new Error(`Unable to send OTP to ${email}`);
+    if (user) await sendOTPForPasswordReset(email);
 
     res.status(200).json({
-      message: `Password reset OTP sent to ${email}. Valid for 5 minutes.`,
+      message: "If the email exists, a password reset OTP has been sent. Valid for 5 minutes.",
     });
   } catch (err) {
-    console.error(" Password reset request failed:", err.message || err);
-    res.status(400).json({
-      message: "Password reset failed!",
-      error: err.message || err,
-    });
+    console.error("Password reset request failed:", err.message || err);
+    res.status(400).json({ message: "Password reset failed!", error: err.message || err });
   }
 };
 
@@ -266,29 +212,20 @@ const handleResetPasswordRequest = async (req, res) => {
 const handleOTPForPasswordReset = async (req, res) => {
   try {
     const { email, userOtp, newPassword } = req.body;
-    if (!email || !userOtp || !newPassword)
-      throw new Error("Email, OTP, and new password required!");
+    if (!email || !userOtp || !newPassword) throw new Error("Email, OTP, and new password required!");
 
     const user = await userModel.findOne({ "email.userEmail": email });
-    if (!user) throw new Error(`Email ${email} not registered!`);
+    if (!user) throw new Error("Invalid OTP or email!");
 
     await verifyOtp(email, "emailPasswordReset", userOtp);
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
-    await userModel.updateOne(
-      { "email.userEmail": email },
-      { $set: { password: hashedPassword } }
-    );
+    await userModel.updateOne({ "email.userEmail": email }, { $set: { password: hashedPassword } });
 
-    res
-      .status(200)
-      .json({ message: "Password reset successful! Please log in with new password." });
+    res.status(200).json({ message: "Password reset successful! Please log in with new password." });
   } catch (err) {
-    console.error(" OTP verification for password reset failed:", err.message || err);
-    res.status(500).json({
-      message: "Failed to reset password!",
-      error: err.message || err,
-    });
+    console.error("OTP verification for password reset failed:", err.message || err);
+    res.status(400).json({ message: "Failed to reset password!", error: err.message || err });
   }
 };
 
@@ -298,53 +235,38 @@ const handleUserFileUpload = async (req, res) => {
     if (!req.file) throw new Error("File not found!");
 
     const fileName = req.file.filename;
-    const fileType = req.params.file_type; // profile_picture, resume, etc.
+    const fileType = req.params.file_type;
 
     let updateQuery = {};
-
-    if (fileType === "profile_picture") {
-      updateQuery = { profile_picture: fileName };
-    } else if (fileType === "resume") {
-      updateQuery = { resume: fileName };
-    } else {
-      updateQuery = { $push: { documents: fileName } };
-    }
+    if (fileType === "profile_picture") updateQuery = { profile_picture: fileName };
+    else if (fileType === "resume") updateQuery = { resume: fileName };
+    else updateQuery = { $push: { documents: fileName } };
 
     await userModel.updateOne(
-      { "email.userEmail": req.user.email.userEmail },
+      { "email.userEmail": req.user?.email?.userEmail },
       updateQuery
     );
 
-    res.status(200).json({
-      message: `${fileType} uploaded successfully!`,
-      fileName,
-      fileType
-    });
-
-  } catch (error) {
-    console.error(" Upload error:", error.message || error);
-    res.status(500).json({
-      message: "Error uploading file!",
-      error: error.message || error,
-    });
+    res.status(200).json({ message: `${fileType} uploaded successfully!`, fileName, fileType });
+  } catch (err) {
+    console.error("Upload error:", err.message || err);
+    res.status(500).json({ message: "Error uploading file!", error: err.message || err });
   }
 };
 
+/* FETCH USER PROFILE */
 const fetchProfile = async (req, res) => {
-    try {
-        let user = req.user
+  try {
+    const user = req.user;
+    const userData = await userModel.findOne({ "email.userEmail": user?.email?.userEmail });
+    if (!userData) throw new Error("Unable to load user profile!");
 
-        let userData = await userModel.findOne({ "email.userEmail": user.email.userEmail })
-
-        if (!userData) throw ("unable to load user profile !")
-
-        res.status(200).json({ message: "got user profile data !", userData })
-
-    } catch (err) {
-        console.log("unable to user profile : ", err)
-        res.status(401).json({ message: "unable to send user profile data !", err })
-    }
-}
+    res.status(200).json({ message: "User profile data fetched!", userData });
+  } catch (err) {
+    console.error("Unable to fetch user profile:", err.message || err);
+    res.status(401).json({ message: "Unable to send user profile data!", error: err.message || err });
+  }
+};
 
 /* EXPORT ALL */
 export {

@@ -133,33 +133,34 @@ export const verifyCompanyOtp = async (req, res) => {
 
 //  Login Company
 export const loginCompany = async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    const company = await companyModel.findOne({ "email.userEmail": email });
-    if (!company) throw "Company not found!";
-    if (!company.email.verified)
-      throw "Email not verified. Please verify via OTP first!";
+  const { email, password } = req.body;
 
-    const isMatch = await bcrypt.compare(password, company.password);
-    if (!isMatch) throw "Invalid password!";
-
-    const token = jwt.sign(
-      { email: company.email.userEmail, id: company._id },
-      process.env.JWT_SECRET_KEY,
-      { expiresIn: "24h" }
-    );
-
-    res.status(200).json({
-      message: "Login successful!",
-      token,
-      companyId: company._id,
-    });
-  } catch (err) {
-    res.status(400).json({
-      message: "Login failed!",
-      error: err.message || err,
-    });
+  const company = await Company.findOne({ email });
+  if (!company) {
+    return res.status(404).json({ message: "Company not found" });
   }
+
+  const isMatch = await bcrypt.compare(password, company.password);
+  if (!isMatch) {
+    return res.status(400).json({ message: "Invalid credentials" });
+  }
+
+  const token = jwt.sign(
+    { id: company._id },
+    process.env.JWT_SECRET_KEY,
+    { expiresIn: "7d" }
+  );
+
+  res.status(200).json({
+    success: true,
+    token,
+    company: {
+      id: company._id,
+      name: company.name,
+      email: company.email,
+      logo: company.logo
+    }
+  });
 };
 
 //  Update Company
@@ -218,6 +219,40 @@ export const handleCompanyFileUpload = async (req, res) => {
     res.status(500).json({
       message: "File upload failed!",
       error: err.message || err,
+    });
+  }
+};
+// UPLOAD COMPANY LOGO
+export const addCompanyLogo = async (req, res) => {
+  try {
+    const companyId = req.params.id;
+
+    if (!req.file || !req.file.path) {
+      return res.status(400).json({ message: "No logo uploaded!" });
+    }
+
+    // Cloudinary automatically returns a full URL
+    const logoUrl = req.file.path;
+
+    const updated = await companyModel.findByIdAndUpdate(
+      companyId,
+      { "companyDetails.logo": logoUrl },
+      { new: true }
+    );
+
+    res.json({
+      success: true,
+      message: "Logo uploaded to Cloudinary!",
+      logo: logoUrl,
+      company: updated
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      success: false,
+      message: "Cloudinary upload failed",
+      error: err.message
     });
   }
 };

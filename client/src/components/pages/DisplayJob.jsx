@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getJobById, applyForJob } from "../../api/jobAPI";
 import { useUser } from "../../context/userContext.jsx";
+import "../sections/styles/display-job.scss";
 
 const JobDisplay = () => {
   const { jobId } = useParams();
@@ -50,50 +51,98 @@ const JobDisplay = () => {
     }
   };
 
-  if (loading) return <p className="text-center mt-4">Loading job details...</p>;
+  if (loading)
+    return <p className="text-center mt-4">Loading job details...</p>;
   if (!job) return <p className="text-center mt-4">Job not found</p>;
 
+  const company = job.jobCreatedBy;
+
   return (
-    <div className="job-view p-6 max-w-3xl mx-auto">
-      <h2 className="text-2xl font-bold mb-2">{job.title || job.jobTitle}</h2>
-      <h3 className="text-lg mb-1">
-        {job.jobCreatedBy?.companyDetails?.name || job.companyName || "Company"}
-      </h3>
+    <div id="display-job-page">
+      <div className="container">
+        <div className="job-card">
 
-      <p>
-        <strong>Location:</strong>{" "}
-        {job.jobRequirements?.location || job.location || "Remote"}
-      </p>
+          {/* HEADER */}
+          <div className="company-header">
+            <div className="logo">
+              {company?.companyDetails?.logo && (
+                <img
+                  src={company.companyDetails.logo}
+                  alt="logo"
+                  className="h-16 w-auto object-contain"
+                />
+              )}
+            </div>
 
-      <p>
-        <strong>Salary:</strong>{" "}
-        {job.jobRequirements?.offeredSalary ?? job.salary ?? "Not specified"}
-      </p>
+            <div className="company-info">
+              <h2>{job.title || job.jobTitle}</h2>
+              <p className="company-name">
+                {company?.companyDetails?.name || job.companyName || "Company"}
+              </p>
 
-      <p>
-        <strong>Type:</strong> {job.jobRequirements?.type ?? "—"}
-      </p>
+              <div className="meta-tags">
+                <span className="tag">
+                  {job.jobRequirements?.location || job.location || "Remote"}
+                </span>
+                <span className="tag">
+                  {job.jobRequirements?.type || "Full-time"}
+                </span>
+                <span className="tag">
+                  {job.jobRequirements?.offeredSalary
+                    ? "₹" + job.jobRequirements.offeredSalary
+                    : "Salary: —"}
+                </span>
+              </div>
+            </div>
+          </div>
 
-      <p>
-        <strong>Experience:</strong> {job.jobRequirements?.exprience ?? job.experience ?? "—"}
-      </p>
+          {/* DESCRIPTION */}
+          <div className="section">
+            <h3>Job Description</h3>
+            <p>
+              {job.jobRequirements?.description ?? job.description ?? "No description available."}
+            </p>
+          </div>
 
-      <h4 className="mt-4 font-semibold">Description</h4>
-      <p>{job.jobRequirements?.description ?? job.description}</p>
+          {/* DETAILS */}
+          <div className="section">
+            <h3>Job Details</h3>
+            <ul className="details-list">
+              <li>
+                <strong>Experience:</strong>{" "}
+                {job.jobRequirements?.exprience || job.experience || "Not specified"}
+              </li>
+              <li>
+                <strong>Job Type:</strong> {job.jobRequirements?.type || "—"}
+              </li>
+              <li>
+                <strong>Location:</strong> {job.jobRequirements?.location || "—"}
+              </li>
+              <li>
+                <strong>Salary:</strong>{" "}
+                {job.jobRequirements?.offeredSalary
+                  ? "₹" + job.jobRequirements.offeredSalary
+                  : "—"}
+              </li>
+            </ul>
+          </div>
 
-      <div className="mt-6 flex gap-3">
-        <button onClick={handleApply} className="btn btn-primary">
-          Apply Now
-        </button>
+          {/* ACTION BUTTONS */}
+          <div className="button-group">
+            <button onClick={handleApply} className="apply-btn">
+              Apply Now
+            </button>
 
-        <button
-          onClick={() =>
-            navigate(`/company/${job.jobCreatedBy?._id || job.companyId || ""}`)
-          }
-          className="btn btn-ghost"
-        >
-          View Company
-        </button>
+            <button
+              onClick={() =>
+                navigate(`/company/${company?._id || job.companyId || ""}`)
+              }
+              className="view-company-btn"
+            >
+              View Company
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

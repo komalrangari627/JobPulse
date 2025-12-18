@@ -7,7 +7,7 @@ import { useUser } from '../../../context/userContext.jsx'
 import { useNavigate } from 'react-router-dom';
 
 const Header = () => {
-    let { user } = useUser()
+    let { user } = useUser() || {}; // ensures user is at least an empty object
     let navigate = useNavigate()
 
     return (
@@ -54,7 +54,7 @@ const Header = () => {
                     <div className='account flex items-center gap-2'>
                         <FaUser size={27} className='text-[#EEEEEE]' />
                         {
-                            user.logedIn ? (
+                            user?.logedIn ? (  // optional chaining added here
                                 <span className='flex gap-2 items-center'>
                                     <span className='font-bold'>Welcome,</span>
                                     <span className='text-[#00ADB5] flex items-center gap-1'>

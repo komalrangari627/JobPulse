@@ -1,19 +1,29 @@
+import mongoose from "mongoose";
 import { companyModel } from "../models/companySchema.js";
 import { jobModel } from "../models/jobSchema.js";
 import { userModel } from "../models/userSchema.js";
+import { jobCompanyInfoModel } from "../models/jobCompanyInfoSchema.js";
 
-/* CREATE JOB */
+/* ================================
+   CREATE JOB
+================================ */
 const createJob = async (req, res) => {
   try {
     const company = req.company;
-    if (!company) throw "Invalid request. Please login/register first!";
+    if (!company) {
+      return res.status(401).json({ message: "Please login as company!" });
+    }
 
     const { title, jobRequirements } = req.body;
-    if (!title || !jobRequirements) throw "Missing required job data!";
+    if (!title || !jobRequirements) {
+      return res.status(400).json({ message: "Missing job data!" });
+    }
 
     const { type, category, exprience, location, postDate, offeredSalary, description } = jobRequirements;
-    if (!type || !category || !exprience || !location || !postDate || !offeredSalary || !description)
-      throw "Invalid jobRequirements data!";
+
+    if (!type || !category || !exprience || !location || !postDate || !offeredSalary || !description) {
+      return res.status(400).json({ message: "Invalid jobRequirements data!" });
+    }
 
     const newJob = new jobModel({
       title,
@@ -23,7 +33,6 @@ const createJob = async (req, res) => {
 
     const savedJob = await newJob.save();
 
-    // add job reference in company document
     await companyModel.findByIdAndUpdate(company._id, {
       $push: { createdJobs: savedJob._id },
     });
@@ -33,147 +42,156 @@ const createJob = async (req, res) => {
       jobId: savedJob._id,
     });
   } catch (err) {
-    console.error("Error creating job:", err);
-    res.status(400).json({ message: "Unable to create job!", error: err });
+    console.error("Create job error:", err);
+    res.status(500).json({
+      message: "Unable to create job!",
+      error: err.message,
+    });
   }
 };
 
-/* HANDLE JOB ACTION (DELETE / CLOSE) */
+/* ================================
+   HANDLE JOB ACTION (DELETE / CLOSE)
+================================ */
 const handleJobAction = async (req, res) => {
   try {
     const company = req.company;
-    if (!company) throw "Invalid request. Please login/register first!";
+    if (!company) {
+      return res.status(401).json({ message: "Unauthorized company access!" });
+    }
 
     const { jobId, action } = req.params;
-    if (!jobId || !action) throw "Missing jobId or action!";
 
-    // DELETE JOB
+    if (!mongoose.Types.ObjectId.isValid(jobId)) {
+      return res.status(400).json({ message: "Invalid Job ID!" });
+    }
+
     if (action === "delete") {
       const deletedJob = await jobModel.findByIdAndDelete(jobId);
-      if (!deletedJob) throw "Job not found or unable to delete!";
+      if (!deletedJob) {
+        return res.status(404).json({ message: "Job not found!" });
+      }
 
-      // Remove job from all users who applied
-      await userModel.updateMany(
-        { appliedJobs: jobId },
-        { $pull: { appliedJobs: jobId } }
-      );
-
-      // Remove job from company’s createdJobs list
-      await companyModel.findByIdAndUpdate(company._id, {
-        $pull: { createdJobs: jobId },
-      });
+      await userModel.updateMany({ appliedJobs: jobId }, { $pull: { appliedJobs: jobId } });
+      await companyModel.findByIdAndUpdate(company._id, { $pull: { createdJobs: jobId } });
 
       return res.status(200).json({ message: "Job deleted successfully!" });
     }
 
-    // CLOSE JOB
     if (action === "close") {
-      const updatedJob = await jobModel.findByIdAndUpdate(
+      const closedJob = await jobModel.findByIdAndUpdate(
         jobId,
         { $set: { closed: true } },
         { new: true }
       );
 
-      if (!updatedJob) throw "Unable to close job!";
+      if (!closedJob) {
+        return res.status(404).json({ message: "Unable to close job!" });
+      }
+
       return res.status(200).json({ message: "Job closed successfully!" });
     }
 
-    throw "Invalid action type!";
+    return res.status(400).json({ message: "Invalid job action!" });
   } catch (err) {
-    console.error("Error handling job action:", err);
-    res.status(400).json({ message: "Unable to perform job action!", error: err });
+    console.error("Job action error:", err);
+    res.status(500).json({ message: "Unable to perform job action!", error: err.message });
   }
 };
 
-/* HANDLE JOB APPLICATION */
+/* ================================
+   APPLY FOR JOB
+================================ */
 const handleJobApplication = async (req, res) => {
   try {
     const user = req.user;
-    if (!user) throw "User not logged in!";
+    if (!user) {
+      return res.status(401).json({ message: "User not logged in!" });
+    }
 
     const { jobId } = req.params;
-    if (!jobId) throw "Invalid job ID!";
 
-    // Find job
+    if (!mongoose.Types.ObjectId.isValid(jobId)) {
+      return res.status(400).json({ message: "Invalid Job ID!" });
+    }
+
     const job = await jobModel.findById(jobId);
     if (!job) {
-      return res.status(404).json({
-        message: `This job has been deleted or no longer exists.`,
-        jobId,
-      });
+      return res.status(404).json({ message: "This job no longer exists." });
     }
 
-    // If job closed
     if (job.closed) {
-      return res.status(400).json({
-        message: `This job "${job.title}" is closed and cannot accept new applications.`,
-      });
+      return res.status(400).json({ message: `This job "${job.title}" is closed.` });
     }
 
-    // Check if user already applied
-    const alreadyApplied = await userModel.findOne({
-      _id: user._id,
-      appliedJobs: jobId,
-    });
-
+    const alreadyApplied = await userModel.findOne({ _id: user._id, appliedJobs: jobId });
     if (alreadyApplied) {
-      return res.status(400).json({
-        message: `You have already applied for "${job.title}".`,
-      });
+      return res.status(400).json({ message: `You have already applied for "${job.title}".` });
     }
 
-    // Apply for the job
-    await jobModel.findByIdAndUpdate(jobId, {
-      $addToSet: { applications: user._id },
-    });
+    await jobModel.findByIdAndUpdate(jobId, { $addToSet: { applications: user._id } });
+    await userModel.findByIdAndUpdate(user._id, { $addToSet: { appliedJobs: jobId } });
 
-    await userModel.findByIdAndUpdate(user._id, {
-      $addToSet: { appliedJobs: jobId },
-    });
-
-    res.status(202).json({
-      message: `You have successfully applied for "${job.title}"!`,
-    });
+    res.status(202).json({ message: `Applied successfully for "${job.title}"!` });
   } catch (err) {
-    console.error("Error applying for job:", err);
-    res.status(400).json({
-      message: "Unable to apply for job!",
-      error: err.message || err,
-    });
+    console.error("Apply job error:", err);
+    res.status(500).json({ message: "Unable to apply for job!", error: err.message });
   }
 };
 
-/* GET JOB DATA (ALL / FILTERED) */
-const getJobData = async (req, res) => {
+/* ================================
+   GET ALL JOBS
+================================ */
+const getAllJobs = async (req, res) => {
   try {
-    const jobs = await jobModel.find({});
-    res.status(200).json({ message: "Jobs retrieved successfully!", jobs });
+    const jobs = await jobModel
+      .find()
+      .populate("jobCreatedBy", "name logo location website about"); // Fixed populate
+
+    res.status(200).json({ jobs: jobs || [] });
   } catch (err) {
-    console.error("Error getting job data:", err);
-    res.status(500).json({ message: "Unable to fetch jobs!", error: err });
+    console.error("getAllJobs error:", err);
+    res.status(500).json({ message: "Failed to fetch jobs", error: err.message });
   }
 };
-//  Get a single job by ID
- const getSingleJob = async (req, res) => {
+
+/* ================================
+   GET JOB BY ID
+================================ */
+const getJobById = async (req, res) => {
   try {
     const { jobId } = req.params;
 
-    const job = await jobModel.findById(jobId).populate(
-      "jobCreatedBy",
-      "companyDetails.name companyDetails.industry"
-    );
+    const job = await jobModel
+      .findById(jobId)
+      .populate("jobCreatedBy");
 
     if (!job) {
       return res.status(404).json({ message: "Job not found" });
     }
 
-    res.status(200).json(job);
-  } catch (error) {
-    res.status(500).json({
-      message: "Error fetching job",
-      error: error.message,
+    // 🔥 DIRECT MATCH USING ObjectIds
+    const jobCompanyInfo = await jobCompanyInfoModel.findOne({
+      jobId: job._id,
+      companyId: job.jobCreatedBy._id
     });
+
+    res.status(200).json({
+      job,
+      jobCompanyInfo
+    });
+  } catch (err) {
+    res.status(500).json({ message: "Server error" });
   }
 };
 
-export { createJob, handleJobAction, handleJobApplication, getJobData, getSingleJob };
+/* ================================
+   EXPORTS
+================================ */
+export {
+  createJob,
+  handleJobAction,
+  handleJobApplication,
+  getAllJobs,
+  getJobById,
+};

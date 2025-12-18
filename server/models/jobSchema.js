@@ -2,6 +2,11 @@ import mongoose from "mongoose";
 
 /* JOB REQUIREMENTS OBJECT */
 const jobRequirementsSchema = new mongoose.Schema({
+  company: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Companies",
+    required: true
+  },  
   type: {
     type: String,
     required: true,
@@ -67,6 +72,24 @@ const jobSchema = new mongoose.Schema({
     default: Date.now,
   },
 });
+const applicationSchema = new mongoose.Schema({
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true
+  },
+  job: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Job",
+    required: true
+  },
+  appliedAt: {
+    type: Date,
+    default: Date.now
+  }
+});
+
+applicationSchema.index({ user: 1, job: 1 }, { unique: true });
 
 /* EXPORT MODEL */
 export const jobModel = mongoose.model("jobs", jobSchema);

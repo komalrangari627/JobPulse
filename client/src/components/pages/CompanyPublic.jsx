@@ -32,6 +32,16 @@ const CompanyPublic = () => {
 
       <div className="company-jobs mt-8">
         <h2 className="text-2xl font-semibold mb-4">Open roles</h2>
+        {company.companyDetails?.logo && (
+          <div className="logo mb-4">
+            <img
+              src={company.companyDetails.logo}
+              alt="logo"
+              className="h-20 w-auto object-contain"
+            />
+          </div>
+        )}
+
         {jobs.length === 0 ? (
           <p>No jobs posted yet.</p>
         ) : (

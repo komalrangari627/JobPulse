@@ -52,7 +52,8 @@ const companySchema = new mongoose.Schema({
     required: true,
   },
   companyLogo: {
-    type: String,
+     type: String, 
+     default: "" 
   },
   documents: {
     type: Array,

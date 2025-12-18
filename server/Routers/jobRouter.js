@@ -1,10 +1,11 @@
 import express from "express";
+import { jobs } from "../database/jobsdata.js"; // Cloudinary logos already in data
 import {
   createJob,
   handleJobAction,
   handleJobApplication,
-  getJobData,
-  getSingleJob
+  getAllJobs,
+  getJobById
 } from "../controllers/jobController.js";
 
 import { AuthUser } from "../middlewares/AuthUser.js";
@@ -12,21 +13,21 @@ import { AuthCompany } from "../middlewares/AuthCompany.js";
 
 const jobRouter = express.Router();
 
-/* CLEAN REST JOB ROUTES */
+/* REST JOB ROUTES */
 
-// Get ALL jobs  → /api/jobs
-jobRouter.get("/", getJobData);
+// Get ALL jobs → /api/jobs
+jobRouter.get("/", getAllJobs);
 
-// Get ONE job  → /api/jobs/:jobId
-jobRouter.get("/:jobId", getSingleJob);
+// Get ONE job → /api/jobs/:jobId
+jobRouter.get("/:jobId", getJobById);
 
-// Apply to a job  → /api/jobs/:jobId/apply
+// Apply to a job → /api/jobs/:jobId/apply
 jobRouter.post("/:jobId/apply", AuthUser, handleJobApplication);
 
-// Create job  → /api/jobs
+// Create job → /api/jobs
 jobRouter.post("/", AuthCompany, createJob);
 
-// Job actions (delete/close)  → /api/jobs/:action/:jobId
+// Job actions (delete/close) → /api/jobs/:action/:jobId
 jobRouter.post("/:action/:jobId", AuthCompany, handleJobAction);
 
 export default jobRouter;
