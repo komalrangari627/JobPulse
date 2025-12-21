@@ -4,6 +4,10 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { redisClient } from "../utils/redisClient.js";
 import { companyModel } from "../models/companySchema.js";
+import { jobModel } from "../models/jobSchema.js";
+import { userModel } from "../models/userSchema.js";
+import { jobs } from "../database/jobsdata.js";
+import { companies } from "../database/companiesData.js";
 
 dotenv.config({ path: "./config.env" });
 
@@ -316,6 +320,48 @@ export const handleCompanyOTPForPasswordReset = async (req, res) => {
     res.status(400).json({
       message: "Failed to reset password!",
       error: err.message || err,
+    });
+  }
+};
+// Get all companies
+export const getAllCompanies = async (req, res) => {
+  try {
+    const companies = await companyModel.find();
+    res.status(200).json({
+      success: true,
+      companies
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch companies",
+      error: error.message
+    });
+  }
+};
+
+// Get company by ID
+export const getCompanyById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const company = await companyModel.findById(id);
+    if (!company) {
+      return res.status(404).json({
+        success: false,
+        message: "Company not found"
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      company
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch company",
+      error: error.message
     });
   }
 };

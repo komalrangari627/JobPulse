@@ -2,11 +2,10 @@ import mongoose from "mongoose";
 import { companyModel } from "../models/companySchema.js";
 import { jobModel } from "../models/jobSchema.js";
 import { userModel } from "../models/userSchema.js";
-import { jobCompanyInfoModel } from "../models/jobCompanyInfoSchema.js";
+import { jobs } from "../database/jobsdata.js";
+import { companies } from "../database/companiesData.js";
 
-/* ================================
-   CREATE JOB
-================================ */
+/* CREATE JOB */
 const createJob = async (req, res) => {
   try {
     const company = req.company;
@@ -50,9 +49,7 @@ const createJob = async (req, res) => {
   }
 };
 
-/* ================================
-   HANDLE JOB ACTION (DELETE / CLOSE)
-================================ */
+/* HANDLE JOB ACTION (DELETE / CLOSE) */
 const handleJobAction = async (req, res) => {
   try {
     const company = req.company;
@@ -99,9 +96,7 @@ const handleJobAction = async (req, res) => {
   }
 };
 
-/* ================================
-   APPLY FOR JOB
-================================ */
+/* APPLY FOR JOB */
 const handleJobApplication = async (req, res) => {
   try {
     const user = req.user;
@@ -139,9 +134,7 @@ const handleJobApplication = async (req, res) => {
   }
 };
 
-/* ================================
-   GET ALL JOBS
-================================ */
+/* GET ALL JOBS */
 const getAllJobs = async (req, res) => {
   try {
     const jobs = await jobModel
@@ -155,9 +148,7 @@ const getAllJobs = async (req, res) => {
   }
 };
 
-/* ================================
-   GET JOB BY ID
-================================ */
+/* GET JOB BY ID */
 const getJobById = async (req, res) => {
   try {
     const { jobId } = req.params;
@@ -170,7 +161,7 @@ const getJobById = async (req, res) => {
       return res.status(404).json({ message: "Job not found" });
     }
 
-    // 🔥 DIRECT MATCH USING ObjectIds
+    //  DIRECT MATCH USING ObjectIds
     const jobCompanyInfo = await jobCompanyInfoModel.findOne({
       jobId: job._id,
       companyId: job.jobCreatedBy._id
@@ -185,13 +176,43 @@ const getJobById = async (req, res) => {
   }
 };
 
-/* ================================
-   EXPORTS
-================================ */
+const getJobDetailWithCompany = async (req, res) => {
+  try {
+    const { jobId } = req.params;
+
+    // 1️⃣ Try Mongo first
+    if (mongoose.Types.ObjectId.isValid(jobId)) {
+      const job = await jobModel.findById(jobId);
+      if (job) {
+        const company = await companyModel.findById(job.jobCreatedBy);
+        return res.json({ job, company });
+      }
+    }
+
+    // 2️⃣ Fallback to static data
+    const job = jobs.find(j => j._id === jobId || j.id == jobId);
+    if (!job) {
+      return res.status(404).json({ message: "Job not found" });
+    }
+
+    const company = companies.find(c => c.companyName === job.company);
+
+    res.json({ job, company });
+
+  } catch (error) {
+    res.status(500).json({
+      message: "Error fetching job detail",
+      error: error.message
+    });
+  }
+};
+
+/* EXPORTS */
 export {
   createJob,
   handleJobAction,
   handleJobApplication,
   getAllJobs,
   getJobById,
+  getJobDetailWithCompany,
 };
