@@ -1,72 +1,156 @@
 import axios from "axios";
 
-const baseUrl =
-  import.meta.env.VITE_BASE_API_URL || "http://localhost:5012/api/users";
-
-/* Create Axios instance with automatic token handling */
-const apiClient = axios.create({
-  baseURL: baseUrl,
-});
-
-// Request interceptor to automatically attach token
-apiClient.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
+const baseUrl = import.meta.env.VITE_BASE_API_URL + "/user";
 
 /* REGISTER USER */
 export const requestUserRegister = async (data) => {
-  const result = await apiClient.post("/register", data);
-  return result.data;
+  try {
+    const result = await axios.post(`${baseUrl}/register`, data);
+    return result;
+  } catch (err) {
+    throw err;
+  }
 };
 
 /* VERIFY EMAIL OTP */
-export const requestUserEmailOtpVerification = async (email, otp) => {
-  const result = await apiClient.post("/verify-otp", {
-    email,
-    userOtp: otp?.toString(),
-  });
-  return result.data;
+export const requestUserEmailOtpVerification = async (data) => {
+  try {
+    const result = await axios.post(`${baseUrl}/verify-otp`, data);
+    return result;
+  } catch (err) {
+    throw err;
+  }
 };
 
 /* LOGIN USER */
 export const requestUserLogin = async (data) => {
-  const result = await apiClient.post("/user-login", data);
-  if (result.data?.token) {
-    localStorage.setItem("token", result.data.token); // Store token for subsequent requests 
+  try {
+    const result = await axios.post(`${baseUrl}/user-login`, data);
+    return result;
+  } catch (err) {
+    throw err;
   }
-  return result.data;
 };
 
 /* FETCH USER PROFILE */
-export const requestUserProfile = async () => {
-  const result = await apiClient.get("/fetch-user-profile");
-  return result.data;
+export const requestUserProfile = async (token) => {
+  try {
+    const result = await axios({
+      method: "GET",
+      url: `${baseUrl}/fetch-user-profile`,
+      headers: {
+        authorization: token,
+      },
+    });
+    return result;
+  } catch (err) {
+    throw err;
+  }
 };
 
 /* UPLOAD PROFILE PICTURE */
-export const userProfilePicture = async (formData) => {
-  const result = await apiClient.post("/upload-file/profile_picture", formData);
-  return result.data;
-};
-
-/* UPLOAD RESUME */
-export const uploadResumeAPI = async (formData) => {
-  const result = await apiClient.post("/upload-file/resume", formData);
-  return result.data;
+export const userProfilePicture = async (token, formData) => {
+  try {
+    const result = await axios.post(
+      `${baseUrl}/upload-file/profile_picture`,
+      formData,
+      {
+        headers: {
+          authorization: token,
+        },
+      }
+    );
+    return result.data;
+  } catch (err) {
+    throw err;
+  }
 };
 
 /* PASSWORD RESET REQUEST */
 export const requestOTPForPasswordReset = async (email) => {
-  const result = await apiClient.post("/password-reset-request", { email });
-  return result.data;
+  try {
+    const result = await axios.post(
+      `${baseUrl}/password-reset-request`,
+      { email }
+    );
+    return result;
+  } catch (err) {
+    throw err;
+  }
 };
 
 /* VERIFY OTP & RESET PASSWORD */
 export const requestUserEmailOtpVerificationPasswordReset = async (data) => {
-  const result = await apiClient.post("/verify-reset-password-request", data);
-  return result.data;
+  try {
+    const result = await axios.post(
+      `${baseUrl}/verify-reset-password-request`,
+      data
+    );
+    return result;
+  } catch (err) {
+    throw err;
+  }
 };
+
+/* UPLOAD RESUME */
+export const uploadResumeAPI = async (token, formData) => {
+  try {
+    const result = await axios.post(
+      `${baseUrl}/upload-file/resume`,
+      formData,
+      {
+        headers: {
+          authorization: token,
+        },
+      }
+    );
+    return result.data;
+  } catch (err) {
+    throw err;
+  }
+};
+
+/* UPLOAD BIO */
+export const uploadBIO = async (token, newBio) => {
+  try {
+    const result = await axios.post(
+      `${baseUrl}/upload-new-bio`,
+      newBio,
+      {
+        headers: {
+          authorization: token,
+        },
+      }
+    );
+    return result.data;
+  } catch (err) {
+    throw err;
+  }
+};
+
+/* DELETE RESUME */
+export const deleteResume = async (token) => {
+  try {
+    const result = await axios.delete(`${baseUrl}/delete-resume`, {
+      headers: {
+        authorization: token,
+      },
+    });
+    return result;
+  } catch (err) {
+    throw err;
+  }
+};
+
+const userAPI = {
+  requestUserRegister,
+  requestUserEmailOtpVerification,
+  requestUserLogin,
+  requestUserProfile,
+  userProfilePicture,
+  uploadResumeAPI,
+  requestOTPForPasswordReset,
+  requestUserEmailOtpVerificationPasswordReset,
+};
+
+export default userAPI;
