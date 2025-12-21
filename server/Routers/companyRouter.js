@@ -16,31 +16,52 @@ import {
   addCompanyLogo
 } from "../controllers/companyController.js";
 
-import { AuthUser } from "../middlewares/AuthUser.js";
 import { AuthCompany } from "../middlewares/AuthCompany.js";
-import { companies } from "../database/companiesData.js"; // Cloudinary logos already in data
+import { companies } from "../database/companiesData.js"; // static data
 
 const router = express.Router();
 
-// Test route
+/* ================= TEST ================= */
 router.get("/test", test);
 
-// Company authentication
+/* ================= PUBLIC COMPANY APIs ================= */
+
+// ✅ Get all companies (PUBLIC)
+router.get("/", (req, res) => {
+  try {
+    res.status(200).json({
+      message: "Companies fetched successfully!",
+      companies
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Fetching companies failed!",
+      error: error.message
+    });
+  }
+});
+
+// ✅ Get single company by ID (PUBLIC)
+router.get("/:id", (req, res) => {
+  try {
+    const company = companies.find(c => c.id == req.params.id);
+    if (!company) {
+      return res.status(404).json({ message: "Company not found" });
+    }
+    res.status(200).json({ company });
+  } catch (error) {
+    res.status(500).json({
+      message: "Fetching company failed!",
+      error: error.message
+    });
+  }
+});
+
+/* ================= AUTH & ACCOUNT ================= */
+
 router.post("/register", upload.single("companyLogo"), registerCompany);
 router.post("/verify-otp", verifyCompanyOtp);
 router.post("/company-login", loginCompany);
-router.put("/update/:id", upload.single("companyLogo"), updateCompany);
-router.delete("/delete/:id", deleteCompany);
-
-// Password reset routes
-router.post("/password-reset-request", handleCompanyPasswordResetRequest);
-router.post("/verify-reset-password-request", handleCompanyOTPForPasswordReset);
-
-// File upload route
-router.post("/upload-file/:file_type", AuthCompany, upload.single("file"), handleCompanyFileUpload);
-
-// Upload logo to Cloudinary
-router.post("/upload-logo/:companyId", AuthCompany, upload.single("file"), addCompanyLogo);
 
 // Login by company ID
 router.post("/login-by-id/:id", async (req, res) => {
@@ -60,27 +81,31 @@ router.post("/login-by-id/:id", async (req, res) => {
   }
 });
 
-// API: Get all companies
-router.get("/api/companies", (req, res) => {
-  try {
-    res.status(200).json({
-      message: "Companies fetched successfully!",
-      companies
-    });
-  } catch (error) {
-    res.status(500).json({ message: "Fetching companies failed!", error: error.message });
-  }
-});
+/* ================= UPDATE / DELETE ================= */
 
-// API: Get single company by ID
-router.get("/api/companies/:id", (req, res) => {
-  try {
-    const company = companies.find(c => c.id == req.params.id);
-    if (!company) return res.status(404).json({ message: "Company not found" });
-    res.status(200).json({ company });
-  } catch (error) {
-    res.status(500).json({ message: "Fetching company failed!", error: error.message });
-  }
-});
+router.put("/update/:id", AuthCompany, upload.single("companyLogo"), updateCompany);
+router.delete("/delete/:id", AuthCompany, deleteCompany);
+
+/* ================= PASSWORD RESET ================= */
+
+router.post("/password-reset-request", handleCompanyPasswordResetRequest);
+router.post("/verify-reset-password-request", handleCompanyOTPForPasswordReset);
+
+/* ================= FILE UPLOAD ================= */
+
+router.post(
+  "/upload-file/:file_type",
+  AuthCompany,
+  upload.single("file"),
+  handleCompanyFileUpload
+);
+
+// Upload logo to Cloudinary
+router.post(
+  "/upload-logo/:companyId",
+  AuthCompany,
+  upload.single("file"),
+  addCompanyLogo
+);
 
 export default router;
