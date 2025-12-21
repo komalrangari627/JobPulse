@@ -1,81 +1,47 @@
-import { useParams, useSearchParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { getJobById } from "../../api/jobAPI";
+import axios from "axios";
 import "../sections/styles/company-public.scss";
 
 const CompanyPublic = () => {
   const { companyId } = useParams();
-  const [searchParams] = useSearchParams();
-  const jobId = searchParams.get("job");
-
-  const [job, setJob] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  const company = companies.find(c => c._id === companyId);
+  const [company, setCompany] = useState(null);
 
   useEffect(() => {
-    const controller = new AbortController();
-
-    const fetchJob = async () => {
+    const fetchCompany = async () => {
       try {
-        const data = await getJobById(jobId, { signal: controller.signal });
-        setJob(data);
+        const res = await axios.get(
+          `${import.meta.env.VITE_BASE_API_URL}/companies/${companyId}`
+        );
+        setCompany(res.data);
       } catch (err) {
-        console.error("Job load failed", err);
-      } finally {
-        setLoading(false);
+        console.error(err);
       }
     };
 
-    if (jobId) fetchJob();
+    fetchCompany();
+  }, [companyId]);
 
-    return () => controller.abort();
-  }, [jobId]);
-
-  if (!company) return <p className="error">Company not found</p>;
-  if (loading) return <p className="loading">Loading...</p>;
-  if (!job) return <p className="error">Job not found</p>;
+  if (!company) return <div className="company-loading">Loading...</div>;
 
   return (
     <section className="company-public">
-      {/* COMPANY HEADER */}
-      <header className="company-header">
-        <img src={company.logo} alt={company.name} />
+      <header>
+        <img src={company.companyDetails?.logo} alt="" />
         <div>
-          <h1>{company.name}</h1>
-          <p className="industry">{company.industry}</p>
-          <p className="location">{company.location}</p>
+          <h1>{company.companyName}</h1>
+          <span>{company.companyDetails?.industry}</span>
         </div>
       </header>
 
-      {/* COMPANY INFO */}
-      <div className="company-info">
+      <div className="about">
         <h2>About Company</h2>
-        <p>{company.description}</p>
-
-        <div className="stats">
-          <span><b>Founded:</b> {company.founded}</span>
-          <span><b>Employees:</b> {company.employees}</span>
-        </div>
+        <p>{company.companyDetails?.about}</p>
       </div>
 
-      {/* JOB DETAIL */}
-      <div className="job-detail">
-        <h2>{job.title}</h2>
-
-        <ul className="job-meta">
-          <li><b>Experience:</b> {job.experience}</li>
-          <li><b>Salary:</b> {job.salary}</li>
-          <li><b>Location:</b> {job.location}</li>
-          <li><b>Type:</b> {job.jobType}</li>
-        </ul>
-
-        <div className="job-description">
-          <h3>Job Description</h3>
-          <p>{job.description}</p>
-        </div>
-
-        <button className="apply-btn">Apply Now</button>
+      <div className="stats">
+        <span>Founded: {company.companyDetails?.founded}</span>
+        <span>Employees: {company.companyDetails?.employees}</span>
       </div>
     </section>
   );

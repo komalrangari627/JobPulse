@@ -1,89 +1,102 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import "../sections/styles/display-job.scss";
 
 const DisplayJob = () => {
-  const { id } = useParams();
+  const { jobId } = useParams();
 
-  const [jobData, setJobData] = useState(null);
-  const [companyData, setCompanyData] = useState(null);
-  const [extraInfo, setExtraInfo] = useState(null);
+  const [job, setJob] = useState(null);
+  const [company, setCompany] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    const fetchAllData = async () => {
+    if (!jobId) return;
+
+    const fetchJobDetail = async () => {
       try {
-        const [jobsRes, companiesRes, infoRes] = await Promise.all([
-          axios.get("/jobs.json"),
-          axios.get("/companies.json"),
-          axios.get("/jobCompanyInfo.json"),
-        ]);
+        setLoading(true);
+        setError("");
 
-        //  unwrap arrays safely
-        const jobs = Array.isArray(jobsRes.data)
-          ? jobsRes.data
-          : jobsRes.data.jobs || [];
-
-        const companies = Array.isArray(companiesRes.data)
-          ? companiesRes.data
-          : companiesRes.data.companies || [];
-
-        const infos = Array.isArray(infoRes.data)
-          ? infoRes.data
-          : infoRes.data.jobCompanyInfo || [];
-
-        // 1️ Job
-        const job = jobs.find(j => j._id?.$oid === id);
-        setJobData(job || null);
-
-        // 2️ Company
-        const company = companies.find(
-          c => c.companyName === job?.company
+        const res = await axios.get(
+          `http://localhost:5012/api/jobs/job-detail/${jobId}`
         );
-        setCompanyData(company || null);
 
-        // 3️ Extra info
-        const info = infos.find(
-          i => i.jobId?.$oid === id
-        );
-        setExtraInfo(info || null);
+        // ✅ Works for both Mongo & static responses
+        setJob(res.data.job || null);
+        setCompany(res.data.company || null);
 
       } catch (err) {
-        console.error("Data load error:", err);
+        console.error("Job fetch error:", err);
+        setError("Unable to load job details.");
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchAllData();
-  }, [id]);
+    fetchJobDetail();
+  }, [jobId]);
 
-  if (!jobData) return <div>Loading job...</div>;
+  /* ================= UI STATES ================= */
+
+  if (loading) {
+    return <div className="display-job loading">Loading job details...</div>;
+  }
+
+  if (error) {
+    return <div className="display-job error">{error}</div>;
+  }
+
+  if (!job) {
+    return <div className="display-job error">Job not found.</div>;
+  }
+
+  /* ================= MAIN UI ================= */
 
   return (
-    <div className="job-card">
-      <h2>{jobData.title}</h2>
-      <p>{jobData.description}</p>
-      <p><strong>Location:</strong> {jobData.location}</p>
-      <p><strong>Salary:</strong> {jobData.salary}</p>
+    <section className="display-job">
+      {/* Job Header */}
+      <div className="job-header">
+        <h1>{job.title}</h1>
+        <span className="location">
+          {job.jobRequirements?.location || job.location}
+        </span>
+      </div>
 
-      {companyData && (
-        <div>
-          <h3>Company</h3>
-          <p>{companyData.companyName}</p>
-          <p>{companyData.website}</p>
+      {/* Job Meta */}
+      <div className="job-meta">
+        <span>
+          💼 {job.jobType || "Full Time"}
+        </span>
+        <span>
+          ⏳ {job.jobRequirements?.experience || job.experience}
+        </span>
+        <span>
+          💰 {job.jobRequirements?.offeredSalary || job.salary}
+        </span>
+      </div>
+
+      {/* Job Description */}
+      <div className="job-description">
+        <h3>Job Description</h3>
+        <p>{job.description}</p>
+      </div>
+
+      {/* Company Info */}
+      {company && (
+        <div className="company-box">
+          <h3>{company.companyDetails?.name || company.companyName}</h3>
+          <p>{company.companyDetails?.about}</p>
+
+          {company.companyDetails?.industry && (
+            <span className="industry">
+              Industry: {company.companyDetails.industry}
+            </span>
+          )}
         </div>
       )}
-
-      {extraInfo && (
-        <div>
-          <h3>Role Details</h3>
-          <p><strong>Experience:</strong> {extraInfo.experience}</p>
-
-          <h4>Tech Stack</h4>
-          {extraInfo.techStack?.map((t, i) => (
-            <span key={i}>{t}</span>
-          ))}
-        </div>
-      )}
-    </div>
+    </section>
   );
 };
 

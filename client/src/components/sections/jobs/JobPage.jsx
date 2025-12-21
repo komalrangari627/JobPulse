@@ -1,81 +1,44 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
+import "./job-page.scss";
 
 const JobPage = () => {
-  const { id } = useParams();
-
+  const { jobId } = useParams();
   const [job, setJob] = useState(null);
-  const [company, setCompany] = useState(null);
-  const [extraInfo, setExtraInfo] = useState(null);
 
   useEffect(() => {
-    const loadData = async () => {
+    const fetchJob = async () => {
       try {
-        const [jobsRes, companiesRes, infoRes] = await Promise.all([
-          axios.get("/jobs.json"),
-          axios.get("/companies.json"),
-          axios.get("/jobCompanyInfo.json"),
-        ]);
-
-        const jobs = Array.isArray(jobsRes.data)
-          ? jobsRes.data
-          : jobsRes.data.jobs || [];
-
-        const companies = Array.isArray(companiesRes.data)
-          ? companiesRes.data
-          : companiesRes.data.companies || [];
-
-        const infos = Array.isArray(infoRes.data)
-          ? infoRes.data
-          : infoRes.data.jobCompanyInfo || [];
-
-        const foundJob = jobs.find(j => j._id?.$oid === id);
-        setJob(foundJob || null);
-
-        const foundCompany = companies.find(
-          c => c.companyName === foundJob?.company
+        const res = await axios.get(
+          `${import.meta.env.VITE_BASE_API_URL}/jobs/${jobId}`
         );
-        setCompany(foundCompany || null);
-
-        const foundInfo = infos.find(
-          i => i.jobId?.$oid === id
-        );
-        setExtraInfo(foundInfo || null);
-
+        setJob(res.data);
       } catch (err) {
-        console.error("JobPage load error:", err);
+        console.error(err);
       }
     };
 
-    loadData();
-  }, [id]);
+    fetchJob();
+  }, [jobId]);
 
-  if (!job) return <div>Loading...</div>;
+  if (!job) return <div className="job-page-loading">Loading...</div>;
 
   return (
-    <div>
-      <h2>{job.title}</h2>
-      <p>{job.description}</p>
+    <section className="job-page">
+      <h1>{job.title}</h1>
+      <p className="company">{job.companyName}</p>
 
-      {company && (
-        <>
-          <h3>Company</h3>
-          <p>{company.companyName}</p>
-        </>
-      )}
+      <div className="details">
+        <span>{job.location}</span>
+        <span>{job.experience}</span>
+        <span>{job.salary}</span>
+      </div>
 
-      {extraInfo && (
-        <>
-          <h3>Highlights</h3>
-          <ul>
-            {extraInfo.jobHighlights?.map((h, i) => (
-              <li key={i}>{h}</li>
-            ))}
-          </ul>
-        </>
-      )}
-    </div>
+      <article>{job.description}</article>
+
+      <button className="apply-btn">Apply Now</button>
+    </section>
   );
 };
 
