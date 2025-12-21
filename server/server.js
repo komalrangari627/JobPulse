@@ -13,212 +13,169 @@ import jobRoute from "./Routers/jobRouter.js";
 import { companyModel } from "./models/companySchema.js";
 import { jobModel } from "./models/jobSchema.js";
 
-// Load environment variables
+// Load env
 dotenv.config({ path: "./config.env" });
 
-// Initialize express app
 const app = express();
 
-// ===== Middleware =====
+/* ================= MIDDLEWARE ================= */
 app.use(cors({ origin: "*", methods: ["GET", "POST", "PUT", "PATCH", "DELETE"] }));
 app.use(express.json());
 app.use("/uploads", express.static("uploads"));
 
-// ===== Connect to MongoDB =====
+/* ================= DB CONNECT ================= */
 conn();
 
-// ===== DB check route =====
+/* ================= HEALTH CHECK ================= */
 app.get("/api/dbcheck", (req, res) => {
   const status = mongoose.connection.readyState;
   res.json({
-    message: status === 1 ? " Database connected successfully!" : " Database not connected!",
-    status,
+    message: status === 1 ? "Database connected successfully!" : "Database not connected!",
+    status
   });
 });
 
-// ===== Default root route =====
+/* ================= ROOT ================= */
 app.get("/", (req, res) => {
-  res.json({ message: "Welcome to JobPulse API " });
+  res.json({ message: "Welcome to JobPulse API" });
 });
 
-// ===== Core Routers =====
+/* ================= CORE ROUTERS ================= */
 app.use("/api/users", userRoute);
-app.use("/api/company", companyRoute);
 app.use("/api/jobs", jobRoute);
+app.use("/api/companies", companyRoute);
 
-/* COMPANY CRUD (Direct MongoDB Operations) */
+/* ======================================================
+   DIRECT MONGODB APIs (ISOLATED PATHS - SAFE)
+====================================================== */
 
-//  CREATE COMPANY
-app.post("/api/companies", async (req, res) => {
+/* ===== COMPANY CRUD (Mongo Only) ===== */
+
+// CREATE
+app.post("/api/mongo/companies", async (req, res) => {
   try {
-    const newCompany = await companyModel.create(req.body);
-    res.status(201).json({
-      message: " Company created successfully in MongoDB!",
-      company: newCompany,
-    });
+    const company = await companyModel.create(req.body);
+    res.status(201).json({ message: "Company created!", company });
   } catch (err) {
-    res.status(500).json({
-      message: " Unable to create company!",
-      error: err.message,
-    });
+    res.status(500).json({ message: err.message });
   }
 });
 
-//  READ ALL COMPANIES
-app.get("/api/companies", async (req, res) => {
+// READ ALL
+app.get("/api/mongo/companies", async (req, res) => {
   try {
     const companies = await companyModel.find().populate("createdJobs");
-    res.status(200).json({
-      message: " Companies fetched directly from MongoDB!",
-      total: companies.length,
-      companies,
-    });
+    res.json({ total: companies.length, companies });
   } catch (err) {
-    res.status(500).json({
-      message: " Fetching companies failed!",
-      error: err.message,
-    });
+    res.status(500).json({ message: err.message });
   }
 });
-// server: GET /api/companies/:id
-app.get("/api/companies/:id", async (req, res) => {
+
+// READ ONE
+app.get("/api/mongo/companies/:id", async (req, res) => {
   try {
     const company = await companyModel.findById(req.params.id).populate({
       path: "createdJobs",
       select: "title jobRequirements.location jobRequirements.offeredSalary"
     });
     if (!company) return res.status(404).json({ message: "Company not found" });
-    res.status(200).json({ company });
+    res.json({ company });
   } catch (err) {
-    res.status(500).json({ message: "Error fetching company", error: err.message });
+    res.status(500).json({ message: err.message });
   }
 });
 
-//  UPDATE COMPANY
-app.put("/api/companies/:id", async (req, res) => {
+// UPDATE
+app.put("/api/mongo/companies/:id", async (req, res) => {
   try {
     const updated = await companyModel.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!updated)
-      return res.status(404).json({ message: " Company not found!" });
-    res.json({ message: " Company updated successfully!", company: updated });
+    if (!updated) return res.status(404).json({ message: "Company not found" });
+    res.json({ company: updated });
   } catch (err) {
-    res.status(500).json({
-      message: " Unable to update company!",
-      error: err.message,
-    });
+    res.status(500).json({ message: err.message });
   }
 });
 
-//  DELETE COMPANY
-app.delete("/api/companies/:id", async (req, res) => {
+// DELETE
+app.delete("/api/mongo/companies/:id", async (req, res) => {
   try {
     const deleted = await companyModel.findByIdAndDelete(req.params.id);
-    if (!deleted)
-      return res.status(404).json({ message: " Company not found!" });
-    res.json({ message: " Company deleted successfully!", company: deleted });
+    if (!deleted) return res.status(404).json({ message: "Company not found" });
+    res.json({ message: "Company deleted", company: deleted });
   } catch (err) {
-    res.status(500).json({
-      message: " Unable to delete company!",
-      error: err.message,
-    });
+    res.status(500).json({ message: err.message });
   }
 });
 
-/*  JOB CRUD (Direct MongoDB Operations + Link with Company) */
+/* ===== JOB CRUD (Mongo Only) ===== */
 
-//  CREATE JOB
-app.post("/api/jobsdata", async (req, res) => {
+app.post("/api/mongo/jobs", async (req, res) => {
   try {
     const { title, jobRequirements, companyId } = req.body;
-    if (!companyId) throw new Error("Company ID is required to create a job!");
 
     const company = await companyModel.findById(companyId);
-    if (!company) throw new Error("Invalid company ID!");
+    if (!company) throw new Error("Invalid company ID");
 
-    // Create job and link it
-    const newJob = await jobModel.create({
+    const job = await jobModel.create({
       title,
       jobCreatedBy: company._id,
-      jobRequirements,
+      jobRequirements
     });
 
-    // Push job reference to company
-    company.createdJobs.push(newJob._id);
+    company.createdJobs.push(job._id);
     await company.save();
 
-    res.status(201).json({
-      message: ` Job '${title}' created and linked with ${company.companyDetails.name}!`,
-      job: newJob,
-    });
+    res.status(201).json({ job });
   } catch (err) {
-    res.status(500).json({
-      message: " Unable to create job!",
-      error: err.message,
-    });
+    res.status(500).json({ message: err.message });
   }
 });
 
-//  READ ALL JOBS
-app.get("/api/jobsdata", async (req, res) => {
+app.get("/api/mongo/jobs", async (req, res) => {
   try {
-    const jobs = await jobModel.find().populate("jobCreatedBy", "companyDetails.name companyDetails.industry");
-    res.status(200).json({
-      message: " Jobs fetched directly from MongoDB!",
-      total: jobs.length,
-      jobs,
-    });
+    const jobs = await jobModel.find().populate(
+      "jobCreatedBy",
+      "companyDetails.name companyDetails.industry"
+    );
+    res.json({ total: jobs.length, jobs });
   } catch (err) {
-    res.status(500).json({
-      message: " Fetching jobs failed!",
-      error: err.message,
-    });
+    res.status(500).json({ message: err.message });
   }
 });
 
-//  UPDATE JOB
-app.put("/api/jobsdata/:id", async (req, res) => {
+app.put("/api/mongo/jobs/:id", async (req, res) => {
   try {
-    const updatedJob = await jobModel.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!updatedJob)
-      return res.status(404).json({ message: " Job not found!" });
-    res.json({ message: " Job updated successfully!", job: updatedJob });
+    const job = await jobModel.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!job) return res.status(404).json({ message: "Job not found" });
+    res.json({ job });
   } catch (err) {
-    res.status(500).json({
-      message: " Unable to update job!",
-      error: err.message,
-    });
+    res.status(500).json({ message: err.message });
   }
 });
 
-//  DELETE JOB
-app.delete("/api/jobsdata/:id", async (req, res) => {
+app.delete("/api/mongo/jobs/:id", async (req, res) => {
   try {
-    const deletedJob = await jobModel.findByIdAndDelete(req.params.id);
-    if (!deletedJob)
-      return res.status(404).json({ message: " Job not found!" });
+    const job = await jobModel.findByIdAndDelete(req.params.id);
+    if (!job) return res.status(404).json({ message: "Job not found" });
 
-    // Remove job from company reference
     await companyModel.updateOne(
-      { createdJobs: deletedJob._id },
-      { $pull: { createdJobs: deletedJob._id } }
+      { createdJobs: job._id },
+      { $pull: { createdJobs: job._id } }
     );
 
-    res.json({
-      message: ` Job '${deletedJob.title}' deleted successfully from MongoDB!`,
-    });
+    res.json({ message: "Job deleted" });
   } catch (err) {
-    res.status(500).json({
-      message: " Unable to delete job!",
-      error: err.message,
-    });
+    res.status(500).json({ message: err.message });
   }
 });
 
-/*  404 HANDLER */
+/* ================= 404 ================= */
 app.use((req, res) => {
-  res.status(404).json({ message: " content/route not found!" });
+  res.status(404).json({ message: "Route not found" });
 });
 
-// ===== Start server =====
+/* ================= START ================= */
 const port = process.env.PORT || 5012;
-app.listen(port, () => console.log(` Server running on port ${port}`));
+app.listen(port, () => {
+  console.log(`🚀 Server running on port ${port}`);
+});
