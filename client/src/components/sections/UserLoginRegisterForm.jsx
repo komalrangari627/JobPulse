@@ -5,16 +5,18 @@ import { useNavigate } from 'react-router-dom';
 import "./styles/UserLoginRegisterForm.scss";
 
 import { PiEyesFill, PiEyeClosedFill } from "react-icons/pi";
-import {
-  requestUserRegister,
-  requestUserEmailOtpVerification,
-  requestUserLogin
-} from "../../api/userAPI.js";
-
 import { useMessage } from '../../context/messageContext';
 import { useUser } from '../../context/userContext.jsx';
+import userAPI from "../../api/userAPI.js";  // ✅ Correct import
 
 const UserLoginRegisterForm = () => {
+  // Destructure API functions inside the component
+  const {
+    requestUserRegister,
+    requestUserEmailOtpVerification,
+    requestUserLogin,
+    requestUserProfile,
+  } = userAPI;
 
   const navigate = useNavigate();
   const { fetchUserProfile } = useUser();
@@ -41,9 +43,53 @@ const UserLoginRegisterForm = () => {
 
   const [otp, setOtp] = useState("");
 
-  // LOGIN
+  const payload = {
+    name: registerForm.name.trim(),
+    phone: registerForm.phone.trim(),
+    email: registerForm.email.trim().toLowerCase(),
+    password: registerForm.password.trim(),
+    street: registerForm.street,
+    city: registerForm.city,
+    state: registerForm.state,
+    country: registerForm.country,
+    pincode: registerForm.pincode,
+    dob: registerForm.dob,
+  };
+
+  
+  const handleLogin = async (e) => {
+    e.preventDefault();
+  
+    const payload = {
+      email: loginForm.email.trim().toLowerCase(),
+      password: loginForm.password.trim(),
+    };
+    
+    await requestUserLogin(payload);    
+  
+    console.log("LOGIN PAYLOAD 👉", payload); // IMPORTANT
+  
+    try {
+      const res = await requestUserLogin(payload);
+      console.log("LOGIN SUCCESS 👉", res.data);
+    } catch (err) {
+      console.error(
+        "LOGIN ERROR 👉",
+        err?.response?.data || err.message
+      );
+    }
+  };
+    
+  // ================= LOGIN =================
   const handleLoginFormSubmit = async (e) => {
     e.preventDefault();
+  
+    const payload = {
+      email: loginForm.email.trim().toLowerCase(),
+      password: loginForm.password.trim(), // ✅ MUST EXIST
+    };
+  
+    const result = await requestUserLogin(payload);
     try {
       setLoading(true);
       const result = await requestUserLogin(loginForm);
@@ -68,15 +114,14 @@ const UserLoginRegisterForm = () => {
     setLoginForm(prev => ({ ...prev, [name]: value }));
   };
 
-  // REGISTER
+  // ================= REGISTER =================
   const handleRegisterFormSubmit = async (e) => {
     e.preventDefault();
     try {
       setLoading(true);
-      let result = await requestUserRegister(registerForm);
+      const result = await requestUserRegister(registerForm);
 
-      if (result.status !== 202)
-        throw "Unable to register user!";
+      if (result.status !== 201) throw "Unable to register user!";
 
       triggerMessage("success", result.data.message, true);
 
@@ -88,7 +133,6 @@ const UserLoginRegisterForm = () => {
         street: "", city: "", state: "", country: "",
         pincode: "", dob: ""
       });
-
     } catch (err) {
       triggerMessage("danger", err.message || err, true);
     } finally {
@@ -101,20 +145,17 @@ const UserLoginRegisterForm = () => {
     setRegisterForm(prev => ({ ...prev, [name]: value }));
   };
 
-  // OTP VERIFY
+  // ================= OTP VERIFY =================
   const handleOtpFormSubmit = async (e) => {
     e.preventDefault();
-
     try {
       setLoading(true);
-
       const result = await requestUserEmailOtpVerification(
         registerFormVerifyOtp.email,
         otp
       );
 
-      if (result.status !== 202)
-        throw "Unable to verify OTP!";
+      if (result.status !== 200) throw "Unable to verify OTP!";
 
       triggerMessage("success", result.data.message, true);
 
@@ -123,7 +164,6 @@ const UserLoginRegisterForm = () => {
 
       setRegisterFormVerifyOtp({ email: "", userOtp: "" });
       setOtp("");
-
     } catch (err) {
       triggerMessage("danger", err.response?.data?.err || err, true);
     } finally {
@@ -138,7 +178,6 @@ const UserLoginRegisterForm = () => {
 
           {/* LEFT SIDE (REGISTER + OTP) */}
           <div className='register'>
-
             {showOtpForm ? (
               /* OTP FORM */
               <form onSubmit={handleOtpFormSubmit}
@@ -270,7 +309,6 @@ const UserLoginRegisterForm = () => {
 
               </form>
             )}
-
           </div>
 
           {/* RIGHT SIDE (LOGIN FORM) */}
@@ -315,7 +353,6 @@ const UserLoginRegisterForm = () => {
                 className='bg-gray-300 hover:bg-gray-400 px-6 py-2 rounded'>
                 New Here? Please Register
               </button>
-
             </form>
           </div>
 
@@ -332,6 +369,6 @@ const UserLoginRegisterForm = () => {
       </div>
     </div>
   );
-};
+            };
 
 export default UserLoginRegisterForm;

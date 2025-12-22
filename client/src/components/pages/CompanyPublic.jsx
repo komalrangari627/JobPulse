@@ -8,18 +8,19 @@ const CompanyPublic = () => {
   const [company, setCompany] = useState(null);
 
   useEffect(() => {
-    const fetchCompany = async () => {
+    const fetchCompanyDetail = async () => {
       try {
         const res = await axios.get(
           `${import.meta.env.VITE_BASE_API_URL}/companies/${companyId}`
         );
+        
         setCompany(res.data);
       } catch (err) {
-        console.error(err);
+        console.error("Error fetching company detail:", err);
       }
     };
 
-    fetchCompany();
+    fetchCompanyDetail();
   }, [companyId]);
 
   if (!company) return <div className="company-loading">Loading...</div>;
@@ -27,21 +28,21 @@ const CompanyPublic = () => {
   return (
     <section className="company-public">
       <header>
-        <img src={company.companyDetails?.logo} alt="" />
+        <img src={company.companyDetails?.logo || company.logo} alt={company.companyName} />
         <div>
           <h1>{company.companyName}</h1>
-          <span>{company.companyDetails?.industry}</span>
+          <span>{company.companyDetails?.industry || company.industry}</span>
         </div>
       </header>
 
       <div className="about">
         <h2>About Company</h2>
-        <p>{company.companyDetails?.about}</p>
+        <p>{company.companyDetails?.about || company.about}</p>
       </div>
 
       <div className="stats">
-        <span>Founded: {company.companyDetails?.founded}</span>
-        <span>Employees: {company.companyDetails?.employees}</span>
+        <span>Founded: {company.companyDetails?.founded || company.founded}</span>
+        <span>Employees: {company.companyDetails?.employees || company.employees}</span>
       </div>
     </section>
   );

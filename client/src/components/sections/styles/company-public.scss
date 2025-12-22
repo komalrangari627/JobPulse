@@ -1,40 +1,112 @@
 .company-public {
-  max-width: 1000px;
-  margin: auto;
   padding: 2rem;
+  max-width: 900px;
+  margin: 0 auto;
+  font-family: Arial, sans-serif;
 
-  header {
+  .company-header {
     display: flex;
-    gap: 1.5rem;
     align-items: center;
+    gap: 1.5rem;
     margin-bottom: 2rem;
 
-    img {
+    .company-logo {
       width: 80px;
       height: 80px;
       object-fit: contain;
+      border-radius: 8px;
+      border: 1px solid #ddd;
     }
 
-    h1 {
-      font-size: 2rem;
-    }
+    .company-info {
+      h1 {
+        font-size: 1.8rem;
+        margin: 0;
+      }
 
-    span {
-      color: #666;
+      span {
+        font-size: 1rem;
+        color: #666;
+      }
     }
   }
 
   .about {
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
+
+    h2 {
+      font-size: 1.3rem;
+      margin-bottom: 0.5rem;
+    }
 
     p {
-      line-height: 1.7;
+      font-size: 1rem;
+      line-height: 1.5;
     }
   }
 
   .stats {
     display: flex;
     gap: 2rem;
-    font-weight: 600;
+    margin-bottom: 2rem;
+
+    span {
+      font-size: 0.95rem;
+      color: #333;
+    }
   }
+
+  .job-info {
+    margin-bottom: 2rem;
+
+    h2 {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .details {
+      display: flex;
+      gap: 2rem;
+      font-size: 0.95rem;
+      color: #555;
+      margin-top: 0.5rem;
+    }
+
+    p {
+      margin-top: 0.5rem;
+      line-height: 1.5;
+    }
+  }
+
+  .apply-btn {
+    padding: 0.8rem 1.5rem;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+
+    &:hover {
+      background-color: #0056b3;
+    }
+  }
+}
+/* typography baseline */
+h1 { font-size: 1.8rem; }
+h3 { font-size: 1.2rem; }
+
+p,
+span,
+article {
+  font-size: 1rem;
+  line-height: 1.65;
+}
+
+.badge {
+  font-size: 0.95rem;
+}
+
+button {
+  font-size: 1rem;
 }
