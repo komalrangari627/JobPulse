@@ -13,10 +13,10 @@ import { AuthCompany } from "../middlewares/AuthCompany.js";
 
 const jobRouter = express.Router();
 
-/* REST JOB ROUTES */
-
-// ✅ SPECIAL ROUTES FIRST
+/* ================= JOB DETAIL FOR FRONTEND ================= */
 jobRouter.get("/job-detail/:jobId", getJobDetailWithCompany);
+
+/* ================= JOB ROUTES ================= */
 
 // Get ALL jobs → /api/jobs
 jobRouter.get("/", getAllJobs);
