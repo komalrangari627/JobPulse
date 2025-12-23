@@ -7,7 +7,7 @@
   padding: 3.5rem;
 
   .card-page {
-    background: linear-gradient(135deg, #f7f6d3, #ffe4ef);
+    background: linear-gradient(135deg, #ffffff, #f8fffd);
     max-width: 760px;
     width: 100%;
     padding: 3.5rem;
@@ -18,14 +18,14 @@
     h1 {
       font-size: 2.8rem;
       font-weight: 800;
-      color: #3d7a6f;
+      color: #0b5f5a;
       margin-bottom: 0.6rem;
     }
 
     .company {
       font-size: 1.35rem;
       font-weight: 700;
-      color: #f39eb6;
+      color: #26ccc2;
       margin-bottom: 1.8rem;
     }
 
@@ -36,12 +36,13 @@
       margin-bottom: 2.4rem;
 
       span {
-        background: #b8db80;
+        background: #fff57e;
         padding: 0.9rem 1.8rem;
         border-radius: 999px;
         font-size: 1.15rem;
         font-weight: 700;
-        color: #2d4f45;
+        color: #4d4d00;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
       }
     }
 
@@ -53,10 +54,18 @@
       margin-bottom: 3rem;
     }
 
+    /* 🔥 Buttons Wrapper */
+    .job-actions {
+      display: flex;
+      gap: 1.2rem;
+      flex-wrap: wrap;
+    }
+
+    /* ✅ Apply Button */
     .apply-btn {
-      width: 100%;
-      background: #f39eb6;
-      color: #4a1f2f;
+      flex: 1;
+      background: linear-gradient(135deg, #ffb76c, #ffa24a);
+      color: #4a2a00;
       padding: 1.4rem;
       border-radius: 18px;
       border: none;
@@ -66,10 +75,68 @@
       transition: all 0.3s ease;
 
       &:hover {
-        background: #f08aa8;
         transform: translateY(-3px);
-        box-shadow: 0 18px 42px rgba(243, 158, 182, 0.55);
+        box-shadow: 0 18px 42px rgba(255, 183, 108, 0.55);
       }
     }
+
+/* ACTION BUTTONS */
+.action-buttons {
+  margin-top: 3rem;
+
+  /* Apply button section (normal card bg) */
+  .apply-btn {
+    width: 100%;
+    padding: 1.4rem;
+    border-radius: 18px;
+    font-size: 1.25rem;
+    font-weight: 800;
+    border: none;
+    cursor: pointer;
+    background: #f39eb6;
+    color: #4a1f2f;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background: #f08aa8;
+      transform: translateY(-3px);
+      box-shadow: 0 18px 42px rgba(243, 158, 182, 0.55);
+    }
+  }
+
+  /* 🔥 Separate colored block for company button */
+  .view-company-btn {
+    margin-top: 1.6rem;
+    width: 100%;
+    padding: 1.4rem;
+    border-radius: 18px;
+    font-size: 1.25rem;
+    font-weight: 800;
+    border: none;
+    cursor: pointer;
+    background: #b8db80;
+    color: #2d4f45;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background: #a6cf67;
+      transform: translateY(-3px);
+      box-shadow: 0 18px 42px rgba(184, 219, 128, 0.55);
+    }
+  }
+}
+
+
+/* ✨ Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(25px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
   }
 }

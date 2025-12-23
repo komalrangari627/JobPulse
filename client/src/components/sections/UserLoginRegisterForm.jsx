@@ -107,7 +107,7 @@ const UserLoginRegisterForm = () => {
     } finally {
       setLoading(false);
     }
-  };
+    };
 
   const handleLoginChange = (e) => {
     const { name, value } = e.target;

@@ -104,12 +104,16 @@ const DisplayJob = () => {
           <button className="apply-btn" onClick={handleApply}>
             Apply Now
           </button>
-
-          {company && (
-            <button className="company-btn" onClick={handleViewCompany}>
+          <div className="action-buttons">
+          {job.companyId && (
+            <button
+              className="view-company-btn"
+              onClick={() => navigate(`/company/${job.companyId}`)}
+            >
               View Company
             </button>
           )}
+        </div>
         </div>
 
         {/* Company Info */}

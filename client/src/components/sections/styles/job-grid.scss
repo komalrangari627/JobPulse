@@ -5,7 +5,7 @@
   padding: 1rem;
 
   .job-card {
-    background: linear-gradient(135deg, #8f03fa, rgb(191, 3, 254));
+    background: linear-gradient(135deg, rgb(141, 2, 247), rgb(205, 130, 246));
     border-radius: 12px;
     box-shadow: 0 6px 18px rgba(145, 18, 188, 0.35);
     cursor: pointer;
@@ -39,7 +39,7 @@
       h3 {
         font-size: 1.45rem;
         font-weight: 800; /* strongest */
-        color: #ffffff;
+        color: #130202;
         margin-bottom: 0.4rem;
         letter-spacing: 0.3px;
       }
@@ -47,7 +47,7 @@
       p {
         font-size: 1.05rem;
         font-weight: 600; /* medium */
-        color: #ffffff;
+        color: #fafcfd;
         margin: 0;
       }
 

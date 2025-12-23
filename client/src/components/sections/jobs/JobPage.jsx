@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./styles/job-page.scss";
 
 const JobPage = () => {
   const { jobId } = useParams();
+  const navigate = useNavigate();   // ✅ REQUIRED
   const [job, setJob] = useState(null);
 
   useEffect(() => {
@@ -26,18 +27,35 @@ const JobPage = () => {
 
   return (
     <section className="job-page">
-      <h1>{job.title}</h1>
-      <p className="company">{job.companyName}</p>
+      <div className="card-page">
+        <h1>{job.title}</h1>
+        <p className="company">{job.companyName}</p>
 
-      <div className="details">
-        <span>{job.location}</span>
-        <span>{job.experience}</span>
-        <span>{job.salary}</span>
+        <div className="details">
+          <span>{job.location}</span>
+          <span>{job.experience}</span>
+          <span>{job.salary}</span>
+        </div>
+
+        <article>{job.description}</article>
+
+        {/* ✅ BUTTONS MUST BE HERE */}
+        <div className="job-actions">
+          <button className="apply-btn">Apply Now</button>
+
+          {/* ✅ View Company button */}
+          <div className="job-actions">
+          {job.companyId && (
+            <button
+              className="view-company-btn"
+              onClick={() => navigate(`/company/${job.companyId}`)}
+            >
+              View Company
+            </button>
+          )}
+        </div>
       </div>
-
-      <article>{job.description}</article>
-
-      <button className="apply-btn">Apply Now</button>
+      </div>
     </section>
   );
 };
