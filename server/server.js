@@ -135,9 +135,22 @@ app.get("/api/mongo/jobs", async (req, res) => {
   try {
     const jobs = await jobModel.find().populate(
       "jobCreatedBy",
-      "companyDetails.name companyDetails.industry"
+      "companyDetails.name companyDetails.industry companyDetails.about logo"
     );
     res.json({ total: jobs.length, jobs });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+app.get("/api/mongo/jobs/:id", async (req, res) => {
+  try {
+    const job = await jobModel.findById(req.params.id).populate(
+      "jobCreatedBy",
+      "companyDetails.name companyDetails.industry companyDetails.about logo"
+    );
+    if (!job) return res.status(404).json({ message: "Job not found" });
+    res.json({ job });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -169,6 +182,31 @@ app.delete("/api/mongo/jobs/:id", async (req, res) => {
   }
 });
 
+/* ===== JOB DETAIL FOR FRONTEND (DisplayJob / JobPage) ===== */
+app.get("/api/jobs/job-detail/:jobId", async (req, res) => {
+  try {
+    const { jobId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(jobId)) {
+      return res.status(400).json({ message: "Invalid Job ID" });
+    }
+
+    const job = await jobModel.findById(jobId).populate(
+      "jobCreatedBy",
+      "companyDetails.name companyDetails.industry companyDetails.about logo"
+    );
+
+    if (!job) return res.status(404).json({ message: "Job not found" });
+
+    res.json({
+      job,
+      company: job.jobCreatedBy
+    });
+  } catch (err) {
+    res.status(500).json({ message: "Error fetching job detail", error: err.message });
+  }
+});
+
 /* ================= 404 ================= */
 app.use((req, res) => {
   res.status(404).json({ message: "Route not found" });
@@ -177,5 +215,5 @@ app.use((req, res) => {
 /* ================= START ================= */
 const port = process.env.PORT || 5012;
 app.listen(port, () => {
-  console.log(`🚀 Server running on port ${port}`);
+  console.log(` Server running on port ${port}`);
 });
