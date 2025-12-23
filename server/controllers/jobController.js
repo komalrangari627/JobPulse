@@ -180,30 +180,22 @@ const getJobDetailWithCompany = async (req, res) => {
   try {
     const { jobId } = req.params;
 
-    // 1️⃣ Try Mongo first
-    if (mongoose.Types.ObjectId.isValid(jobId)) {
-      const job = await jobModel.findById(jobId);
-      if (job) {
-        const company = await companyModel.findById(job.jobCreatedBy);
-        return res.json({ job, company });
-      }
-    }
+    const job = await jobModel
+      .findById(jobId)
+      .populate("jobCreatedBy"); // ✅ POPULATE COMPANY
 
-    // 2️⃣ Fallback to static data
-    const job = jobs.find(j => j._id === jobId || j.id == jobId);
     if (!job) {
       return res.status(404).json({ message: "Job not found" });
     }
 
-    const company = companies.find(c => c.companyName === job.company);
+    const company = job.jobCreatedBy;
 
-    res.json({ job, company });
-
-  } catch (error) {
-    res.status(500).json({
-      message: "Error fetching job detail",
-      error: error.message
+    res.status(200).json({
+      job,
+      company,
     });
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
   }
 };
 

@@ -1,4 +1,4 @@
-import nodemailer from "nodemailer";
+import nodemailer from "nodemailer"; 
 import dotenv from "dotenv";
 import { redisClient } from "../utils/redisClient.js";
 import { userModel } from "../models/userSchema.js";
@@ -28,8 +28,7 @@ transporter.verify((error) => {
 /* =========================
    OTP HELPERS
 ========================= */
-const generateOTP = () =>
-  Math.floor(1000 + Math.random() * 9000).toString();
+const generateOTP = () => Math.floor(1000 + Math.random() * 9000).toString();
 
 const sendOTP = async (email) => {
   const otp = generateOTP();
@@ -96,16 +95,19 @@ const handleUserRegister = async (req, res) => {
       });
     }
 
+    // ✅ Hash password properly
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const newUser = await userModel.create({
+    const newUser = new userModel({
       name,
       phone,
       email: { userEmail: email, verified: false },
       address: { street, city, state, country, pincode },
       dob,
-      password: hashedPassword,
+      password: hashedPassword,  // store hashed password
     });
+
+    await newUser.save();  // Save properly
 
     // 🔑 Send OTP (non-blocking)
     sendOTP(email);
@@ -126,17 +128,13 @@ const handleUserRegister = async (req, res) => {
 const handleOTPVerification = async (req, res) => {
   try {
     const { email, userOtp } = req.body;
-
     const storedOtp = await redisClient.get(`email:${email}`);
+
     if (!storedOtp || storedOtp !== userOtp) {
       return res.status(400).json({ message: "Invalid or expired OTP" });
     }
 
-    await userModel.updateOne(
-      { "email.userEmail": email },
-      { $set: { "email.verified": true } }
-    );
-
+    await userModel.updateOne({ "email.userEmail": email }, { $set: { "email.verified": true } });
     await redisClient.del(`email:${email}`);
 
     res.status(200).json({ message: "Email verified successfully. Please login." });
@@ -161,6 +159,7 @@ const handleUserLogin = async (req, res) => {
     if (!user.email.verified)
       return res.status(400).json({ message: "Email not verified. Please verify OTP." });
 
+    // ✅ Compare password properly with bcrypt
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ message: "Incorrect password" });
 
@@ -176,13 +175,13 @@ const handleUserLogin = async (req, res) => {
     res.status(500).json({ message: "Login failed" });
   }
 };
-
 /* =========================
    PASSWORD RESET REQUEST
 ========================= */
 const handleResetPasswordRequest = async (req, res) => {
   const { email } = req.body;
   const user = await userModel.findOne({ "email.userEmail": email });
+
   if (user) sendOTPForPasswordReset(email);
 
   res.status(200).json({
@@ -196,17 +195,14 @@ const handleResetPasswordRequest = async (req, res) => {
 const handleOTPForPasswordReset = async (req, res) => {
   try {
     const { email, userOtp, newPassword } = req.body;
-
     const storedOtp = await redisClient.get(`emailPasswordReset:${email}`);
-    if (!storedOtp || storedOtp !== userOtp)
+
+    if (!storedOtp || storedOtp !== userOtp) {
       return res.status(400).json({ message: "Invalid OTP" });
+    }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
-    await userModel.updateOne(
-      { "email.userEmail": email },
-      { $set: { password: hashedPassword } }
-    );
-
+    await userModel.updateOne({ "email.userEmail": email }, { $set: { password: hashedPassword } });
     await redisClient.del(`emailPasswordReset:${email}`);
 
     res.status(200).json({ message: "Password reset successful" });
@@ -229,10 +225,7 @@ const handleUserFileUpload = async (req, res) => {
     if (fileType === "profile_picture") update = { profile_picture: req.file.filename };
     else if (fileType === "resume") update = { resume: req.file.filename };
 
-    await userModel.updateOne(
-      { "email.userEmail": req.user.email.userEmail },
-      update
-    );
+    await userModel.updateOne({ "email.userEmail": req.user.email.userEmail }, update);
 
     res.status(200).json({ message: "File uploaded successfully" });
   } catch (err) {
