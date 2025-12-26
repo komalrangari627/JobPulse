@@ -13,13 +13,15 @@ import jobRoute from "./Routers/jobRouter.js";
 import { companyModel } from "./models/companySchema.js";
 import { jobModel } from "./models/jobSchema.js";
 
-// Load env
+// Load environment variables
 dotenv.config({ path: "./config.env" });
 
 const app = express();
 
 /* ================= MIDDLEWARE ================= */
-app.use(cors({ origin: "*", methods: ["GET", "POST", "PUT", "PATCH", "DELETE"] }));
+app.use(
+  cors({ origin: "*", methods: ["GET", "POST", "PUT", "PATCH", "DELETE"] })
+);
 app.use(express.json());
 app.use("/uploads", express.static("uploads"));
 
@@ -30,8 +32,11 @@ conn();
 app.get("/api/dbcheck", (req, res) => {
   const status = mongoose.connection.readyState;
   res.json({
-    message: status === 1 ? "Database connected successfully!" : "Database not connected!",
-    status
+    message:
+      status === 1
+        ? "Database connected successfully!"
+        : "Database not connected!",
+    status,
   });
 });
 
@@ -45,13 +50,30 @@ app.use("/api/users", userRoute);
 app.use("/api/jobs", jobRoute);
 app.use("/api/companies", companyRoute);
 
-/* ======================================================
-   DIRECT MONGODB APIs (ISOLATED PATHS - SAFE)
-====================================================== */
+/* ================= REDIRECT FOR BACKWARD COMPATIBILITY ================= */
+app.get("/api/users/mongo/companies/:id", (req, res) => {
+  const { id } = req.params;
+  // Redirect to the correct backend route
+  res.redirect(307, `/api/mongo/companies/${id}`);
+});
+
+// GET single company by ID
+app.get("/api/users/companies/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id))
+      return res.status(400).json({ message: "Invalid Company ID" });
+
+    const company = await companyModel.findById(id);
+    if (!company) return res.status(404).json({ message: "Company not found" });
+
+    res.json({ company });
+  } catch (err) {
+    res.status(500).json({ message: "Error fetching company detail", error: err.message });
+  }
+});
 
 /* ===== COMPANY CRUD (Mongo Only) ===== */
-
-// CREATE
 app.post("/api/mongo/companies", async (req, res) => {
   try {
     const company = await companyModel.create(req.body);
@@ -61,7 +83,6 @@ app.post("/api/mongo/companies", async (req, res) => {
   }
 });
 
-// READ ALL
 app.get("/api/mongo/companies", async (req, res) => {
   try {
     const companies = await companyModel.find().populate("createdJobs");
@@ -71,12 +92,11 @@ app.get("/api/mongo/companies", async (req, res) => {
   }
 });
 
-// READ ONE
 app.get("/api/mongo/companies/:id", async (req, res) => {
   try {
     const company = await companyModel.findById(req.params.id).populate({
       path: "createdJobs",
-      select: "title jobRequirements.location jobRequirements.offeredSalary"
+      select: "title jobRequirements.location jobRequirements.offeredSalary",
     });
     if (!company) return res.status(404).json({ message: "Company not found" });
     res.json({ company });
@@ -85,7 +105,6 @@ app.get("/api/mongo/companies/:id", async (req, res) => {
   }
 });
 
-// UPDATE
 app.put("/api/mongo/companies/:id", async (req, res) => {
   try {
     const updated = await companyModel.findByIdAndUpdate(req.params.id, req.body, { new: true });
@@ -96,7 +115,6 @@ app.put("/api/mongo/companies/:id", async (req, res) => {
   }
 });
 
-// DELETE
 app.delete("/api/mongo/companies/:id", async (req, res) => {
   try {
     const deleted = await companyModel.findByIdAndDelete(req.params.id);
@@ -108,18 +126,16 @@ app.delete("/api/mongo/companies/:id", async (req, res) => {
 });
 
 /* ===== JOB CRUD (Mongo Only) ===== */
-
 app.post("/api/mongo/jobs", async (req, res) => {
   try {
     const { title, jobRequirements, companyId } = req.body;
-
     const company = await companyModel.findById(companyId);
     if (!company) throw new Error("Invalid company ID");
 
     const job = await jobModel.create({
       title,
       jobCreatedBy: company._id,
-      jobRequirements
+      jobRequirements,
     });
 
     company.createdJobs.push(job._id);
@@ -186,10 +202,8 @@ app.delete("/api/mongo/jobs/:id", async (req, res) => {
 app.get("/api/jobs/job-detail/:jobId", async (req, res) => {
   try {
     const { jobId } = req.params;
-
-    if (!mongoose.Types.ObjectId.isValid(jobId)) {
+    if (!mongoose.Types.ObjectId.isValid(jobId))
       return res.status(400).json({ message: "Invalid Job ID" });
-    }
 
     const job = await jobModel.findById(jobId).populate(
       "jobCreatedBy",
@@ -200,20 +214,20 @@ app.get("/api/jobs/job-detail/:jobId", async (req, res) => {
 
     res.json({
       job,
-      company: job.jobCreatedBy
+      company: job.jobCreatedBy,
     });
   } catch (err) {
     res.status(500).json({ message: "Error fetching job detail", error: err.message });
   }
 });
 
-/* ================= 404 ================= */
+/* ================= 404 HANDLER ================= */
 app.use((req, res) => {
   res.status(404).json({ message: "Route not found" });
 });
 
-/* ================= START ================= */
+/* ================= START SERVER ================= */
 const port = process.env.PORT || 5012;
 app.listen(port, () => {
-  console.log(` Server running on port ${port}`);
+  console.log(`Server running on port ${port}`);
 });
