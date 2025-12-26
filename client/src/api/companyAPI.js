@@ -19,6 +19,7 @@ export const getAllCompanies = async () => {
 export const getCompanyById = async (companyId) => {
   try {
     const res = await axios.get(`${API_ROOT}/${companyId}`);
+    // Return the inner 'company' object directly
     return res.data?.company ?? null;
   } catch (err) {
     console.error(`Error fetching company ${companyId}:`, err.message);
@@ -29,7 +30,7 @@ export const getCompanyById = async (companyId) => {
 /* UPDATE COMPANY */
 export const updateCompany = async (companyId, payload, token) => {
   try {
-    const res = await axios.put(`${API_ROOT}/${companyId}`, payload, {
+    const res = await axios.put(`${API_ROOT}/update/${companyId}`, payload, {
       headers: token ? { Authorization: `Bearer ${token}` } : {},
     });
     return res.data?.company ?? res.data;
