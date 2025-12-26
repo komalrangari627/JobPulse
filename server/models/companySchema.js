@@ -1,7 +1,8 @@
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 
-// Sub-documents
+/* ================= SUB SCHEMAS ================= */
+
 const addressSchema = new mongoose.Schema({
   street: { type: String, default: "" },
   city: { type: String, default: "" },
@@ -33,48 +34,69 @@ const companyDetailsSchema = new mongoose.Schema({
   hrEmail: { type: String, required: true },
 });
 
-// Main Schema
-const companySchema = new mongoose.Schema({
-  companyDetails: {
-    type: companyDetailsSchema,
-    required: true,
-  },
-  contact_person: {
-    type: contactPersonSchema,
-    required: true,
-  },
-  email: {
-    type: emailSchema,
-    required: true,
-  },
-  phone: {
-    type: String,
-    required: true,
-  },
-  companyLogo: {
-     type: String, 
-     default: "" 
-  },
-  documents: {
-    type: Array,
-    default: [],
-  },
+/* ================= MAIN SCHEMA ================= */
 
-  // FIXED: Proper job references
-  createdJobs: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "jobs", // must match job model name
+const companySchema = new mongoose.Schema(
+  {
+    companyDetails: {
+      type: companyDetailsSchema,
+      required: true,
     },
-  ],
 
-  password: {
-    type: String,
-    required: true,
+    contact_person: {
+      type: contactPersonSchema,
+      required: true,
+    },
+
+    email: {
+      type: emailSchema,
+      required: true,
+    },
+
+    phone: {
+      type: String,
+      required: true,
+    },
+
+    companyLogo: {
+      type: String,
+      default: "",
+    },
+
+    documents: {
+      type: Array,
+      default: [],
+    },
+
+    /* ================= JOB REFERENCES ================= */
+
+    // 🔹 PRIMARY JOB (for company-detail page)
+    jobId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "jobs",
+      default: null,
+    },
+
+    // 🔹 ALL JOBS CREATED BY COMPANY
+    createdJobs: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "jobs",
+      },
+    ],
+
+    /* ================= AUTH ================= */
+
+    password: {
+      type: String,
+      required: true,
+    },
   },
-});
+  { timestamps: true }
+);
 
-// Hash password before saving
+/* ================= PASSWORD HASH ================= */
+
 companySchema.pre("save", async function (next) {
   try {
     if (!this.isModified("password")) return next();
@@ -84,5 +106,7 @@ companySchema.pre("save", async function (next) {
     next(err);
   }
 });
+
+/* ================= MODEL ================= */
 
 export const companyModel = mongoose.model("companies", companySchema);
