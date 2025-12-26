@@ -35,21 +35,7 @@ const DisplayJob = () => {
   }, [jobId]);
 
   /* ================= HANDLERS ================= */
-
-  const handleApply = () => {
-    const user = localStorage.getItem("user");
-
-    if (!user) {
-      alert(
-        "Please login first.\nIf you are not registered, please register and login."
-      );
-      navigate("/user-login-register");
-      return;
-    }
-
-    alert("Application submitted successfully!");
-  };
-
+  
   const handleViewCompany = () => {
     if (!company?._id) return;
     navigate(`/company/${company._id}`);
@@ -101,9 +87,12 @@ const DisplayJob = () => {
 
         {/* Buttons */}
         <div className="action-buttons">
-          <button className="apply-btn" onClick={handleApply}>
-            Apply Now
-          </button>
+        <button
+      className="apply-btn"
+      onClick={() => navigate(`/apply/${job._id}`)}
+    >
+      Apply Now
+    </button>
           <div className="action-buttons">
           {job.companyId && (
             <button

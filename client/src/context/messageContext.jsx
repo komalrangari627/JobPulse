@@ -1,30 +1,33 @@
-import { useState, useEffect, createContext, useContext, Children } from "react"
+import { useState, createContext, useContext } from "react";
 
-const messageContext = createContext()
+const messageContext = createContext();
 
-let MessageProvider = ({ children }) => {
+const MessageProvider = ({ children }) => {
+  const [message, setMessage] = useState({
+    status: "",
+    content: "",
+    open: false,
+  });
 
-    let [message, setMessage] = useState({
-        status: "", content: "", open: false
-    })
+  const triggerMessage = (status, content) => {
+    setMessage({ status, content, open: true });
 
-    let triggerMessage = (status, content) => {
-        setMessage({ status, content, open: true })
+    setTimeout(() => {
+      setMessage({
+        status: "",
+        content: "",
+        open: false,
+      });
+    }, 5000);
+  };
 
-        setTimeout(() => {
-            setMessage({
-                status: "", content: "", open: false
-            })
-        }, 5000)
-    }
+  return (
+    <messageContext.Provider value={{ message, triggerMessage }}>
+      {children}
+    </messageContext.Provider>
+  );
+};
 
-    return (
-        <messageContext.Provider value={{ message, triggerMessage }}>
-            {children}
-        </messageContext.Provider>
-    )
-}
+const useMessage = () => useContext(messageContext);
 
-const useMessage = () => useContext(messageContext)
-
-export { MessageProvider, useMessage }
+export { MessageProvider, useMessage };

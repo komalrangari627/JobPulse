@@ -12,41 +12,44 @@ export const UserProvider = ({ children }) => {
     setUser(null);
   };
 
-  useEffect(() => {
-    const fetchUserProfile = async () => {
-      if (!token) return;
+  const fetchUserProfile = async () => {
+    if (!token) return;
 
-      try {
-        const res = await fetch(
-          "http://localhost:5012/api/users/fetch-user-profile",
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-
-        if (res.status === 401) {
-          logout();
-          return;
+    try {
+      const res = await fetch(
+        "http://localhost:5012/api/users/fetch-user-profile",
+        {
+          headers: { Authorization: `Bearer ${token}` },
         }
+      );
 
-        const data = await res.json();
-        setUser(data.user);
-      } catch (err) {
-        console.error("Profile fetching error:", err);
+      if (res.status === 401) {
+        logout();
+        return;
       }
-    };
 
+      const data = await res.json();
+      setUser(data.user);
+    } catch (err) {
+      console.error("Profile fetching error:", err);
+    }
+  };
+
+  useEffect(() => {
     fetchUserProfile();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
   return (
-    <UserContext.Provider value={{ user, token, setToken, logout }}>
+    <UserContext.Provider
+      value={{ user, token, setToken, logout, fetchUserProfile }}
+    >
       {children}
     </UserContext.Provider>
   );
 };
 
-/* ✅ ADD THIS (THIS IS THE FIX) */
+/* ✅ CUSTOM HOOK */
 export const useUser = () => {
   return useContext(UserContext);
 };

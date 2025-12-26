@@ -41,7 +41,12 @@ const JobPage = () => {
 
         {/* ✅ BUTTONS MUST BE HERE */}
         <div className="job-actions">
-          <button className="apply-btn">Apply Now</button>
+        <button
+      className="apply-btn"
+      onClick={() => navigate(`/apply/${job._id}`)}
+    >
+      Apply Now
+    </button>
 
           {/* ✅ View Company button */}
           <div className="job-actions">

@@ -46,16 +46,21 @@ export const requestUserEmailOtpVerification = async (email, userOtp) => {
 /* =========================
    LOGIN USER
 ========================= */
-export const requestUserLogin = async ({ email, password }) => {
-  try {
-    const result = await axios.post(`${API_ROOT}/user-login`, {
-      email,
-      password, // ✅ password explicitly sent
-    });
-    return result;
-  } catch (err) {
-    throw err;
-  }
+export const requestUserLogin = async (loginData) => {
+  const response = await axios.post(
+    "http://localhost:5012/api/users/user-login",
+    {
+      email: loginData.email,
+      password: loginData.password
+    },
+    {
+      headers: {
+        "Content-Type": "application/json"
+      }
+    }
+  );
+
+  return response.data;
 };
 
 /* =========================

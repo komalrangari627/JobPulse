@@ -1,0 +1,67 @@
+.apply-page {
+    min-height: 100vh;
+    background: #f4f6f8;
+    padding: 3rem 1rem;
+    text-align: center;
+  
+    h2 {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+  
+    .subtitle {
+      color: #555;
+      margin-bottom: 2rem;
+    }
+  
+    .mode-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+  
+      .mode-btn {
+        padding: 0.8rem 1.5rem;
+        border: none;
+        cursor: pointer;
+        font-weight: 600;
+        background: #ddd;
+        border-radius: 4px;
+  
+        &.active {
+          background: #ff3b3b;
+          color: #fff;
+        }
+  
+        &.offline {
+          background: #ff4fd8;
+          color: #000;
+        }
+      }
+    }
+  
+    .info-box {
+      max-width: 520px;
+      margin: auto;
+      background: #fff;
+      padding: 1.5rem;
+      border-radius: 6px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  
+      ul {
+        text-align: left;
+        margin-top: 0.8rem;
+      }
+    }
+  
+    .start-btn {
+      margin-top: 1.5rem;
+      background: red;
+      color: #fff;
+      padding: 0.7rem 2rem;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+    }
+  }
+  

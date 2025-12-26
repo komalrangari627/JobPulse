@@ -18,13 +18,14 @@ import { CompanyProvider } from "./context/companyContext.jsx";
 import CompanyPage from './components/sections/companies/CompanyPage.jsx'
 import DisplayCompany from './components/pages/DisplayCompany.jsx'
 
+import ApplyPage from "./components/pages/ApplyPage";
+
 const App = () => {
 
   return (
     <>
       <UserProvider>
         <MessageProvider>
-          <Message />
           <JobProvider>
             <CompanyProvider>
               <Router>
@@ -35,6 +36,7 @@ const App = () => {
                   <Route path="/company-detail/:companyId" element={<DisplayCompany />} />
                   <Route path="/company/:companyId" element={<CompanyPage />} />
                   <Route path="/job/:jobId" element={<DisplayJob />} />
+                  <Route path="/apply/:jobId" element={<ApplyPage />} />
                 </Routes>
               </Router>
             </CompanyProvider>
@@ -46,22 +48,3 @@ const App = () => {
 }
 
 export default App
-
-
-// fetch all jobs -> create page for each job -> display job info and posted by info -> then create a company public page
-
-// new user(Not logedIn Yet)
-// home (Job grid)
-// company public page
-// single job page
-
-// new user(logedIn)
-// apply to job
-// dashboard
-  // create/edit profile
-  // track job application
-
-// company dashboard
-// create jobs
-// edit profile
-// view application
