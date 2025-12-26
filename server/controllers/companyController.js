@@ -365,3 +365,15 @@ export const getCompanyById = async (req, res) => {
     });
   }
 };
+
+export const getCompanyDetail = async (req, res) => {
+  try {
+    const { companyId } = req.params;
+    const company = await companyModel.findById(companyId); // or findOne
+    if (!company) return res.status(404).json({ message: "Company not found" });
+    res.json({ company });
+  } catch (err) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
