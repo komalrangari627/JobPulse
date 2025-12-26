@@ -1,13 +1,13 @@
 .job-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #6aece1, #26ccc2);
+  background: linear-gradient(135deg, #fcc6ff, #ffe6c9); // palette gradient
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 3.5rem;
 
   .card-page {
-    background: linear-gradient(135deg, #ffffff, #f8fffd);
+    background: linear-gradient(135deg, #ffffff, #ffe6c9); // light gradient card
     max-width: 760px;
     width: 100%;
     padding: 3.5rem;
@@ -16,16 +16,16 @@
     animation: fadeIn 0.4s ease-in-out;
 
     h1 {
-      font-size: 2.8rem;
+      font-size: 2.9rem;
       font-weight: 800;
-      color: #0b5f5a;
+      color: #ffa09b; // pink-red title from palette
       margin-bottom: 0.6rem;
     }
 
     .company {
       font-size: 1.35rem;
       font-weight: 700;
-      color: #26ccc2;
+      color: #ffc785; // orange accent
       margin-bottom: 1.8rem;
     }
 
@@ -36,18 +36,18 @@
       margin-bottom: 2.4rem;
 
       span {
-        background: #fff57e;
+        background: #ffe6c9; // pale background
         padding: 0.9rem 1.8rem;
         border-radius: 999px;
         font-size: 1.15rem;
         font-weight: 700;
-        color: #4d4d00;
+        color: #fcc6ff; // purple text
         box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
       }
     }
 
     article {
-      font-size: 1.18rem;
+      font-size: 1.30rem;
       line-height: 1.85;
       color: #2f3e3b;
       font-weight: 500;
@@ -64,7 +64,7 @@
     /* ✅ Apply Button */
     .apply-btn {
       flex: 1;
-      background: linear-gradient(135deg, #ffb76c, #ffa24a);
+      background: linear-gradient(135deg, #ffc785, #ffa09b); // gradient from palette
       color: #4a2a00;
       padding: 1.4rem;
       border-radius: 18px;
@@ -76,67 +76,92 @@
 
       &:hover {
         transform: translateY(-3px);
-        box-shadow: 0 18px 42px rgba(255, 183, 108, 0.55);
+        box-shadow: 0 18px 42px rgba(255, 168, 140, 0.55);
       }
     }
 
-/* ACTION BUTTONS */
-.action-buttons {
-  margin-top: 3rem;
+    /* ACTION BUTTONS */
+    .action-buttons {
+      margin-top: 3rem;
 
-  /* Apply button section (normal card bg) */
-  .apply-btn {
-    width: 100%;
-    padding: 1.4rem;
-    border-radius: 18px;
-    font-size: 1.25rem;
-    font-weight: 800;
-    border: none;
-    cursor: pointer;
-    background: #f39eb6;
-    color: #4a1f2f;
-    transition: all 0.3s ease;
+      .apply-btn {
+        width: 100%;
+        padding: 1.4rem;
+        border-radius: 18px;
+        font-size: 1.25rem;
+        font-weight: 800;
+        border: none;
+        cursor: pointer;
+        background: #ffc785;
+        color: #4a2a00;
+        transition: all 0.3s ease;
 
-    &:hover {
-      background: #f08aa8;
-      transform: translateY(-3px);
-      box-shadow: 0 18px 42px rgba(243, 158, 182, 0.55);
+        &:hover {
+          background: #ffa09b;
+          transform: translateY(-3px);
+          box-shadow: 0 18px 42px rgba(255, 160, 155, 0.55);
+        }
+      }
+
+      .view-company-btn {
+        margin-top: 1.6rem;
+        width: 100%;
+        padding: 1.4rem;
+        border-radius: 18px;
+        font-size: 1.25rem;
+        font-weight: 800;
+        border: none;
+        cursor: pointer;
+        background: #fcc6ff;
+        color: #4a2a00;
+        transition: all 0.3s ease;
+
+        &:hover {
+          background: #ffe6c9;
+          transform: translateY(-3px);
+          box-shadow: 0 18px 42px rgba(252, 198, 255, 0.55);
+        }
+      }
     }
-  }
 
-  /* 🔥 Separate colored block for company button */
-  .view-company-btn {
-    margin-top: 1.6rem;
-    width: 100%;
-    padding: 1.4rem;
-    border-radius: 18px;
-    font-size: 1.25rem;
-    font-weight: 800;
-    border: none;
-    cursor: pointer;
-    background: #b8db80;
-    color: #2d4f45;
-    transition: all 0.3s ease;
-
-    &:hover {
-      background: #a6cf67;
-      transform: translateY(-3px);
-      box-shadow: 0 18px 42px rgba(184, 219, 128, 0.55);
+    /* ✨ Animation */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(25px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
   }
 }
 
+/* ================= RESPONSIVE ================= */
+@media (max-width: 768px) {
+  .job-page {
+    padding: 2rem;
 
-/* ✨ Animation */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(25px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
+    .card-page {
+      padding: 2rem;
+
+      h1 {
+        font-size: 2.2rem;
+      }
+
+      .company {
+        font-size: 1.2rem;
+      }
+
+      .details span {
+        font-size: 1rem;
+        padding: 0.7rem 1.4rem;
+      }
+
+      article {
+        font-size: 1.05rem;
+      }
+    }
   }
 }

@@ -2,14 +2,17 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
   gap: 1.5rem;
-  padding: 1rem;
+  padding: 2rem;
+  background: #4ED7F1; /* Primary Bright Blue from Palette */
+  border-radius: 20px;
 
   .job-card {
-    background: linear-gradient(135deg, rgb(141, 2, 247), rgb(205, 130, 246));
+    background: #A8F1FF; /* Lightest Blue from Palette */
+    border: 1px solid #6FE6FC; /* Medium Cyan Border */
     border-radius: 12px;
-    box-shadow: 0 6px 18px rgba(145, 18, 188, 0.35);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
     cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -18,47 +21,48 @@
 
     &:hover {
       transform: translateY(-5px);
-      box-shadow: 0 12px 32px rgba(145, 18, 188, 0.6);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.15);
+      border-color: #4ED7F1; /* Highlight with darkest blue from palette */
     }
 
-    /* Company logo — SAME SIZE AS BEFORE */
     img {
       width: 200px;
       height: 200px;
+      object-fit: contain;
       margin-bottom: 1rem;
-      background: rgba(255, 255, 255, 0.18);
-      padding: 0.5rem;
+      background: #FFFA8D; /* Yellow Accent from Palette for Logo Box */
+      padding: 0.8rem;
+      border: 1px solid #6FE6FC;
+      border-radius: 8px;
     }
 
-    /* Job Info */
     .job-info {
-      display: flex;
-      flex-direction: column;
-      gap: 0.25rem;
-
       h3 {
-        font-size: 1.45rem;
-        font-weight: 800; /* strongest */
-        color: #130202;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #0f4c5c; /* Deep Teal for high readability on light background */
         margin-bottom: 0.4rem;
-        letter-spacing: 0.3px;
       }
 
       p {
-        font-size: 1.05rem;
-        font-weight: 600; /* medium */
-        color: #fafcfd;
-        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 500;
+        color: #155e75; /* Dark Cyan for body text */
       }
 
+      /* Salary tag style */
       p:nth-child(3) {
-        font-size: 1rem;
-        font-weight: 500;
+        font-size: 1.50rem;
+        font-weight: 600;
+        color: #0e7490; /* Accent Cyan */
+        margin-top: 5px;
       }
-
+      
+      /* Experience/Type tag */
       p:nth-child(4) {
-        font-size: 0.95rem;
-        font-weight: 500;
+        font-size: 1.50rem;
+        color: #164e63;
+        opacity: 0.9;
       }
     }
   }
