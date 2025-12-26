@@ -125,9 +125,6 @@
       <label for="userFile">Select File:</label>
       <input type="file" id="userFile" name="file" required />
 
-      <label for="userToken">Paste User JWT Token:</label>
-      <input type="text" id="userToken" placeholder="Bearer token..." required />
-
       <button type="submit">Upload User File</button>
 
       <pre id="userResponse"></pre>
@@ -139,9 +136,6 @@
 
       <label for="companyLogo">Select Company Logo (PNG / JPG / JPEG):</label>
       <input type="file" id="companyLogo" name="file" accept=".png,.jpg,.jpeg" required />
-
-      <label for="companyToken">Paste Company JWT Token:</label>
-      <input type="text" id="companyToken" placeholder="Bearer token..." required />
 
       <button type="submit">Upload Company Logo</button>
 
@@ -159,26 +153,24 @@
     // ---------- USER FILE UPLOAD ----------
     document.getElementById("uploadUserForm").addEventListener("submit", async (e) => {
       e.preventDefault();
-
+  
       const fileType = document.getElementById("fileType").value;
       const file = document.getElementById("userFile").files[0];
-      const token = document.getElementById("userToken").value.trim();
-
-      if (!file || !token) {
-        alert("Please select a file and provide your user token!");
+  
+      if (!file) {
+        alert("Please select a file!");
         return;
       }
-
+  
       const formData = new FormData();
       formData.append("file", file);
-
+  
       try {
         const res = await fetch(`http://localhost:5012/api/users/upload-file/${fileType}`, {
           method: "POST",
-          headers: { "Authorization": `Bearer ${token}` },
           body: formData,
         });
-
+  
         const data = await res.json();
         document.getElementById("userResponse").textContent = JSON.stringify(data, null, 2);
       } catch (err) {
@@ -186,36 +178,47 @@
         document.getElementById("userResponse").textContent = "❌ Error uploading user file!";
       }
     });
-
+  
     // ---------- COMPANY LOGO UPLOAD ----------
     document.getElementById("uploadCompanyForm").addEventListener("submit", async (e) => {
       e.preventDefault();
-
+  
       const file = document.getElementById("companyLogo").files[0];
-      const token = document.getElementById("companyToken").value.trim();
-
-      if (!file || !token) {
-        alert("Please select a logo and provide your company token!");
+  
+      if (!file) {
+        alert("Please select a logo!");
         return;
       }
-
+  
+      const token = localStorage.getItem("companyToken"); // ✅ ADDED
+  
+      if (!token) {
+        alert("Company not logged in!");
+        return;
+      }
+  
       const formData = new FormData();
       formData.append("file", file);
-
+  
       try {
-        const res = await fetch(`http://localhost:5012/api/company/upload-file/logo`, {
+        const res = await fetch(`http://localhost:5012/api/companies/upload-file/logo`, {
           method: "POST",
-          headers: { "Authorization": `Bearer ${token}` },
+          headers: {
+            Authorization: `Bearer ${token}`, // ✅ ADDED
+          },
           body: formData,
         });
-
+  
         const data = await res.json();
         document.getElementById("companyResponse").textContent = JSON.stringify(data, null, 2);
-
+  
         // Show logo preview
         if (data.path || data.file || data.fileUrl) {
           const imagePath = data.path || data.file || data.fileUrl;
-          const imgSrc = imagePath.startsWith("http") ? imagePath : `http://localhost:5012/${imagePath}`;
+          const imgSrc = imagePath.startsWith("http")
+            ? imagePath
+            : `http://localhost:5012/${imagePath}`;
+  
           document.getElementById("previewImage").src = imgSrc;
           document.getElementById("logoPreview").style.display = "block";
         }
@@ -224,6 +227,6 @@
         document.getElementById("companyResponse").textContent = "❌ Error uploading company logo!";
       }
     });
-  </script>
+  </script>  
 </body>
 </html>

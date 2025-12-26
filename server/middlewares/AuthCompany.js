@@ -4,37 +4,50 @@ import { companyModel } from "../models/companySchema.js";
 
 dotenv.config({ path: "./config.env" });
 
- const AuthCompany = async (req, res, next) => {
+const AuthCompany = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
 
-    if (!authHeader)
-      throw "Authorization header missing! Please login first.";
+    if (!authHeader) {
+      return res
+        .status(401)
+        .json({ message: "Authorization header missing. Please login first." });
+    }
 
+    // Accept both "Bearer <token>" and "<token>"
     const token = authHeader.startsWith("Bearer ")
       ? authHeader.split(" ")[1]
       : authHeader;
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
 
+    // ✅ FIXED EMAIL QUERY
     const company = await companyModel.findOne({
-      "email.userEmail": decoded.email,
+      "email.value": decoded.email,
     });
 
-    if (!company) throw "Invalid token! Company not found.";
+    if (!company) {
+      return res
+        .status(401)
+        .json({ message: "Invalid token. Company not found." });
+    }
 
-    if (!company.email.verified)
-      throw "Company email not verified! Please verify before continuing.";
+    if (!company.email.verified) {
+      return res.status(401).json({
+        message:
+          "Company email not verified. Please verify before continuing.",
+      });
+    }
 
     req.company = company;
     next();
   } catch (err) {
-    console.error("companyAuth failed:", err);
-    res.status(401).json({
-      message: "Authentication failed! Please log in again.",
-      error: err.message || err,
+    console.error("Company auth failed:", err.message || err);
+
+    return res.status(401).json({
+      message: "Authentication failed. Please log in again.",
     });
   }
 };
 
-export{AuthCompany};
+export { AuthCompany };

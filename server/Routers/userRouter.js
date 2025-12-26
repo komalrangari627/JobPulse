@@ -3,7 +3,7 @@ import {
     test, 
     handleUserRegister, 
     handleOTPVerification, 
-    handleUserLogin, 
+    loginUser, 
     handleResetPasswordRequest, 
     handleOTPForPasswordReset, 
     handleUserFileUpload, 
@@ -22,7 +22,7 @@ router.post("/register", handleUserRegister);
 router.post("/verify-otp", handleOTPVerification);
 
 // User login
-router.post("/user-login", handleUserLogin);
+router.post("/user-login", loginUser);
 
 // Password reset flow
 router.post("/password-reset-request", handleResetPasswordRequest);

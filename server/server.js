@@ -14,7 +14,7 @@ import { companyModel } from "./models/companySchema.js";
 import { jobModel } from "./models/jobSchema.js";
 
 // Load environment variables
-dotenv.config({ path: "./config.env" });
+dotenv.config();
 
 const app = express();
 
