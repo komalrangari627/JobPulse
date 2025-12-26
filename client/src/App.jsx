@@ -15,9 +15,8 @@ import { JobProvider } from './context/jobContext.jsx'
 import DisplayJob from './components/pages/DisplayJob.jsx'
 
 import { CompanyProvider } from "./context/companyContext.jsx";
-import CompanyPublic from "./components/pages/CompanyPublic.jsx";
 import CompanyPage from './components/sections/companies/CompanyPage.jsx'
-import CompanyDisplay from './components/pages/CompanyDisplay.jsx'
+import DisplayCompany from './components/pages/DisplayCompany.jsx'
 
 const App = () => {
 
@@ -33,10 +32,9 @@ const App = () => {
                   <Route path='/' element={<Home />} />
                   <Route path='/user-login-register' element={<UserLoginRegister />} />
                   <Route path='/user-dashboard' element={<UserDashboard />} />
-                  <Route path='/job/:jobId' element={<DisplayJob />} />
-                  <Route path="/company/:companyId" element={<CompanyPublic />} />
+                  <Route path="/company-detail/:companyId" element={<DisplayCompany />} />
                   <Route path="/company/:companyId" element={<CompanyPage />} />
-                  <Route path="/company/:companyId" element={<CompanyDisplay />} />
+                  <Route path="/job/:jobId" element={<DisplayJob />} />
                 </Routes>
               </Router>
             </CompanyProvider>
