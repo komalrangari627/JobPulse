@@ -33,4 +33,9 @@ jobRouter.post("/:action/:jobId", AuthCompany, handleJobAction);
 // Create job → /api/jobs
 jobRouter.post("/", AuthCompany, createJob);
 
+jobRouter.get("/company/:companyId", async (req, res) => {
+  const jobs = await Job.find({ companyId: req.params.companyId });
+  res.json(jobs);
+});
+
 export default jobRouter;

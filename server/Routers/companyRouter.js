@@ -1,8 +1,4 @@
-import jwt from "jsonwebtoken";
 import express from "express";
-import { companyModel } from "../models/companySchema.js";
-import upload from "../config/multerConfig.js";
-
 import {
   test,
   registerCompany,
@@ -13,99 +9,119 @@ import {
   handleCompanyFileUpload,
   handleCompanyPasswordResetRequest,
   handleCompanyOTPForPasswordReset,
-  addCompanyLogo
+  addCompanyLogo,
+  getCompanyById,
+  getAllCompanies,
+  getCompanyDetail
 } from "../controllers/companyController.js";
 
 import { AuthCompany } from "../middlewares/AuthCompany.js";
-import { companies } from "../database/companiesData.js"; // static data
+import upload from "../config/multerConfig.js";
+import mongoose from "mongoose";
+import { companyModel } from "../models/companySchema.js";
 
-const router = express.Router();
+const companiesRouter = express.Router();
 
 /* ================= TEST ================= */
-router.get("/test", test);
+companiesRouter.get("/test", test);
 
-/* ================= PUBLIC COMPANY APIs ================= */
+/* ================= PUBLIC ROUTES ================= */
 
-// ✅ Get all companies (PUBLIC)
-router.get("/", (req, res) => {
+/**
+ * ✅ Company + Job detail (PUBLIC)
+ * MUST be above "/:id"
+ */
+// companyRouter.js
+companiesRouter.get("/company-detail/:companyId", getCompanyDetail);
+
+/**
+ * ✅ Public Mongo fetch (USED BY FRONTEND)
+ */
+companiesRouter.get("/mongo/:id", async (req, res) => {
   try {
-    res.status(200).json({
-      message: "Companies fetched successfully!",
-      companies
-    });
-  } catch (error) {
-    res.status(500).json({
-      message: "Fetching companies failed!",
-      error: error.message
-    });
-  }
-});
+    const { id } = req.params;
 
-// ✅ Get single company by ID (PUBLIC)
-router.get("/:id", (req, res) => {
-  try {
-    const company = companies.find(c => c.id == req.params.id);
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid Company ID" });
+    }
+
+    const company = await companyModel.findById(id);
     if (!company) {
       return res.status(404).json({ message: "Company not found" });
     }
+
     res.status(200).json({ company });
-  } catch (error) {
+  } catch (err) {
     res.status(500).json({
-      message: "Fetching company failed!",
-      error: error.message
+      message: "Error fetching company detail",
+      error: err.message,
     });
   }
 });
 
-/* ================= AUTH & ACCOUNT ================= */
+/**
+ * ✅ Get all companies (PUBLIC)
+ */
+companiesRouter.get("/", getAllCompanies);
 
-router.post("/register", upload.single("companyLogo"), registerCompany);
-router.post("/verify-otp", verifyCompanyOtp);
-router.post("/company-login", loginCompany);
+/**
+ * ✅ Get company by ID (PUBLIC)
+ * MUST be LAST public route
+ */
+companiesRouter.get("/:id", getCompanyById);
 
-// Login by company ID
-router.post("/login-by-id/:id", async (req, res) => {
-  try {
-    const company = await companyModel.findById(req.params.id);
-    if (!company) return res.status(404).json({ message: "Company not found" });
+/* ================= AUTH ROUTES ================= */
 
-    const token = jwt.sign(
-      { id: company._id, role: "company" },
-      process.env.JWT_SECRET,
-      { expiresIn: "7d" }
-    );
+companiesRouter.post(
+  "/register",
+  upload.single("companyLogo"),
+  registerCompany
+);
 
-    res.status(200).json({ success: true, token, company });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
+companiesRouter.post("/verify-otp", verifyCompanyOtp);
+companiesRouter.post("/company-login", loginCompany);
 
-/* ================= UPDATE / DELETE ================= */
+/* ================= PROTECTED ROUTES ================= */
 
-router.put("/update/:id", AuthCompany, upload.single("companyLogo"), updateCompany);
-router.delete("/delete/:id", AuthCompany, deleteCompany);
+companiesRouter.put(
+  "/update/:id",
+  AuthCompany,
+  upload.single("companyLogo"),
+  updateCompany
+);
+
+companiesRouter.delete(
+  "/delete/:id",
+  AuthCompany,
+  deleteCompany
+);
 
 /* ================= PASSWORD RESET ================= */
 
-router.post("/password-reset-request", handleCompanyPasswordResetRequest);
-router.post("/verify-reset-password-request", handleCompanyOTPForPasswordReset);
+companiesRouter.post(
+  "/password-reset-request",
+  handleCompanyPasswordResetRequest
+);
+
+companiesRouter.post(
+  "/verify-reset-password-request",
+  handleCompanyOTPForPasswordReset
+);
 
 /* ================= FILE UPLOAD ================= */
 
-router.post(
+companiesRouter.post(
   "/upload-file/:file_type",
   AuthCompany,
   upload.single("file"),
   handleCompanyFileUpload
 );
 
-// Upload logo to Cloudinary
-router.post(
+companiesRouter.post(
   "/upload-logo/:companyId",
   AuthCompany,
   upload.single("file"),
   addCompanyLogo
 );
 
-export default router;
+export default companiesRouter;
