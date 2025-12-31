@@ -38,6 +38,8 @@ const companyDetailsSchema = new mongoose.Schema({
 
 const companySchema = new mongoose.Schema(
   {
+    /* ========= COMPANY CORE ========= */
+
     companyDetails: {
       type: companyDetailsSchema,
       required: true,
@@ -68,7 +70,48 @@ const companySchema = new mongoose.Schema(
       default: [],
     },
 
-    /* ================= JOB REFERENCES ================= */
+    /* ========= OFFLINE INTERNSHIP DETAILS ========= */
+
+    offlineInternship: {
+      streetAddress: {
+        type: String,
+        default: "",
+      },
+      city: {
+        type: String,
+        default: "",
+      },
+      state: {
+        type: String,
+        default: "",
+      },
+      pincode: {
+        type: String,
+        default: "",
+      },
+      googleMapLink: {
+        type: String,
+        default: "",
+      },
+      visitDate: {
+        type: String,
+        default: "",
+      },
+      visitTime: {
+        type: String,
+        default: "",
+      },
+      syllabus: {
+        type: String,
+        default: "",
+      },
+      instructions: {
+        type: String,
+        default: "",
+      },
+    },
+    
+    /* ========= JOB REFERENCES ========= */
 
     // 🔹 PRIMARY JOB (for company-detail page)
     jobId: {
@@ -85,7 +128,7 @@ const companySchema = new mongoose.Schema(
       },
     ],
 
-    /* ================= AUTH ================= */
+    /* ========= AUTH ========= */
 
     password: {
       type: String,

@@ -7,19 +7,19 @@ dotenv.config();
 const AuthUser = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
+
     if (!authHeader) {
       return res.status(401).json({ message: "Token not found" });
     }
 
-    // Accept both: "Bearer <token>" or "<token>"
     const token = authHeader.startsWith("Bearer ")
       ? authHeader.split(" ")[1]
       : authHeader;
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
 
-    // ✅ FIXED EMAIL QUERY
-    const user = await userModel.findOne({ "email.value": decoded.email });
+    // ✅ FIX: fetch user by ID from token
+    const user = await userModel.findById(decoded.id);
 
     if (!user) {
       return res.status(401).json({ message: "User not found" });
