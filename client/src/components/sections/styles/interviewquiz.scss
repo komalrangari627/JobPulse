@@ -1,0 +1,127 @@
+/* ================================
+   Interview Quiz Container
+================================ */
+.quiz-container {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 32px;
+  background: linear-gradient(135deg, #f9fafb, #ffffff);
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+  font-family: "Segoe UI", sans-serif;
+  animation: fadeIn 0.4s ease-in-out;
+}
+
+/* ================================
+   Round Title
+================================ */
+.quiz-container h2 {
+  font-size: 26px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: #1f2937;
+}
+
+/* ================================
+   Timer
+================================ */
+.quiz-container h4 {
+  font-size: 15px;
+  font-weight: 600;
+  color: #dc2626;
+  margin-bottom: 24px;
+  display: inline-block;
+  background: #fee2e2;
+  padding: 6px 14px;
+  border-radius: 999px;
+}
+
+/* ================================
+   Question
+================================ */
+.quiz-container p {
+  font-size: 18px;
+  font-weight: 500;
+  margin-bottom: 24px;
+  color: #111827;
+  line-height: 1.6;
+}
+
+/* ================================
+   Options Wrapper
+================================ */
+.options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+/* ================================
+   Option Buttons
+================================ */
+.options button {
+  padding: 14px 18px;
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: 12px;
+  border: 2px solid #e5e7eb;
+  background-color: #ffffff;
+  color: #1f2937;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+/* Hover */
+.options button:hover {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(37, 99, 235, 0.25);
+}
+
+/* Active */
+.options button:active {
+  transform: scale(0.97);
+}
+
+/* ================================
+   Loading / Empty States
+================================ */
+.quiz-container > p {
+  text-align: center;
+  font-size: 16px;
+  color: #6b7280;
+}
+
+/* ================================
+   Animations
+================================ */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ================================
+   Responsive
+================================ */
+@media (max-width: 600px) {
+  .quiz-container {
+    padding: 22px;
+    margin: 20px;
+  }
+
+  .quiz-container h2 {
+    font-size: 22px;
+  }
+
+  .quiz-container p {
+    font-size: 16px;
+  }
+}

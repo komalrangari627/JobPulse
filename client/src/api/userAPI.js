@@ -60,6 +60,11 @@ export const requestUserLogin = async (loginData) => {
     }
   );
 
+  // ✅ SAVE TOKEN HERE
+  if (response.data?.token) {
+    localStorage.setItem("token", response.data.token);
+  }
+
   return response.data;
 };
 

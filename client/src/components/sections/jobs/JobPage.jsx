@@ -43,7 +43,7 @@ const JobPage = () => {
         <div className="job-actions">
         <button
       className="apply-btn"
-      onClick={() => navigate(`/apply/${job._id}`)}
+      onClick={() => navigate(`/apply/${companyId}/${jobId}`)}
     >
       Apply Now
     </button>

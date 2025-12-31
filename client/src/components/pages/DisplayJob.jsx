@@ -35,7 +35,7 @@ const DisplayJob = () => {
   }, [jobId]);
 
   /* ================= HANDLERS ================= */
-  
+
   const handleViewCompany = () => {
     if (!company?._id) return;
     navigate(`/company/${company._id}`);
@@ -69,10 +69,10 @@ const DisplayJob = () => {
         <div className="job-meta">
           <span className="badge"> {job.jobType || "Full Time"}</span>
           <span className="badge">
-             {job.jobRequirements?.experience || job.experience}
+            {job.jobRequirements?.experience || job.experience}
           </span>
           <span className="badge">
-             {job.jobRequirements?.offeredSalary || job.salary}
+            {job.jobRequirements?.offeredSalary || job.salary}
           </span>
         </div>
 
@@ -87,22 +87,22 @@ const DisplayJob = () => {
 
         {/* Buttons */}
         <div className="action-buttons">
-        <button
-      className="apply-btn"
-      onClick={() => navigate(`/apply/${job._id}`)}
-    >
-      Apply Now
-    </button>
+          <button
+            className="apply-btn"
+            onClick={() => navigate(`/apply/${job._id}`)}
+          >
+            Apply Now
+          </button>
           <div className="action-buttons">
-          {job.companyId && (
-            <button
-              className="view-company-btn"
-              onClick={() => navigate(`/company/${job.companyId}`)}
-            >
-              View Company
-            </button>
-          )}
-        </div>
+            {job.companyId && (
+              <button
+                className="view-company-btn"
+                onClick={() => navigate(`/company/${job.companyId}`)}
+              >
+                View Company
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Company Info */}

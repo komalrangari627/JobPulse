@@ -1,10 +1,25 @@
 import { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import "../sections/styles/applyPage.scss";
 
 const ApplyPage = () => {
-  const { jobId } = useParams();
+  const { jobId } = useParams(); // Get jobId from URL
+  const navigate = useNavigate();
+
   const [mode, setMode] = useState(null);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [finalMode, setFinalMode] = useState(null);
+
+  const startInterview = () => {
+    navigate(`/online-interview/${jobId}/quiz`);
+  };
+
+  // 🔹 Offline email trigger
+  const sendOfflineEmail = () => {
+    console.log("📧 Sending offline internship email for job:", jobId);
+    alert("Offline internship details sent to your email.");
+    setShowConfirm(false);
+  };
 
   return (
     <div className="apply-page">
@@ -13,7 +28,7 @@ const ApplyPage = () => {
         We provide two internship modes: Online & Offline
       </p>
 
-      {/* Mode Buttons */}
+      {/* ================= Mode Selection ================= */}
       <div className="mode-buttons">
         <button
           className={`mode-btn ${mode === "online" ? "active" : ""}`}
@@ -30,7 +45,7 @@ const ApplyPage = () => {
         </button>
       </div>
 
-      {/* Online Info */}
+      {/* ================= Info Before Confirm ================= */}
       {mode === "online" && (
         <div className="info-box">
           <p>
@@ -38,14 +53,9 @@ const ApplyPage = () => {
             start your interview online. After submission, we will review
             and send interview timing (today or tomorrow).
           </p>
-
-          <button className="start-btn">
-            Start Interview
-          </button>
         </div>
       )}
 
-      {/* Offline Info */}
       {mode === "offline" && (
         <div className="info-box">
           <p>
@@ -56,6 +66,73 @@ const ApplyPage = () => {
             <li>Visiting date & time</li>
             <li>Syllabus for crack round</li>
             <li>Other instructions</li>
+          </ul>
+        </div>
+      )}
+
+      {/* ================= Confirm Button ================= */}
+      {mode && (
+        <button
+          className="confirm-btn"
+          onClick={() => setShowConfirm(true)}
+        >
+          Confirm
+        </button>
+      )}
+
+      {/* ================= Confirmation Modal ================= */}
+      {showConfirm && (
+        <div className="confirm-modal">
+          <div className="modal-box">
+            <h3>Confirm Internship Mode</h3>
+
+            <div className="modal-actions">
+              <button
+                onClick={() => {
+                  setFinalMode("online");
+                  setShowConfirm(false);
+                }}
+              >
+                Online
+              </button>
+
+              <button
+                className="offline"
+                onClick={() => {
+                  setFinalMode("offline");
+                  sendOfflineEmail();
+                }}
+              >
+                Offline
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ================= Final Result ================= */}
+      {finalMode === "online" && (
+        <div className="info-box">
+          <p>
+            You selected <b>Online Internship</b>. Upload resume and
+            start your interview.
+          </p>
+
+          <button className="start-btn" onClick={startInterview}>
+            🚀 Start Online Interview
+          </button>
+        </div>
+      )}
+
+      {finalMode === "offline" && (
+        <div className="info-box">
+          <p>
+            Offline internship selected. Check your email for:
+          </p>
+          <ul>
+            <li>Company location</li>
+            <li>Visit date & time</li>
+            <li>Syllabus</li>
           </ul>
         </div>
       )}
