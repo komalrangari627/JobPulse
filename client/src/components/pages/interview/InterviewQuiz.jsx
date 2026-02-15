@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import "../../sections/styles/Interviewquiz.scss";
-import { getInterviewByJobId } from "../../../api/interAPI";
+import { getInterviewByJobId, getAIQuestions } from "../../../api/interAPI";
 
 const InterviewQuiz = () => {
   const { jobId } = useParams();
@@ -12,29 +12,55 @@ const InterviewQuiz = () => {
   const [timer, setTimer] = useState(0);
   const [loading, setLoading] = useState(true);
   const [interviewId, setInterviewId] = useState(null);
+  const [userAnswer, setUserAnswer] = useState("");
 
   // 🔹 Fetch interview
-  useEffect(() => {
-    const fetchInterview = async () => {
-      try {
-        const data = await getInterviewByJobId(jobId);
-        console.log("Interview API response:", data);
-  
-        if (data?.rounds?.length) {
-          setInterviewRounds(data.rounds);
-          setInterviewId(data.interviewId);
-          setTimer(data.rounds[0].time);
-        }        
-        
-      } catch (err) {
-        console.error("Failed to load interview", err);
-      } finally {
-        setLoading(false);
+// 🔹 Fetch interview + AI questions
+useEffect(() => {
+  const fetchInterview = async () => {
+    try {
+      const data = await getInterviewByJobId(jobId);
+
+      let rounds = data?.rounds || [];
+
+     // ⭐ Auto AI Questions
+const aiData = await getAIQuestions("job interview");
+
+if (aiData?.questions) {
+
+  const aiQuestions = Array.isArray(aiData.questions)
+    ? aiData.questions
+    : aiData.questions.split("\n").filter(q => q.trim() !== "");
+
+  rounds = [
+    ...rounds,
+    {
+      title: "AI Round",
+      time: 60,
+      questions: aiQuestions.map((q) => ({
+        q,
+        options: []
+      }))
+    }
+  ];
+}
+
+      if (rounds.length) {
+        setInterviewRounds(rounds);
+        setInterviewId(data?.interviewId);
+        setTimer(rounds[0].time);
       }
-    };
-  
-    fetchInterview();
-  }, [jobId]);  
+
+    } catch (err) {
+      console.error("Failed to load interview", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchInterview();
+}, [jobId]);
+
 
   // ⏱ Reset timer on round change
   useEffect(() => {
@@ -75,22 +101,47 @@ const InterviewQuiz = () => {
 
   return (
     <div className="quiz-container">
-      <h2>{currentRound.title}</h2>
+      <div className="ai-badge">
+  🤖 AI Interview Mode Active
+</div>
+
+<h2>{currentRound.title}</h2>
+
       <h4>⏱ Time Left: {timer}s</h4>
 
       <p>{currentQuestion.q}</p>
 
-      <div className="options">
-        {(currentQuestion.options || []).length ? (
-          currentQuestion.options.map((opt, i) => (
-            <button key={i} onClick={nextQuestion}>
-              {opt}
-            </button>
-          ))
-        ) : (
-          <button onClick={nextQuestion}>Next</button>
-        )}
-      </div>
+    <div className="answer-box">
+
+  {/* Multiple choice if exists */}
+  {(currentQuestion.options || []).length ? (
+    currentQuestion.options.map((opt, i) => (
+      <button key={i} onClick={nextQuestion}>
+        {opt}
+      </button>
+    ))
+  ) : (
+    <>
+      {/* Typing Area */}
+      <textarea
+        placeholder="Type your answer here..."
+        value={userAnswer}
+        onChange={(e)=>setUserAnswer(e.target.value)}
+      />
+
+      <button
+        onClick={()=>{
+          console.log("User Answer:", userAnswer);
+          setUserAnswer("");
+          nextQuestion();
+        }}
+      >
+        Submit Answer
+      </button>
+    </>
+  )}
+
+</div>
     </div>
   );
 };

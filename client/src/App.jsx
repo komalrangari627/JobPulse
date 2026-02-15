@@ -15,7 +15,7 @@ import { UserProvider } from './context/userContext.jsx';
 import { MessageProvider } from './context/messageContext.jsx';
 import { JobProvider } from './context/jobContext.jsx';
 import { CompanyProvider } from "./context/companyContext.jsx";
-
+import QuestionGenerator from "./components/QuestionGenerator.jsx";
 import InterviewQuiz from "./components/pages/interview/InterviewQuiz";
 
 const App = () => {
@@ -36,6 +36,7 @@ const App = () => {
                 {/* Updated Apply route to include jobId */}
                 <Route path="/apply/:jobId" element={<ApplyPage />} />
                 <Route path="/online-interview/:jobId/quiz" element={<InterviewQuiz />} />
+                    <Route path="/ai-questions" element={<QuestionGenerator />} />
               </Routes>
             </Router>
           </CompanyProvider>
