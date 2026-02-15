@@ -15,6 +15,8 @@ import interviewRoute from "./Routers/interviewRoutes.js";
 import { companyModel } from "./models/companySchema.js";
 import { jobModel } from "./models/jobSchema.js";
 
+import aiRoute from "./Routers/aiRouter.js";
+
 dotenv.config();
 
 const app = express();
@@ -59,6 +61,7 @@ app.use("/api/jobs", jobRoute);
 app.use("/api/companies", companyRoute);
 app.use("/api/apply", applyRoute);
 app.use("/api/interview", interviewRoute);
+app.use("/api", aiRoute);
 
 /* ================= REDIRECT FOR BACKWARD COMPATIBILITY ================= */
 app.get("/api/users/mongo/companies/:id", (req, res) => {
