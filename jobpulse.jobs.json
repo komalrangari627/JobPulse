@@ -1,0 +1,300 @@
+[{
+  "_id": {
+    "$oid": "6941005edd03d7ecb0cb0d16"
+  },
+  "title": "AI Researcher"
+},
+{
+  "_id": {
+    "$oid": "6941005edd03d7ecb0cb0d17"
+  },
+  "title": "Cloud Engineer"
+},
+{
+  "_id": {
+    "$oid": "6941005edd03d7ecb0cb0d18"
+  },
+  "title": "EdTech Developer"
+},
+{
+  "_id": {
+    "$oid": "6941005edd03d7ecb0cb0d19"
+  },
+  "title": "Cybersecurity Analyst"
+},
+{
+  "_id": {
+    "$oid": "6941005edd03d7ecb0cb0d1a"
+  },
+  "title": "IoT Engineer"
+},
+{
+  "_id": {
+    "$oid": "6941005edd03d7ecb0cb0d1b"
+  },
+  "title": "Travel App Developer"
+},
+{
+  "_id": {
+    "$oid": "6941005edd03d7ecb0cb0d1c"
+  },
+  "title": "Game Developer"
+},
+{
+  "_id": {
+    "$oid": "6941005edd03d7ecb0cb0d1d"
+  },
+  "title": "E-Commerce Manager"
+},
+{
+  "_id": {
+    "$oid": "6941005edd03d7ecb0cb0d1e"
+  },
+  "title": "Lab Technician"
+},
+{
+  "_id": {
+    "$oid": "6941005edd03d7ecb0cb0d1f"
+  },
+  "title": "Robotics Engineer"
+},
+{
+  "_id": {
+    "$oid": "6941005edd03d7ecb0cb0d20"
+  },
+  "title": "Aerospace Engineer"
+},
+{
+  "_id": {
+    "$oid": "6941005edd03d7ecb0cb0d21"
+  },
+  "title": "Construction Project Manager"
+},
+{
+  "_id": {
+    "$oid": "6941005edd03d7ecb0cb0d22"
+  },
+  "title": "Network Security Specialist"
+},
+{
+  "_id": {
+    "$oid": "6941005edd03d7ecb0cb0d23"
+  },
+  "title": "Software Consultant"
+},
+{
+  "_id": {
+    "$oid": "6941005edd03d7ecb0cb0d24"
+  },
+  "title": "Computer Vision Engineer"
+},
+{
+  "_id": {
+    "$oid": "6941005edd03d7ecb0cb0d25"
+  },
+  "title": "Electric Vehicle Engineer"
+},
+{
+  "_id": {
+    "$oid": "6941005edd03d7ecb0cb0d26"
+  },
+  "title": "Big Data Engineer"
+},
+{
+  "_id": {
+    "$oid": "6941005edd03d7ecb0cb0d27"
+  },
+  "title": "Real Estate Analyst"
+},
+{
+  "_id": {
+    "$oid": "6941005edd03d7ecb0cb0d28"
+  },
+  "title": "React Developer"
+},
+{
+  "_id": {
+    "$oid": "6941005edd03d7ecb0cb0d29"
+  },
+  "title": "Machine Learning Engineer"
+},
+{
+  "_id": {
+    "$oid": "6941005edd03d7ecb0cb0d2a"
+  },
+  "title": "FinTech Developer"
+},
+{
+  "_id": {
+    "$oid": "6941005edd03d7ecb0cb0d2b"
+  },
+  "title": "FoodTech Developer"
+},
+{
+  "_id": {
+    "$oid": "6941005edd03d7ecb0cb0d2c"
+  },
+  "title": "Renewable Energy Engineer"
+},
+{
+  "_id": {
+    "$oid": "6941005edd03d7ecb0cb0d2d"
+  },
+  "title": "HR Tech Specialist"
+},
+{
+  "_id": {
+    "$oid": "6941005edd03d7ecb0cb0d2e"
+  },
+  "title": "Quantum Computing Researcher"
+},
+{
+  "_id": {
+    "$oid": "6941005edd03d7ecb0cb0d2f"
+  },
+  "title": "Mobile App Developer"
+},
+{
+  "_id": {
+    "$oid": "6941005edd03d7ecb0cb0d30"
+  },
+  "title": "LegalTech Developer"
+},
+{
+  "_id": {
+    "$oid": "6941005edd03d7ecb0cb0d31"
+  },
+  "title": "3D Animator"
+},
+{
+  "_id": {
+    "$oid": "6941005edd03d7ecb0cb0d32"
+  },
+  "title": "E-Commerce Developer"
+},
+{
+  "_id": {
+    "$oid": "6941005edd03d7ecb0cb0d33"
+  },
+  "title": "AI Robotics Developer"
+},
+{
+  "_id": {
+    "$oid": "6941005edd03d7ecb0cb0d34"
+  },
+  "title": "Construction Tech Developer"
+},
+{
+  "_id": {
+    "$oid": "6941005edd03d7ecb0cb0d35"
+  },
+  "title": "Business Consultant"
+},
+{
+  "_id": {
+    "$oid": "6941005edd03d7ecb0cb0d36"
+  },
+  "title": "AgriTech Developer"
+},
+{
+  "_id": {
+    "$oid": "6941005edd03d7ecb0cb0d37"
+  },
+  "title": "Telecom Engineer"
+},
+{
+  "_id": {
+    "$oid": "6941005edd03d7ecb0cb0d38"
+  },
+  "title": "Urban Infrastructure Engineer"
+},
+{
+  "_id": {
+    "$oid": "6941005edd03d7ecb0cb0d39"
+  },
+  "title": "Full Stack Developer"
+},
+{
+  "_id": {
+    "$oid": "6941005edd03d7ecb0cb0d3a"
+  },
+  "title": "Digital Marketing Specialist"
+},
+{
+  "_id": {
+    "$oid": "6941005edd03d7ecb0cb0d3b"
+  },
+  "title": "Logistics Coordinator"
+},
+{
+  "_id": {
+    "$oid": "6941005edd03d7ecb0cb0d3c"
+  },
+  "title": "Aerospace Software Engineer"
+},
+{
+  "_id": {
+    "$oid": "6941005edd03d7ecb0cb0d3d"
+  },
+  "title": "Biotech Researcher"
+},
+{
+  "_id": {
+    "$oid": "6941005edd03d7ecb0cb0d3e"
+  },
+  "title": "Network Engineer"
+},
+{
+  "_id": {
+    "$oid": "6941005edd03d7ecb0cb0d3f"
+  },
+  "title": "Video Producer"
+},
+{
+  "_id": {
+    "$oid": "6941005edd03d7ecb0cb0d40"
+  },
+  "title": "Data Scientist"
+},
+{
+  "_id": {
+    "$oid": "6941005edd03d7ecb0cb0d41"
+  },
+  "title": "GovTech Developer"
+},
+{
+  "_id": {
+    "$oid": "6941005edd03d7ecb0cb0d42"
+  },
+  "title": "Streaming App Developer"
+},
+{
+  "_id": {
+    "$oid": "6941005edd03d7ecb0cb0d43"
+  },
+  "title": "IT Support Engineer"
+},
+{
+  "_id": {
+    "$oid": "6941005edd03d7ecb0cb0d44"
+  },
+  "title": "AI Research Engineer"
+},
+{
+  "_id": {
+    "$oid": "6941005edd03d7ecb0cb0d45"
+  },
+  "title": "Edge Computing Specialist"
+},
+{
+  "_id": {
+    "$oid": "6953e011a5c5b9ae03cb0ce2"
+  },
+  "title": "Frontend Developer"
+},
+{
+  "_id": {
+    "$oid": "6953e011a5c5b9ae03cb0ce3"
+  },
+  "title": "Data Analyst"
+}]

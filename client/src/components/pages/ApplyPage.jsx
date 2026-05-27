@@ -1,9 +1,20 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import {
+  FaLaptopCode,
+  FaBuilding,
+  FaRocket,
+  FaCheckCircle,
+  FaMapMarkerAlt,
+  FaClock,
+  FaBookOpen,
+  FaTimes,
+} from "react-icons/fa";
+
 import "../sections/styles/applyPage.scss";
 
 const ApplyPage = () => {
-  const { jobId } = useParams(); // Get jobId from URL
+  const { jobId } = useParams();
   const navigate = useNavigate();
 
   const [mode, setMode] = useState(null);
@@ -14,87 +25,191 @@ const ApplyPage = () => {
     navigate(`/online-interview/${jobId}/quiz`);
   };
 
-  // 🔹 Offline email trigger
+  // ================= OFFLINE EMAIL =================
+
   const sendOfflineEmail = () => {
     console.log("📧 Sending offline internship email for job:", jobId);
-    alert("Offline internship details sent to your email.");
+
+    alert(
+      "Offline internship details sent successfully to your email."
+    );
+
     setShowConfirm(false);
   };
 
   return (
     <div className="apply-page">
-      <h2>Apply Internship</h2>
-      <p className="subtitle">
-        We provide two internship modes: Online & Offline
-      </p>
 
-      {/* ================= Mode Selection ================= */}
-      <div className="mode-buttons">
-        <button
-          className={`mode-btn ${mode === "online" ? "active" : ""}`}
-          onClick={() => setMode("online")}
-        >
-          Online Internship
-        </button>
+      {/* ================= HERO SECTION ================= */}
 
-        <button
-          className={`mode-btn offline ${mode === "offline" ? "active" : ""}`}
-          onClick={() => setMode("offline")}
-        >
-          Offline Internship
-        </button>
+      <div className="hero-section">
+        <div className="hero-badge">
+          Internship Application Portal
+        </div>
+
+        <h2>Choose Your Internship Mode</h2>
+
+        <p className="subtitle">
+          Start your professional journey with online or offline
+          internship opportunities.
+        </p>
       </div>
 
-      {/* ================= Info Before Confirm ================= */}
+      {/* ================= MODE CARDS ================= */}
+
+      <div className="mode-buttons">
+
+        {/* ONLINE CARD */}
+
+        <div
+          className={`mode-btn ${
+            mode === "online" ? "active" : ""
+          }`}
+          onClick={() => setMode("online")}
+        >
+          <div className="icon">
+            <FaLaptopCode />
+          </div>
+
+          <h3>Online Internship</h3>
+
+          <p>
+            Attend interview remotely and complete internship
+            virtually from anywhere.
+          </p>
+
+          <span className="tag">Remote Mode</span>
+        </div>
+
+        {/* OFFLINE CARD */}
+
+        <div
+          className={`mode-btn offline ${
+            mode === "offline" ? "active" : ""
+          }`}
+          onClick={() => setMode("offline")}
+        >
+          <div className="icon">
+            <FaBuilding />
+          </div>
+
+          <h3>Offline Internship</h3>
+
+          <p>
+            Visit company office, attend rounds physically,
+            and work onsite.
+          </p>
+
+          <span className="tag">Onsite Mode</span>
+        </div>
+      </div>
+
+      {/* ================= INFO BOX ================= */}
+
       {mode === "online" && (
         <div className="info-box">
-          <p>
-            If you choose <b>Online Internship</b>, upload your resume and
-            start your interview online. After submission, we will review
-            and send interview timing (today or tomorrow).
-          </p>
+
+          <h3>
+            <FaLaptopCode /> Online Internship Process
+          </h3>
+
+          <ul>
+            <li>
+              <FaCheckCircle /> Upload your updated resume
+            </li>
+
+            <li>
+              <FaCheckCircle /> Start online aptitude/interview
+            </li>
+
+            <li>
+              <FaCheckCircle /> Interview timing shared via email
+            </li>
+
+            <li>
+              <FaCheckCircle /> Work remotely from home
+            </li>
+          </ul>
+
+          <button
+            className="confirm-btn"
+            onClick={() => setShowConfirm(true)}
+          >
+            Continue Application
+          </button>
         </div>
       )}
 
       {mode === "offline" && (
         <div className="info-box">
-          <p>
-            For <b>Offline Internship</b>, you will receive an email with:
-          </p>
+
+          <h3>
+            <FaBuilding /> Offline Internship Details
+          </h3>
+
           <ul>
-            <li>Company location & address</li>
-            <li>Visiting date & time</li>
-            <li>Syllabus for crack round</li>
-            <li>Other instructions</li>
+            <li>
+              <FaMapMarkerAlt /> Company office address
+            </li>
+
+            <li>
+              <FaClock /> Visit schedule & interview timing
+            </li>
+
+            <li>
+              <FaBookOpen /> Syllabus & preparation material
+            </li>
+
+            <li>
+              <FaCheckCircle /> Additional instructions
+            </li>
           </ul>
+
+          <button
+            className="confirm-btn"
+            onClick={() => setShowConfirm(true)}
+          >
+            Continue Application
+          </button>
         </div>
       )}
 
-      {/* ================= Confirm Button ================= */}
-      {mode && (
-        <button
-          className="confirm-btn"
-          onClick={() => setShowConfirm(true)}
-        >
-          Confirm
-        </button>
-      )}
+      {/* ================= MODAL ================= */}
 
-      {/* ================= Confirmation Modal ================= */}
       {showConfirm && (
         <div className="confirm-modal">
+
           <div className="modal-box">
-            <h3>Confirm Internship Mode</h3>
+
+            <button
+              className="modal-close"
+              onClick={() => setShowConfirm(false)}
+            >
+              <FaTimes />
+            </button>
+
+            <h3>Confirm Your Internship Mode</h3>
+
+            <p>
+              Please verify your selected internship mode
+              before continuing.
+            </p>
 
             <div className="modal-actions">
+
+              {/* ONLINE */}
+
               <button
                 onClick={() => {
                   setFinalMode("online");
                   setShowConfirm(false);
                 }}
               >
+                <FaLaptopCode />
                 Online
               </button>
+
+              {/* OFFLINE */}
 
               <button
                 className="offline"
@@ -103,6 +218,7 @@ const ApplyPage = () => {
                   sendOfflineEmail();
                 }}
               >
+                <FaBuilding />
                 Offline
               </button>
             </div>
@@ -110,29 +226,50 @@ const ApplyPage = () => {
         </div>
       )}
 
-      {/* ================= Final Result ================= */}
+      {/* ================= FINAL RESULT ================= */}
+
       {finalMode === "online" && (
-        <div className="info-box">
+        <div className="info-box success-box">
+
+          <div className="success-icon">
+            <FaRocket />
+          </div>
+
+          <h3>Online Internship Selected</h3>
+
           <p>
-            You selected <b>Online Internship</b>. Upload resume and
-            start your interview.
+            Upload your resume and begin your online interview
+            process now.
           </p>
 
-          <button className="start-btn" onClick={startInterview}>
+          <button
+            className="start-btn"
+            onClick={startInterview}
+          >
             🚀 Start Online Interview
           </button>
         </div>
       )}
 
       {finalMode === "offline" && (
-        <div className="info-box">
+        <div className="info-box success-box">
+
+          <div className="success-icon">
+            <FaCheckCircle />
+          </div>
+
+          <h3>Offline Internship Selected</h3>
+
           <p>
-            Offline internship selected. Check your email for:
+            Check your email for internship location,
+            schedule, syllabus, and instructions.
           </p>
+
           <ul>
-            <li>Company location</li>
-            <li>Visit date & time</li>
-            <li>Syllabus</li>
+            <li>Company office location</li>
+            <li>Interview date & timing</li>
+            <li>Selection round syllabus</li>
+            <li>Required documents</li>
           </ul>
         </div>
       )}

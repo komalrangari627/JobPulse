@@ -45,5 +45,21 @@ export const submitInterviewResult = async (payload) => {
     throw error;
   }
 };
+/**
+ * 🔹 Get AI generated questions
+ * GET /api/questions
+ */
+export const getAIQuestions = async (topic = "interview") => {
+  try {
+    const res = await API.get(`/questions?topic=${topic}`);
+    return res.data;
+  } catch (error) {
+    console.error(
+      "❌ AI Question Error:",
+      error.response?.data?.message || error.message
+    );
+    throw error;
+  }
+};
 
 export default API;
