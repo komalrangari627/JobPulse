@@ -1,59 +1,265 @@
-:root {
-    --bg-light: #FDEDEB;     /* light pink */
-    --bg-card: #EDFFF0;      /* soft mint */
-    --highlight: #AEDEFC;    /* pastel blue */
-    --primary: #F875AA;      /* MAIN bright pastel rose */
-    --text-dark: #3A3A3A;    /* dark text */
-    --surface: #ffffff;
+/* ================= HEADER ================= */
+
+.new-header {
+  width: 100%;
+  background: #fffef8;
+
+  border-bottom: 1px solid #ececec;
+
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+/* ================= CONTAINER ================= */
+
+.header-container {
+  max-width: 1400px;
+
+  margin: auto;
+
+  padding: 18px 40px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 30px;
+}
+
+/* ================= LOGO ================= */
+
+.logo-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  cursor: pointer;
+}
+
+.logo-icon {
+  width: 50px;
+  height: 50px;
+
+  border-radius: 16px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #468432,
+      #9ad872
+    );
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: white;
+
+  font-size: 1.8rem;
+
+  box-shadow:
+    0 8px 20px rgba(154, 216, 114, 0.35);
+}
+
+.logo-text {
+  font-size: 1.7rem;
+  font-weight: 800;
+
+  color: #355f27;
+
+  letter-spacing: 1px;
+}
+
+/* ================= SEARCH ================= */
+
+.search-section {
+  flex: 1;
+
+  display: flex;
+  justify-content: center;
+}
+
+.search-box {
+  width: 100%;
+  max-width: 550px;
+
+  position: relative;
+}
+
+.search-box input {
+  width: 100%;
+
+  padding:
+    16px 20px 16px 55px;
+
+  border-radius: 18px;
+
+  border: 2px solid #e7e7e7;
+
+  background: white;
+
+  font-size: 1rem;
+  font-weight: 500;
+
+  outline: none;
+
+  transition: 0.3s;
+}
+
+.search-box input:focus {
+  border-color: #9ad872;
+
+  box-shadow:
+    0 0 0 5px rgba(154, 216, 114, 0.15);
+}
+
+.search-icon {
+  position: absolute;
+
+  left: 20px;
+  top: 50%;
+
+  transform: translateY(-50%);
+
+  color: #468432;
+
+  font-size: 1rem;
+}
+
+/* ================= USER ================= */
+
+.user-section {
+  display: flex;
+  align-items: center;
+}
+
+/* ================= REGISTER BUTTON ================= */
+
+.register-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 14px 24px;
+
+  border: none;
+  border-radius: 16px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #468432,
+      #9ad872
+    );
+
+  color: white;
+
+  font-size: 1rem;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition: 0.3s;
+
+  box-shadow:
+    0 8px 20px rgba(154, 216, 114, 0.35);
+}
+
+.register-btn:hover {
+  transform: translateY(-2px);
+}
+
+/* ================= USER PROFILE ================= */
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  background: white;
+
+  padding: 10px 16px;
+
+  border-radius: 18px;
+
+  box-shadow:
+    0 6px 18px rgba(0, 0, 0, 0.06);
+}
+
+/* ================= USER AVATAR ================= */
+
+.user-avatar {
+  width: 48px;
+  height: 48px;
+
+  border-radius: 50%;
+
+  background:
+    linear-gradient(
+      135deg,
+      #ffa02e,
+      #ffef91
+    );
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 1.3rem;
+  font-weight: 800;
+
+  color: #5b3b00;
+}
+
+/* ================= USER NAME ================= */
+
+.user-name {
+  font-size: 1rem;
+  font-weight: 700;
+
+  color: #355f27;
+}
+
+/* ================= RESPONSIVE ================= */
+
+@media (max-width: 900px) {
+
+  .header-container {
+    padding: 15px 20px;
+    gap: 15px;
   }
-  
-  /* Basic resets */
-  * { box-sizing: border-box; }
-  html,body,#root { height: 100%; }
-  
-  body {
-    margin: 0;
-    font-family: 'Poppins';
-    background: var(--bg-light);
-    color: var(--text-dark);
+
+  .search-section {
+    display: none;
   }
-  
-  /* Text helpers */
-  .text-dark { color: var(--text-dark); }
-  .text-light { color: #fff; }
-  
-  /* Buttons */
-  .btn {
-    padding: .6rem 1rem;
-    border-radius: 10px;
-    border: none;
-    cursor: pointer;
-    font-weight: 600;
+
+  .logo-text {
+    font-size: 1.3rem;
   }
-  
-  .btn-primary {
-    background: var(--primary);
-    color: var(--text-dark);
+
+  .user-name {
+    display: none;
   }
-  
-  .btn-ghost {
-    background: transparent;
-    border: 1px solid var(--highlight);
-    color: var(--text-dark);
+}
+
+@media (max-width: 600px) {
+
+  .logo-icon {
+    width: 42px;
+    height: 42px;
   }
-  
-  /* Card / Surface */
-  .card {
-    background: var(--bg-card);
-    border-radius: 12px;
-    box-shadow: 0 6px 14px rgba(0,0,0,0.06);
-    padding: 1rem;
+
+  .register-btn {
+    padding: 12px 18px;
+    font-size: 0.9rem;
   }
-  
-  /* Sidebar */
-  .app-sidebar {
-    background: linear-gradient(180deg, #FDEDEB, #F875AA);
-    color: var(--text-dark);
-    height: 100vh;
-    padding: 2rem 1.25rem;
+
+  .user-avatar {
+    width: 42px;
+    height: 42px;
   }
+}

@@ -3,7 +3,8 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 // pages
 import Home from "./components/pages/Home.jsx";
-import UserLoginRegister from './components/pages/UserLoginRegister.jsx';
+import Login from "./components/pages/Login";
+import Register from "./components/sections/REGISTER.jsx";
 import UserDashboard from './components/pages/UserDashboard/UserDashboard.jsx';
 import DisplayJob from './components/pages/DisplayJob.jsx';
 import DisplayCompany from './components/pages/DisplayCompany.jsx';
@@ -27,7 +28,8 @@ const App = () => {
             <Router>
               <Routes>
                 <Route path='/' element={<Home />} />
-                <Route path='/user-login-register' element={<UserLoginRegister />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
                 <Route path='/user-dashboard' element={<UserDashboard />} />
                 <Route path="/company-detail/:companyId" element={<DisplayCompany />} />
                 <Route path="/company/:companyId" element={<CompanyPage />} />
@@ -36,7 +38,7 @@ const App = () => {
                 {/* Updated Apply route to include jobId */}
                 <Route path="/apply/:jobId" element={<ApplyPage />} />
                 <Route path="/online-interview/:jobId/quiz" element={<InterviewQuiz />} />
-                    <Route path="/ai-questions" element={<QuestionGenerator />} />
+                <Route path="/ai-questions" element={<QuestionGenerator />} />
               </Routes>
             </Router>
           </CompanyProvider>

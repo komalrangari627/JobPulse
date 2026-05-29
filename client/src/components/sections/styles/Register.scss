@@ -1,0 +1,287 @@
+/* =========================================
+   REGISTER FORM UI
+   Color Palette:
+   #468432
+   #9AD872
+   #FFEF91
+   #FFA02E
+========================================= */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.register-page {
+  min-height: 100vh;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  padding: 20px;
+
+  background: linear-gradient(
+    135deg,
+    #468432,
+    #9ad872
+  );
+
+  font-family: "Poppins", sans-serif;
+}
+
+/* =========================================
+   FORM CONTAINER
+========================================= */
+
+.register-container {
+  width: 100%;
+  max-width: 520px;
+
+  background: rgba(255, 255, 255, 0.95);
+
+  padding: 3.5rem 3rem;
+
+  border-radius: 28px;
+
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+
+  backdrop-filter: blur(12px);
+
+  animation: fadeIn 0.4s ease;
+}
+
+/* =========================================
+   TITLE
+========================================= */
+
+.register-title {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.register-title h2 {
+  font-size: 2.4rem;
+  font-weight: 800;
+
+  color: #2e5f1f;
+
+  margin-bottom: 0.8rem;
+}
+
+.register-line {
+  width: 90px;
+  height: 5px;
+
+  background: linear-gradient(
+    135deg,
+    #ffa02e,
+    #ffef91
+  );
+
+  border-radius: 50px;
+
+  margin: auto;
+}
+
+/* =========================================
+   INPUT BOX
+========================================= */
+
+.input-box {
+  position: relative;
+}
+
+/* INPUT FIELD */
+
+.input-box input {
+  width: 100%;
+
+  padding:
+    1rem
+    1.2rem
+    1rem
+    3.4rem;
+
+  border-radius: 16px;
+
+  border: 2px solid #dcefd0;
+
+  background: #ffffff;
+
+  font-size: 1rem;
+  font-weight: 500;
+
+  color: #355f27;
+
+  outline: none;
+
+  transition: all 0.3s ease;
+}
+
+/* INPUT FOCUS */
+
+.input-box input:focus {
+  border-color: #9ad872;
+
+  box-shadow:
+    0 0 0 5px rgba(154, 216, 114, 0.2);
+}
+
+/* PLACEHOLDER */
+
+.input-box input::placeholder {
+  color: #9aa59a;
+  font-weight: 500;
+}
+
+/* =========================================
+   ICON
+========================================= */
+
+.input-icon {
+  position: absolute;
+
+  top: 50%;
+  left: 18px;
+
+  transform: translateY(-50%);
+
+  font-size: 1.1rem;
+
+  color: #468432;
+
+  pointer-events: none;
+}
+
+/* =========================================
+   BUTTON
+========================================= */
+
+.register-btn {
+  width: 100%;
+
+  margin-top: 1rem;
+
+  padding: 1rem;
+
+  border: none;
+
+  border-radius: 18px;
+
+  background: linear-gradient(
+    135deg,
+    #ffa02e,
+    #ffef91
+  );
+
+  color: #355f27;
+
+  font-size: 1.1rem;
+  font-weight: 800;
+
+  cursor: pointer;
+
+  transition: all 0.3s ease;
+
+  box-shadow:
+    0 10px 25px rgba(255, 160, 46, 0.3);
+
+  /* CENTER TEXT */
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  text-align: center;
+}
+
+/* HOVER */
+
+.register-btn:hover {
+  transform: translateY(-3px);
+
+  box-shadow:
+    0 15px 35px rgba(255, 160, 46, 0.4);
+}
+
+/* =========================================
+   LOGIN TEXT
+========================================= */
+
+.bottom-text {
+  text-align: center;
+
+  margin-top: 1.5rem;
+
+  font-size: 0.95rem;
+
+  color: #555;
+}
+
+.bottom-text span {
+  color: #468432;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* =========================================
+   ANIMATION
+========================================= */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 600px) {
+
+  .register-container {
+    padding: 2.2rem 1.5rem;
+  }
+
+  .register-title h2 {
+    font-size: 2rem;
+  }
+}
+
+/* ================= LOGIN EXTRA STYLE ================= */
+
+.login-container {
+  max-width: 450px;
+}
+
+.agreement-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  margin-top: 10px;
+  margin-bottom: 25px;
+
+  label {
+    font-size: 0.95rem;
+    color: #355f27;
+    font-weight: 600;
+  }
+
+  input {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+  }
+}
