@@ -1,106 +1,143 @@
-import React, { useEffect, useState } from 'react'
-import { useUser } from '../../../context/userContext.jsx'
-import { useMessage } from '../../../context/messageContext'
-import { useNavigate } from 'react-router-dom'
-import { requestUserProfile } from '../../../api/userAPI'
-import Header from '../../sections/includes/Header.jsx'
-import Footer from '../../sections/includes/Footer.jsx'
+import React from "react";
+import { useNavigate } from "react-router-dom";
 
-import "./userDashboard.scss"
+import {
+  FaChartLine,
+  FaCheckCircle,
+  FaBrain,
+  FaHome,
+} from "react-icons/fa";
 
-import Profile from './UserActions/Profile.jsx'
-import JobTracker from './UserActions/JobTracker.jsx'
+import "./userDashboard.scss";
 
 const UserDashboard = () => {
-    let { user, fetchUserProfile, logout } = useUser()
-    let { triggerMessage } = useMessage()
-    let [selectedMenu, setSelectedMenu] = useState("")
-    let navigate = useNavigate()
-    let token = localStorage.getItem("token")
 
-    useEffect(() => {
-        checkDashbaordAccess()
-    }, [])
+  const navigate = useNavigate();
 
-    const checkDashbaordAccess = async () => {
-        try {
-            if (!token) throw ("token not found !")
-
-            let result = await requestUserProfile(token)
-
-            if (result.status !== 200) throw ("token is invalid please login first !")
-
-            await fetchUserProfile()
-
-            triggerMessage("success", `welcome ${result.data.userData?.name || ""} to dashboard !`)
-
-        } catch (err) {
-            console.log("cannot provide dashboard access !")
-            navigate("/user-login-register")
-            triggerMessage("warning", "Please login first to access dashboard !")
-        }
-    }
-
-    const handleMenuSelection = (e) => {
-        setSelectedMenu(e.target.id)
-    }
-
-    const renderComponent = () => {
-        switch (selectedMenu) {
-            case "profile-btn": return <Profile />
-            case "job-tracker-btn": return <JobTracker />
-            default: return <Profile />
-        }
-    }
-
-    return (
-        <>
-            <Header />
-            <div id='user-dashboard'>
-                <div className='sidebar-menu content-container'>
-                    <div className='intro text-light'>
-                        <ul className='flex flex-col gap-2'>
-                            <li className='font-bold'>Hi, {user?.name || ""}!</li>
-                            <li className='text-primary'>
-                                Logged In: {user?.email?.userEmail || ""}
-                            </li>
-                            <li>
-                                <button
-                                    onClick={() => { logout(); navigate("/user-login-register") }}
-                                    className='bg-red-500 text-light py-2 px-5 rounded font-bold hover:bg-red-700 transition'
-                                >
-                                    Logout
-                                </button>
-                            </li>
-                        </ul>
-
-                        <ul className='actions mt-10 flex flex-col gap-10'>
-                            <li
-                                id='profile-btn'
-                                onClick={handleMenuSelection}
-                                className='shadow outline outline-1 p-4 rounded bg-primary font-bold cursor-pointer'
-                            >
-                                My Profile
-                            </li>
-                            <li
-                                id='job-tracker-btn'
-                                onClick={handleMenuSelection}
-                                className='shadow outline outline-1 p-4 rounded bg-primary font-bold cursor-pointer'
-                            >
-                                Job Application Tracker
-                            </li>
-                        </ul>
-                    </div>
-                    <div className='profile'></div>
-                    <div className='job-tracker'></div>
-                </div>
-                <div className='content content-container'>
-                    {renderComponent()}
-                </div>
-            </div>
-            <Footer />
-        </>
+  const progressData = JSON.parse(
+    localStorage.getItem(
+      "jobpulse_interview_progress"
     )
-}
+  );
 
-export default UserDashboard
+  const userData = JSON.parse(
+    localStorage.getItem("jobpulse_user")
+  );
+
+  return (
+    <div className="dashboard-page">
+
+      <div className="dashboard-card">
+
+        {/* HOME BUTTON */}
+
+        <button
+          className="home-btn"
+          onClick={() => navigate("/")}
+        >
+          <FaHome />
+          Home
+        </button>
+
+        {/* USER */}
+
+        <div className="user-section">
+
+          <div className="user-icon">
+
+            {userData?.fullname
+              ? userData.fullname
+                  .charAt(0)
+                  .toUpperCase()
+              : "U"}
+
+          </div>
+
+          <div>
+
+            <h2>
+              {userData?.fullname ||
+                "JobPulse User"}
+            </h2>
+
+            <p>
+              AI Interview Dashboard
+            </p>
+
+          </div>
+
+        </div>
+
+        {/* TITLE */}
+
+        <div className="dashboard-title">
+
+          <FaChartLine />
+
+          Interview Progress Overview
+
+        </div>
+
+        {/* STATS */}
+
+        <div className="dashboard-stats">
+
+          <div className="progress-box">
+
+            <FaCheckCircle />
+
+            <h3>
+              {progressData?.progress || 0}%
+            </h3>
+
+            <span>
+              Interview Completed
+            </span>
+
+          </div>
+
+          <div className="progress-box">
+
+            <FaBrain />
+
+            <h3>
+              {progressData?.totalRounds || 0}
+            </h3>
+
+            <span>Total Rounds</span>
+
+          </div>
+
+          <div className="progress-box">
+
+            <FaChartLine />
+
+            <h3>
+              {progressData?.answeredQuestions ||
+                0}
+            </h3>
+
+            <span>
+              Answered Questions
+            </span>
+
+          </div>
+
+        </div>
+
+        {/* FINAL STATUS */}
+
+        <div className="final-status">
+
+           Congratulations!
+          Your AI interview has been completed successfully.
+
+        </div>
+
+      </div>
+
+    </div>
+  );
+};
+
+export default UserDashboard;

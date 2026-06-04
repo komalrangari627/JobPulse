@@ -1,42 +1,101 @@
+// ================= USERROUTER.JS =================
+
 import express from "express";
-import { 
-    test, 
-    handleUserRegister, 
-    handleOTPVerification, 
-    loginUser, 
-    handleResetPasswordRequest, 
-    handleOTPForPasswordReset, 
-    handleUserFileUpload, 
-    fetchProfile 
+
+import {
+  test,
+  handleUserRegister,
+  loginUser,
+  handleOTPVerification,
+  handleResetPasswordRequest,
+  handleOTPForPasswordReset,
+  handleUserFileUpload,
+  fetchProfile,
 } from "../controllers/userController.js";
+
 import { AuthUser } from "../middlewares/AuthUser.js";
+
 import upload from "../config/multerConfig.js";
 
 const router = express.Router();
 
-// Test route
+/* =========================================
+   TEST ROUTE
+========================================= */
+
 router.get("/test", test);
 
-// User registration & OTP verification
-router.post("/register", handleUserRegister);
-router.post("/verify-otp", handleOTPVerification);
+/* =========================================
+   USER REGISTER
+   New Register Form:
+   - fullname
+   - email
+   - password
+========================================= */
 
-// User login
-router.post("/user-login", loginUser);
+router.post(
+  "/register",
+  handleUserRegister
+);
 
-// Password reset flow
-router.post("/password-reset-request", handleResetPasswordRequest);
-router.post("/verify-reset-password-request", handleOTPForPasswordReset);
+/* =========================================
+   OTP VERIFICATION
+========================================= */
 
-// File uploads (protected)
+router.post(
+  "/verify-otp",
+  handleOTPVerification
+);
+
+/* =========================================
+   USER LOGIN
+   New Login Form:
+   - only email
+========================================= */
+
+router.post(
+  "/login",
+  loginUser
+);
+
+/* =========================================
+   PASSWORD RESET
+========================================= */
+
+router.post(
+  "/password-reset-request",
+  handleResetPasswordRequest
+);
+
+router.post(
+  "/verify-reset-password",
+  handleOTPForPasswordReset
+);
+
+/* =========================================
+   FILE UPLOAD
+========================================= */
+
 router.post(
   "/upload-file/:file_type",
+
   AuthUser,
+
   upload.single("file"),
+
   handleUserFileUpload
 );
 
-// Fetch authenticated user profile
-router.get("/fetch-user-profile", AuthUser, fetchProfile);
+/* =========================================
+   FETCH PROFILE
+========================================= */
+
+router.get(
+  "/profile",
+
+  AuthUser,
+
+  fetchProfile
+);
 
 export default router;

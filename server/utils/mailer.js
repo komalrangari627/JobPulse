@@ -1,20 +1,25 @@
 import nodemailer from "nodemailer";
 
- const sendEmail = async ({ to, subject, html }) => {
+const sendEmail = async ({
+  to,
+  subject,
+  html,
+  companyName = "JobPulse",
+}) => {
   try {
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
-        user: process.env.USER_EMAIL,        // sender
-        pass: process.env.USER_EMAIL_PASSWORD // app password
-      }
+        user: process.env.USER_EMAIL,
+        pass: process.env.USER_EMAIL_PASSWORD,
+      },
     });
 
     const info = await transporter.sendMail({
-      from: `"JobPulse" <${process.env.USER_EMAIL}>`,
-      to, // receiver (USER)
+      from: `"${companyName}" <${process.env.USER_EMAIL}>`,
+      to,
       subject,
-      html
+      html,
     });
 
     console.log("✅ Email sent:", info.messageId);

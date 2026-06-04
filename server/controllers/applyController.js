@@ -54,42 +54,42 @@ export const sendOfflineInternshipEmail = async (req, res) => {
     }
 
     /* ✅ Send REAL email to USER */
-    await sendMail({
-      to: userEmail,
-      subject: `Offline Internship Details – ${company.name}`,
-      html: `
-        <h2>${company.name}</h2>
+    await sendEmail({
+  to: userEmail,
+  from: `"${company.name}" <${company.email}>`,
+  subject: `Application Received - ${company.name}`,
+  html: `
+    <h2>${company.name}</h2>
 
-        <p>Hi <b>${userName}</b>,</p>
-        <p>You have successfully applied for:</p>
+    <p>Dear ${userName},</p>
 
-        <p><b>Internship:</b> ${jobTitle}</p>
+    <p>Thank you for applying for the <b>${jobTitle}</b> position.</p>
 
-        <hr/>
+    <h3>Company Information</h3>
+    <ul>
+      <li><b>Company:</b> ${company.name}</li>
+      <li><b>Email:</b> ${company.email}</li>
+      <li><b>Address:</b> ${offline.streetAddress}</li>
+      <li><b>City:</b> ${offline.city}</li>
+      <li><b>State:</b> ${offline.state}</li>
+    </ul>
 
-        <p><b>Office Address:</b><br/>
-          ${offline.streetAddress}, ${offline.city}, ${offline.state} - ${offline.pincode}
-        </p>
+    ${
+      offline.googleMapLink
+        ? `<p><a href="${offline.googleMapLink}">View Company Location</a></p>`
+        : ""
+    }
 
-        ${
-          offline.googleMapLink
-            ? `<p><b>Google Map:</b>
-               <a href="${offline.googleMapLink}" target="_blank">View Location</a>
-               </p>`
-            : ""
-        }
+    <p>Your application has been received successfully.</p>
 
-        <p><b>Visit Date:</b> ${offline.visitDate}</p>
-        <p><b>Visit Time:</b> ${offline.visitTime}</p>
+    <p>Our HR team will contact you shortly.</p>
 
-        <p><b>Syllabus:</b><br/>${offline.syllabus}</p>
-        <p><b>Instructions:</b><br/>${offline.instructions}</p>
-
-        <br/>
-        <p>Best of luck! 🍀</p>
-        <p>— <b>JobPulse Team</b></p>
-      `,
-    });
+    <br/>
+    <p>Regards,</p>
+    <p><b>${company.name}</b></p>
+    <p>${company.email}</p>
+  `,
+});
 
     /* ✅ Mark as sent in Redis (24 hours) */
     await redisClient.setEx(redisKey, 86400, "sent");

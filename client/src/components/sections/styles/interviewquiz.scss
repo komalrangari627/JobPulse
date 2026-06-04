@@ -1,471 +1,407 @@
-/* =========================================
-   AI INTERVIEW QUIZ - MODERN UI
-   Color Palette:
-   #E05454
-   #C13383
-   #792CA2
-   #443199
-========================================= */
-
 .quiz-container {
-  max-width: 1100px;
-  margin: 50px auto;
-  padding: 3.5rem;
+  min-height: 50vh;
 
   background: linear-gradient(
     135deg,
-    #f8f5ff,
-    #ffffff
+    #8ab9f7,
+    #8ab9f7
   );
 
-  border-radius: 35px;
+  padding: 60px;
 
-  box-shadow:
-    0 20px 60px rgba(68, 49, 153, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  max-width: 1800px;
 
-  position: relative;
-  overflow: hidden;
-
-  animation: fadeIn 0.5s ease;
-
-  font-family: "Poppins", sans-serif;
+  margin: auto;
 }
 
-/* =========================================
-   BACKGROUND GLOW EFFECT
-========================================= */
+/* ================= HEADER ================= */
 
-.quiz-container::before {
-  content: "";
+.quiz-header {
+  display: flex;
+  justify-content: center;
 
-  position: absolute;
-
-  width: 320px;
-  height: 320px;
-
-  background: rgba(192, 51, 131, 0.12);
-
-  border-radius: 50%;
-
-  top: -100px;
-  right: -80px;
-
-  filter: blur(40px);
+  margin-bottom: 30px;
 }
-
-.quiz-container::after {
-  content: "";
-
-  position: absolute;
-
-  width: 280px;
-  height: 280px;
-
-  background: rgba(121, 44, 162, 0.12);
-
-  border-radius: 50%;
-
-  bottom: -120px;
-  left: -100px;
-
-  filter: blur(40px);
-}
-
-/* =========================================
-   AI BADGE
-========================================= */
 
 .ai-badge {
-  width: fit-content;
-
   background: linear-gradient(
     135deg,
-    #792ca2,
-    #443199
+    #ff0052,
+    #0055da
   );
 
   color: white;
 
-  padding: 0.9rem 1.7rem;
+  padding: 16px 35px;
 
   border-radius: 50px;
 
-  font-size: 1rem;
+  font-size: 20px;
+
   font-weight: 700;
 
-  margin-bottom: 1.5rem;
-
-  letter-spacing: 0.5px;
-
-  box-shadow: 0 8px 20px rgba(121, 44, 162, 0.3);
-}
-
-/* =========================================
-   TOP HEADER
-========================================= */
-
-.quiz-top {
   display: flex;
-  justify-content: space-between;
   align-items: center;
 
-  gap: 1rem;
+  gap: 12px;
 
-  margin-bottom: 2rem;
-
-  flex-wrap: wrap;
+  box-shadow: 0 10px 30px
+    rgba(255, 0, 82, 0.3);
 }
 
-/* =========================================
-   ROUND TITLE
-========================================= */
+/* ================= ROUND ================= */
 
-.quiz-container h2 {
-  font-size: 3rem;
-  font-weight: 800;
-
-  color: #2d2258;
-
-  margin-bottom: 1rem;
-
-  line-height: 1.3;
-}
-
-/* =========================================
-   TIMER
-========================================= */
-
-.quiz-container h4 {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.7rem;
-
-  background: linear-gradient(
-    135deg,
-    #e05454,
-    #c13383
-  );
-
-  color: white;
-
-  padding: 1rem 1.7rem;
-
-  border-radius: 50px;
-
-  font-size: 1.1rem;
-  font-weight: 700;
-
-  box-shadow: 0 10px 25px rgba(224, 84, 84, 0.3);
-}
-
-/* =========================================
-   QUESTION CARD
-========================================= */
-
-.question-card {
-  background: rgba(255, 255, 255, 0.8);
+.round-title {
+  background: rgb(159, 244, 223);
 
   border-radius: 28px;
 
-  padding: 2.5rem;
+  padding: 30px;
 
-  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
 
-  border: 1px solid rgba(255, 255, 255, 0.4);
+  gap: 25px;
 
-  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.06);
+  margin-bottom: 30px;
 
-  margin-top: 2rem;
+  box-shadow:
+    0 20px 50px
+      rgba(0, 0, 0, 0.08);
 }
 
-/* =========================================
-   QUESTION NUMBER
-========================================= */
+.round-icon {
+  width: 90px;
+  height: 90px;
 
-.question-number {
-  display: inline-block;
+  border-radius: 50%;
 
-  background: rgba(121, 44, 162, 0.1);
+  background: linear-gradient(
+    135deg,
+    #ff0052,
+    #ffd400
+  );
 
-  color: #792ca2;
+  color: white;
 
-  padding: 0.7rem 1.3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 34px;
+}
+
+.round-title h2 {
+  font-size: 2rem;
+
+  color: #111;
+
+  margin-bottom: 8px;
+}
+
+.round-title p {
+  font-size: 1.1rem;
+
+  color: #666;
+}
+
+/* ================= QUESTION CARD ================= */
+
+.question-card {
+  background: rgb(250, 252, 100);
+
+  border-radius: 30px;
+
+  padding: 40px;
+
+  box-shadow:
+    0 20px 60px
+      rgba(0, 0, 0, 0.08);
+}
+
+/* ================= TOP ================= */
+
+.question-top {
+  display: flex;
+
+  justify-content: space-between;
+
+  gap: 20px;
+
+  flex-wrap: wrap;
+
+  margin-bottom: 25px;
+}
+
+.question-count,
+.question-skill {
+  background: #eef5ff;
+
+  color: #0055da;
+
+  padding: 12px 20px;
 
   border-radius: 50px;
 
   font-size: 1rem;
+
   font-weight: 700;
 
-  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-/* =========================================
-   QUESTION TEXT
-========================================= */
+/* ================= QUESTION ================= */
 
-.quiz-container p {
-  font-size: 1.55rem;
-  font-weight: 600;
+.question-text {
+  background: #f7bbe3;
 
-  line-height: 2;
+  border-left: 8px solid #ff0052;
 
-  color: #2b2b2b;
+  border-radius: 20px;
 
-  margin-bottom: 2rem;
+  padding: 35px;
+
+  margin-bottom: 30px;
 }
 
-/* =========================================
-   OPTIONS
-========================================= */
+.question-text p {
+  font-size: 1.7rem;
+
+  font-weight: 700;
+
+  line-height: 1.8;
+
+  color: #222;
+}
+
+/* ================= ANSWER ================= */
+
+.answer-box {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 20px;
+}
+
+.answer-box textarea {
+  width: 100%;
+
+  min-height: 280px;
+
+  padding: 25px;
+
+  border-radius: 22px;
+
+  border: 2px solid #fd0543;
+
+  font-size: 1.15rem;
+
+  line-height: 1.8;
+
+  resize: vertical;
+
+  outline: none;
+
+  transition: 0.3s;
+}
+
+.answer-box textarea:focus {
+  border-color: #0055da;
+
+  box-shadow:
+    0 0 0 5px
+      rgba(0, 85, 218, 0.12);
+}
+
+/* ================= OPTIONS ================= */
 
 .options {
   display: grid;
 
-  grid-template-columns: repeat(
-    auto-fit,
-    minmax(260px, 1fr)
-  );
+  grid-template-columns:
+    repeat(auto-fit, minmax(300px, 1fr));
 
-  gap: 1.3rem;
+  gap: 18px;
 }
-
-/* =========================================
-   OPTION BUTTONS
-========================================= */
 
 .options button {
-  padding: 1.3rem 1.5rem;
-
-  border-radius: 20px;
-
-  border: none;
-
   background: white;
 
-  color: #2d2258;
+  border: 2px solid #dbe7ff;
 
-  font-size: 1.1rem;
-  font-weight: 700;
-
-  cursor: pointer;
-
-  transition: all 0.3s ease;
-
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.07);
-
-  position: relative;
-  overflow: hidden;
-}
-
-.options button:hover {
-  background: linear-gradient(
-    135deg,
-    #c13383,
-    #792ca2
-  );
-
-  color: white;
-
-  transform: translateY(-5px);
-
-  box-shadow: 0 15px 35px rgba(121, 44, 162, 0.3);
-}
-
-.options button:active {
-  transform: scale(0.97);
-}
-
-/* =========================================
-   ANSWER BOX
-========================================= */
-
-.answer-box {
-  display: flex;
-  flex-direction: column;
-
-  gap: 1.5rem;
-
-  margin-top: 1.5rem;
-}
-
-/* =========================================
-   TEXTAREA
-========================================= */
-
-.answer-box textarea {
-  min-height: 220px;
-
-  padding: 1.5rem;
-
-  border-radius: 22px;
-
-  border: 2px solid #ece7ff;
-
-  background: rgba(255, 255, 255, 0.9);
-
-  font-size: 1.1rem;
-
-  line-height: 1.8;
-
-  resize: none;
-
-  outline: none;
-
-  transition: 0.3s ease;
-
-  box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.03);
-}
-
-.answer-box textarea:focus {
-  border-color: #792ca2;
-
-  box-shadow:
-    0 0 0 5px rgba(121, 44, 162, 0.1),
-    inset 0 2px 10px rgba(0, 0, 0, 0.03);
-}
-
-/* =========================================
-   SUBMIT BUTTON
-========================================= */
-
-.answer-box button {
-  width: fit-content;
-
-  background: linear-gradient(
-    135deg,
-    #e05454,
-    #c13383,
-    #792ca2
-  );
-
-  color: white;
-
-  padding: 1.2rem 2.8rem;
+  padding: 18px;
 
   border-radius: 18px;
 
-  border: none;
+  font-size: 1rem;
 
-  font-size: 1.1rem;
-  font-weight: 800;
+  font-weight: 700;
 
   cursor: pointer;
 
-  transition: all 0.3s ease;
+  transition: 0.3s;
 
-  box-shadow: 0 12px 30px rgba(192, 51, 131, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-.answer-box button:hover {
-  transform: translateY(-4px) scale(1.02);
+.options button:hover {
+  background: #0055da;
 
-  box-shadow: 0 18px 35px rgba(121, 44, 162, 0.35);
+  color: white;
+
+  transform: translateY(-3px);
 }
 
-/* =========================================
-   LOADING / EMPTY
-========================================= */
+/* ================= SUBMIT ================= */
 
-.loading-screen,
-.empty-screen {
-  text-align: center;
+.submit-btn {
+  background: linear-gradient(
+    135deg,
+    #ff0052,
+    #ffd400
+  );
 
-  padding: 5rem 2rem;
+  color: white;
 
-  font-size: 1.5rem;
+  border: none;
+
+  padding: 18px;
+
+  border-radius: 18px;
+
+  font-size: 1.1rem;
+
   font-weight: 700;
 
-  color: #792ca2;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 10px;
+
+  transition: 0.3s;
 }
 
-/* =========================================
-   PROGRESS BAR
-========================================= */
+.submit-btn:hover {
+  transform: translateY(-3px);
+}
+
+/* ================= PROGRESS ================= */
+
+.progress-section {
+  margin-top: 35px;
+}
+
+.progress-info {
+  display: flex;
+
+  justify-content: space-between;
+
+  font-size: 1rem;
+
+  font-weight: 700;
+
+  margin-bottom: 12px;
+}
 
 .progress-wrapper {
-  width: 100%;
+  height: 22px;
 
-  height: 14px;
-
-  background: #ece7ff;
+  background: #ececec;
 
   border-radius: 50px;
 
   overflow: hidden;
-
-  margin-top: 2rem;
 }
 
 .progress-bar {
   height: 100%;
 
   background: linear-gradient(
-    135deg,
-    #e05454,
-    #792ca2
+    90deg,
+    #00c68d,
+    #0055da
   );
 
-  border-radius: 50px;
-
-  transition: width 0.4s ease;
+  transition: 0.5s ease;
 }
 
-/* =========================================
-   ANIMATION
-========================================= */
+/* ================= COMPLETION ================= */
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
+.completion-screen {
+  min-height: 100vh;
 
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  display: flex;
+
+  justify-content: center;
+  align-items: center;
+
+  background: #99ecf5;
 }
 
-/* =========================================
-   RESPONSIVE
-========================================= */
+.complete-card {
+  background: rgb(236, 232, 230);
 
-@media (max-width: 768px) {
+  width: 700px;
 
-  .quiz-container {
-    padding: 2rem;
-    margin: 20px;
-  }
+  padding: 50px;
 
-  .quiz-container h2 {
-    font-size: 2.1rem;
-  }
+  text-align: center;
 
-  .quiz-container p {
-    font-size: 1.15rem;
-    line-height: 1.8;
-  }
+  border-radius: 30px;
 
-  .question-card {
-    padding: 1.7rem;
-  }
+  box-shadow:
+    0 25px 60px
+      rgba(0, 0, 0, 0.08);
+}
 
-  .answer-box textarea {
-    min-height: 180px;
-    font-size: 1rem;
-  }
+.complete-card svg {
+  font-size: 100px;
 
-  .answer-box button {
-    width: 100%;
-    justify-content: center;
-  }
+  color: #00c68d;
+}
 
-  .options {
-    grid-template-columns: 1fr;
-  }
+.complete-card h2 {
+  margin-top: 20px;
 
-  .options button {
-    font-size: 1rem;
-  }
+  font-size: 2.4rem;
+}
+
+.complete-card p {
+  margin-top: 15px;
+
+  font-size: 1.2rem;
+
+  color: #666;
+}
+
+.complete-card button {
+  margin-top: 30px;
+
+  background: linear-gradient(
+    135deg,
+    #ff0052,
+    #0055da
+  );
+
+  color: white;
+
+  border: none;
+
+  padding: 18px 40px;
+
+  border-radius: 18px;
+
+  font-size: 1.1rem;
+
+  font-weight: 700;
+
+  cursor: pointer;
 }

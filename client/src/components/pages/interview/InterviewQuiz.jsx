@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 
 import {
   FaRobot,
-  FaClock,
   FaBrain,
   FaPaperPlane,
   FaCheckCircle,
@@ -19,8 +18,9 @@ import {
 } from "../../../api/interAPI";
 
 const InterviewQuiz = () => {
-
   const { jobId } = useParams();
+
+  const navigate = useNavigate();
 
   const [interviewRounds, setInterviewRounds] =
     useState([]);
@@ -31,26 +31,25 @@ const InterviewQuiz = () => {
   const [questionIndex, setQuestionIndex] =
     useState(0);
 
-  const [timer, setTimer] = useState(0);
-
-  const [loading, setLoading] = useState(true);
-
-  const [interviewId, setInterviewId] =
-    useState(null);
+  const [loading, setLoading] =
+    useState(true);
 
   const [userAnswer, setUserAnswer] =
     useState("");
 
-  /* =========================================
-     FETCH INTERVIEW + AI QUESTIONS
-  ========================================= */
+  const [completed, setCompleted] =
+    useState(false);
+
+  const [progress, setProgress] =
+    useState(0);
+
+  /* =====================================
+     FETCH INTERVIEW
+  ===================================== */
 
   useEffect(() => {
-
     const fetchInterview = async () => {
-
       try {
-
         const data =
           await getInterviewByJobId(jobId);
 
@@ -62,7 +61,6 @@ const InterviewQuiz = () => {
           await getAIQuestions("job interview");
 
         if (aiData?.questions) {
-
           const aiQuestions = Array.isArray(
             aiData.questions
           )
@@ -77,9 +75,6 @@ const InterviewQuiz = () => {
             ...rounds,
             {
               title: "AI Technical Round",
-
-              time: 60,
-
               questions: aiQuestions.map(
                 (q) => ({
                   q,
@@ -91,98 +86,50 @@ const InterviewQuiz = () => {
         }
 
         if (rounds.length) {
-
           setInterviewRounds(rounds);
-
-          setInterviewId(data?.interviewId);
-
-          setTimer(rounds[0].time);
         }
-
       } catch (err) {
-
         console.error(
           "Failed to load interview",
           err
         );
-
       } finally {
-
         setLoading(false);
       }
     };
 
     fetchInterview();
-
   }, [jobId]);
 
-  /* =========================================
-     RESET TIMER ON ROUND CHANGE
-  ========================================= */
-
-  useEffect(() => {
-
-    if (interviewRounds.length) {
-
-      setTimer(
-        interviewRounds[roundIndex]?.time || 0
-      );
-
-      setQuestionIndex(0);
-    }
-
-  }, [roundIndex, interviewRounds]);
-
-  /* =========================================
-     TIMER COUNTDOWN
-  ========================================= */
-
-  useEffect(() => {
-
-    if (timer <= 0) return;
-
-    const interval = setInterval(() => {
-
-      setTimer((t) => t - 1);
-
-    }, 1000);
-
-    return () => clearInterval(interval);
-
-  }, [timer]);
-
-  /* =========================================
+  /* =====================================
      LOADING
-  ========================================= */
+  ===================================== */
 
   if (loading) {
     return (
       <div className="loading-screen">
-
         <div className="loader-circle"></div>
 
         <h2>AI Interview Loading...</h2>
 
         <p>
-          Preparing intelligent interview questions
+          Preparing intelligent interview
+          questions...
         </p>
-
       </div>
     );
   }
 
-  /* =========================================
-     EMPTY STATE
-  ========================================= */
+  /* =====================================
+     NO INTERVIEW
+  ===================================== */
 
   if (!interviewRounds.length) {
     return (
       <div className="empty-screen">
-
         <FaRobot />
 
         <h2>No Interview Available</h2>
-
       </div>
     );
   }
@@ -193,70 +140,115 @@ const InterviewQuiz = () => {
   const currentQuestion =
     currentRound.questions[questionIndex];
 
-  /* =========================================
+  /* =====================================
      NEXT QUESTION
-  ========================================= */
+  ===================================== */
 
   const nextQuestion = () => {
 
-    if (
-      questionIndex <
-      currentRound.questions.length - 1
-    ) {
+  const totalQuestions =
+    currentRound.questions.length;
 
-      setQuestionIndex((prev) => prev + 1);
+  const completedQuestions =
+    questionIndex + 1;
 
-    } else if (
-      roundIndex <
-      interviewRounds.length - 1
-    ) {
+  const progressValue =
+    Math.round(
+      (completedQuestions /
+        totalQuestions) *
+        100
+    );
 
-      setRoundIndex((prev) => prev + 1);
+  setProgress(progressValue);
 
-    } else {
+  if (
+    questionIndex <
+    totalQuestions - 1
+  ) {
 
-      alert("🎉 AI Interview Completed!");
-    }
-  };
+    setQuestionIndex(
+      (prev) => prev + 1
+    );
 
-  /* =========================================
-     PROGRESS
-  ========================================= */
+  } else if (
+    roundIndex <
+    interviewRounds.length - 1
+  ) {
 
-  const progress =
-    ((questionIndex + 1) /
-      currentRound.questions.length) *
-    100;
+    setRoundIndex(
+      (prev) => prev + 1
+    );
+
+    setQuestionIndex(0);
+
+  } else {
+
+    localStorage.setItem(
+      "jobpulse_interview_result",
+      JSON.stringify({
+        completed: true,
+        progress: 100,
+        totalRounds:
+          interviewRounds.length,
+        completedAt:
+          new Date().toLocaleString(),
+      })
+    );
+
+    setProgress(100);
+
+    setCompleted(true);
+  }
+}
+
+  /* =====================================
+     COMPLETED SCREEN
+  ===================================== */
+
+  if (completed) {
+    return (
+      <div className="completion-screen">
+        <div className="complete-card">
+
+          <FaCheckCircle />
+
+          <h2>
+            Interview Completed Successfully
+          </h2>
+
+          <p>
+            Your AI Interview has been
+            submitted successfully.
+          </p>
+
+          <button
+            onClick={() =>
+              navigate("/user-dashboard")
+            }
+          >
+            Go To Dashboard
+          </button>
+
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="quiz-container">
 
-      {/* =====================================
-         AI HEADER
-      ===================================== */}
+      {/* ================= HEADER ================= */}
 
       <div className="quiz-header">
 
         <div className="ai-badge">
-
           <FaRobot />
-
           AI Interview Mode Active
-
         </div>
 
-        <div className="timer-box">
-
-          <FaClock />
-
-          {timer}s Left
-
-        </div>
       </div>
 
-      {/* =====================================
-         ROUND TITLE
-      ===================================== */}
+      {/* ================= ROUND ================= */}
 
       <div className="round-title">
 
@@ -265,55 +257,46 @@ const InterviewQuiz = () => {
         </div>
 
         <div>
-
           <h2>{currentRound.title}</h2>
 
           <p>
-            AI Powered Smart Interview Assessment
+            AI Powered Smart Assessment
           </p>
-
         </div>
+
       </div>
 
-      {/* =====================================
-         QUESTION CARD
-      ===================================== */}
+      {/* ================= QUESTION CARD ================= */}
 
       <div className="question-card">
-
-        {/* QUESTION TOP */}
 
         <div className="question-top">
 
           <div className="question-count">
-
             <FaMicrochip />
 
-            Question {questionIndex + 1} /{" "}
-            {currentRound.questions.length}
-
+            Question {questionIndex + 1}
+            {" / "}
+            {
+              currentRound.questions
+                .length
+            }
           </div>
 
           <div className="question-skill">
-
             <FaCode />
-
             Technical Assessment
-
           </div>
+
         </div>
 
         {/* QUESTION */}
 
         <div className="question-text">
-
           <p>{currentQuestion.q}</p>
-
         </div>
 
-        {/* =====================================
-           ANSWERS
-        ===================================== */}
+        {/* ANSWER */}
 
         <div className="answer-box">
 
@@ -327,7 +310,9 @@ const InterviewQuiz = () => {
 
                   <button
                     key={i}
-                    onClick={nextQuestion}
+                    onClick={() => {
+                      nextQuestion();
+                    }}
                   >
                     <FaCheckCircle />
 
@@ -335,15 +320,14 @@ const InterviewQuiz = () => {
                   </button>
                 )
               )}
+
             </div>
 
           ) : (
 
             <>
-              {/* TEXT AREA */}
-
               <textarea
-                placeholder="Write your answer in detail..."
+                placeholder="Write your answer here..."
                 value={userAnswer}
                 onChange={(e) =>
                   setUserAnswer(
@@ -352,14 +336,21 @@ const InterviewQuiz = () => {
                 }
               />
 
-              {/* SUBMIT */}
-
               <button
                 className="submit-btn"
                 onClick={() => {
 
+                  if (
+                    !userAnswer.trim()
+                  ) {
+                    alert(
+                      "Please enter your answer."
+                    );
+                    return;
+                  }
+
                   console.log(
-                    "User Answer:",
+                    "Answer:",
                     userAnswer
                   );
 
@@ -374,17 +365,18 @@ const InterviewQuiz = () => {
               </button>
             </>
           )}
+
         </div>
 
-        {/* =====================================
-           PROGRESS BAR
-        ===================================== */}
+        {/* ================= PROGRESS ================= */}
 
         <div className="progress-section">
 
           <div className="progress-info">
 
-            <span>Interview Progress</span>
+            <span>
+              Interview Progress
+            </span>
 
             <span>
               {Math.round(progress)}%
@@ -402,6 +394,7 @@ const InterviewQuiz = () => {
             ></div>
 
           </div>
+
         </div>
 
       </div>
