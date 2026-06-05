@@ -9,7 +9,7 @@ import {
   FaLock,
 } from "react-icons/fa";
 
-import "./styles/REGISTER.scss";
+import "./styles/Register.scss";
 
 const Register = () => {
 
