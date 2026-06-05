@@ -10,7 +10,7 @@ import {
   FaCode,
 } from "react-icons/fa";
 
-import "../../sections/styles/Interviewquiz.scss";
+import "../../sections/styles/interviewquiz.scss";
 
 import {
   getInterviewByJobId,
