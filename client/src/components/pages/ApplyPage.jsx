@@ -12,6 +12,16 @@ import {
 } from "react-icons/fa";
 
 import "../sections/styles/applyPage.scss";
+import API from "../../api/axios";
+
+const applyJob = async (data) => {
+  try {
+    const res = await API.post("/api/apply", data);
+    console.log(res.data);
+  } catch (err) {
+    console.log(err);
+  }
+};
 
 const ApplyPage = () => {
   const { jobId } = useParams();

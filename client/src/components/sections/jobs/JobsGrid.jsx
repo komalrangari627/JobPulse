@@ -1,32 +1,40 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import jobAPI from "../../../api/jobAPI";
-import companyAPI from "../../../api/companyAPI";
+
+import { getAllJobs } from "../../../api/jobAPI";
+import { getAllCompanies } from "../../../api/companyAPI";
+
 import "../styles/job-grid.scss";
 
 const JobsGrid = () => {
   const navigate = useNavigate();
+
   const [jobs, setJobs] = useState([]);
   const [companies, setCompanies] = useState([]);
 
+  /* ================= FETCH DATA ================= */
   useEffect(() => {
-    const fetchJobsAndCompanies = async () => {
+    const fetchData = async () => {
       try {
-        const jobsData = await jobAPI.getAllJobs();
-        const companiesData = await companyAPI.getAllCompanies();
+        const jobsData = await getAllJobs();
+        const companiesData = await getAllCompanies();
 
+        setJobs(jobsData);
         setCompanies(companiesData);
-        setJobs(jobsData); 
       } catch (err) {
         console.error("Error fetching jobs or companies:", err);
       }
     };
 
-    fetchJobsAndCompanies();
+    fetchData();
   }, []);
 
-  const getCompany = (jobCompanyName) =>
-    companies.find((c) => c.name === jobCompanyName);
+  /* ================= FIND COMPANY ================= */
+  const getCompany = (jobCompany) => {
+    return companies.find(
+      (c) => c._id === jobCompany || c.name === jobCompany
+    );
+  };
 
   return (
     <div className="jobs-grid">
@@ -37,11 +45,9 @@ const JobsGrid = () => {
 
         return (
           <div
-            key={job._id?.$oid || job._id} 
+            key={job._id}
             className="job-card"
-            onClick={() =>
-              navigate(`/job/${job._id?.$oid || job._id}`)
-            }
+            onClick={() => navigate(`/job/${job._id}`)}
           >
             <img src={company.logo} alt={company.name} />
 

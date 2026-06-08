@@ -1,49 +1,55 @@
-import React, { createContext, useContext, useEffect, useState, useCallback } from "react";
-import jobAPI from "../api/jobAPI";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+} from "react";
+
+import { getAllJobs } from "../api/jobAPI";
 
 const JobContext = createContext();
 
 export const useJobs = () => useContext(JobContext);
 
 export const JobProvider = ({ children }) => {
-  const [jobs, setJobs] = useState([]);        // always array
+  const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  /* ================= NORMALIZE DATA ================= */
   const normalizeJobs = (data) => {
-    // Check if data is a direct array or nested in common keys
     if (Array.isArray(data)) return data;
-    if (Array.isArray(data?.jobs)) return data.jobs; 
-    if (Array.isArray(data?.allJobs)) return data.allJobs; // Check for alternate keys
+    if (Array.isArray(data?.jobs)) return data.jobs;
+    if (Array.isArray(data?.allJobs)) return data.allJobs;
     return [];
   };
 
-  const loadJobs = useCallback(async (signal) => {
+  /* ================= LOAD JOBS ================= */
+  const loadJobs = useCallback(async () => {
     setLoading(true);
     setError(null);
+
     try {
-      const data = await jobAPI.getAllJobs({ signal });
+      const data = await getAllJobs(); // ✅ FIXED (no jobAPI)
       setJobs(normalizeJobs(data));
     } catch (err) {
-      if (err.name !== "CanceledError" && err.name !== "AbortError") {
-        console.error("JobProvider fetch error:", err);
-        setError(err?.response?.data?.message || "Failed to load jobs");
-        setJobs([]);
-      }
+      console.error("JobProvider fetch error:", err);
+      setError(err?.message || "Failed to load jobs");
+      setJobs([]);
     } finally {
       setLoading(false);
     }
   }, []);
 
+  /* ================= INITIAL LOAD ================= */
   useEffect(() => {
-    const controller = new AbortController();
-    loadJobs(controller.signal);
-
-    return () => controller.abort();
+    loadJobs();
   }, [loadJobs]);
 
-  const refreshJobs = useCallback(async () => {
-    await loadJobs();
+  /* ================= REFRESH ================= */
+  const refreshJobs = useCallback(() => {
+    loadJobs();
   }, [loadJobs]);
 
   return (

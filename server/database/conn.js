@@ -6,16 +6,18 @@ dotenv.config({ path: "./config.env" });
 const conn = async () => {
   try {
     const uri = process.env.MONGO_URI;
-    if (!uri) throw new Error("MongoDB URI not found in environment variables");
 
-    await mongoose.connect(uri, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    console.log("MONGO_URI =", uri); // 👈 DEBUG (IMPORTANT)
 
-    console.log(" Connected to MongoDB successfully!");
+    if (!uri || !uri.startsWith("mongodb")) {
+      throw new Error("Invalid MongoDB URI in env file");
+    }
+
+    await mongoose.connect(uri);
+
+    console.log("✅ MongoDB Connected Successfully");
   } catch (err) {
-    console.error(" Unable to connect with database:", err);
+    console.error("❌ MongoDB Connection Error:", err.message);
   }
 };
 

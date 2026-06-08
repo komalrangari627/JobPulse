@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import axios from "axios";
+import API from "../../../api/axios";
 import "../styles/company-page.scss";
 
 const CompanyPage = () => {
@@ -10,17 +10,33 @@ const CompanyPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  /* ================= FETCH ALL COMPANIES (OPTIONAL DEBUG) ================= */
+  useEffect(() => {
+    const fetchCompanies = async () => {
+      try {
+        const res = await API.get("/companies");
+        console.log("All companies:", res.data);
+      } catch (err) {
+        console.log("Error fetching companies list:", err.message);
+      }
+    };
+
+    fetchCompanies();
+  }, []);
+
+  /* ================= FETCH SINGLE COMPANY ================= */
   useEffect(() => {
     if (!companyId) return;
 
     const fetchCompany = async () => {
       try {
         setLoading(true);
-        const res = await axios.get(
-          `${import.meta.env.VITE_BASE_API_URL}/companies/${companyId}`
-        );
+
+        const res = await API.get(`/companies/${companyId}`);
+
         setCompany(res.data.company);
       } catch (err) {
+        console.log(err.message);
         setError("Unable to load company details.");
       } finally {
         setLoading(false);
@@ -30,18 +46,22 @@ const CompanyPage = () => {
     fetchCompany();
   }, [companyId]);
 
+  /* ================= LOADING ================= */
   if (loading) {
     return <div className="company-page loading">Loading...</div>;
   }
 
+  /* ================= ERROR ================= */
   if (error) {
     return <div className="company-page error">{error}</div>;
   }
 
+  /* ================= NOT FOUND ================= */
   if (!company) {
     return <div className="company-page error">Company not found</div>;
   }
 
+  /* ================= UI ================= */
   return (
     <section className="company-page">
       <div className="company-card">
@@ -59,7 +79,6 @@ const CompanyPage = () => {
           <div className="company-header-info">
             <h1>{company.name}</h1>
 
-            {/* ===== BADGES ===== */}
             <div className="badges">
               {company.industry && <span>{company.industry}</span>}
               {company.location && <span>{company.location}</span>}
@@ -71,7 +90,7 @@ const CompanyPage = () => {
           </div>
         </div>
 
-        {/* ===== BASIC DESCRIPTION ===== */}
+        {/* ===== DESCRIPTION ===== */}
         {company.description && (
           <p className="about">{company.description}</p>
         )}

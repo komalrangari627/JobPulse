@@ -2,6 +2,16 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./styles/job-page.scss";
+import API from "../api/axios";
+
+useEffect(() => {
+  const fetchJobs = async () => {
+    const res = await API.get("/api/jobs");
+    console.log(res.data);
+  };
+
+  fetchJobs();
+}, []);
 
 const JobPage = () => {
   const { jobId } = useParams();

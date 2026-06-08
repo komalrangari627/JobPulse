@@ -1,62 +1,28 @@
-import axios from "axios";
-
-/* ✅ DEFINE API_ROOT */
-const API_ROOT =
-  import.meta.env.VITE_API_ROOT || "http://localhost:5012/api/companies";
+import API from "../api/axios";
 
 /* GET ALL COMPANIES */
 export const getAllCompanies = async () => {
-  try {
-    const res = await axios.get(API_ROOT);
-    return res.data?.companies || [];
-  } catch (err) {
-    console.error("Error fetching companies:", err.message);
-    return [];
-  }
+  const res = await API.get("/companies");
+  return res.data?.companies || [];
 };
 
 /* GET COMPANY BY ID */
-export const getCompanyById = async (companyId) => {
-  try {
-    const res = await axios.get(`${API_ROOT}/${companyId}`);
-    // Return the inner 'company' object directly
-    return res.data?.company ?? null;
-  } catch (err) {
-    console.error(`Error fetching company ${companyId}:`, err.message);
-    return null;
-  }
-};
-
-/* UPDATE COMPANY */
-export const updateCompany = async (companyId, payload, token) => {
-  try {
-    const res = await axios.put(`${API_ROOT}/update/${companyId}`, payload, {
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
-    });
-    return res.data?.company ?? res.data;
-  } catch (err) {
-    console.error(`Error updating company ${companyId}:`, err.message);
-    throw err;
-  }
+export const getCompanyById = async (id) => {
+  const res = await API.get(`/companies/${id}`);
+  return res.data?.company || null;
 };
 
 /* CREATE COMPANY */
-export const createCompany = async (payload) => {
-  try {
-    const res = await axios.post(API_ROOT, payload);
-    return res.data?.company ?? res.data;
-  } catch (err) {
-    console.error("Error creating company:", err.message);
-    throw err;
-  }
+export const createCompany = async (data) => {
+  const res = await API.post("/companies", data);
+  return res.data;
 };
 
-/* ✅ DEFAULT EXPORT */
-const companyAPI = {
-  getAllCompanies,
-  getCompanyById,
-  updateCompany,
-  createCompany,
-};
+/* UPDATE COMPANY */
+export const updateCompany = async (id, data, token) => {
+  const res = await API.put(`/companies/${id}`, data, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
 
-export default companyAPI;
+  return res.data;
+};

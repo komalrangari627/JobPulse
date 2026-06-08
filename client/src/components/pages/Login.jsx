@@ -15,6 +15,17 @@ import {
   useUser,
 } from "../../context/userContext";
 
+import API from "../../api/axios";
+
+const loginUser = async (data) => {
+  try {
+    const res = await API.post("/api/users/login", data);
+    console.log(res.data);
+  } catch (err) {
+    console.log(err);
+  }
+};
+
 const UserLoginRegisterForm = () => {
 
   // ================= HOOKS =================

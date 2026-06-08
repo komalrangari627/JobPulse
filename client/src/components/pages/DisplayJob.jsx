@@ -19,7 +19,7 @@ const DisplayJob = () => {
       try {
         setLoading(true);
         const res = await axios.get(
-          `http://localhost:5012/api/jobs/job-detail/${jobId}`
+          `https://jobpulse-server.up.railway.app/api/jobs/job-detail/${jobId}`
         );
 
         setJob(res.data.job || null);

@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import companyAPI from "../api/companyAPI";
+import { getAllCompanies } from "../api/companyAPI";
+
 
 const CompanyContext = createContext();
 

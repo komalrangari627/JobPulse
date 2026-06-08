@@ -2,6 +2,7 @@ import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import "../sections/styles/display-company.scss";
+import API from "../../api/axios";
 
 const DisplayCompany = () => {
   const { companyId } = useParams();

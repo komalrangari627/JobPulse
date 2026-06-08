@@ -11,6 +11,17 @@ import {
 
 import "./styles/Register.scss";
 
+import API from "../../api/axios";
+
+const registerUser = async (data) => {
+  try {
+    const res = await API.post("/api/users/register", data);
+    console.log(res.data);
+  } catch (err) {
+    console.log(err);
+  }
+};
+
 const Register = () => {
 
   const navigate = useNavigate();

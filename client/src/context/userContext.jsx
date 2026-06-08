@@ -1,176 +1,96 @@
-import React, {
-  createContext,
-  useState,
-  useEffect,
-  useContext,
-} from "react";
+import API from "../api/axios";
+import React, { createContext, useState, useEffect, useContext } from "react";
 
 /* ================= CONTEXT ================= */
-
-export const UserContext =
-  createContext();
+export const UserContext = createContext();
 
 /* ================= PROVIDER ================= */
-
-export const UserProvider = ({
-  children,
-}) => {
-
+export const UserProvider = ({ children }) => {
   /* ================= STATES ================= */
+  const [user, setUser] = useState(null);
 
-  const [user, setUser] =
-    useState(null);
+  const [token, setToken] = useState(
+    localStorage.getItem("token") || ""
+  );
 
-  const [token, setToken] =
-    useState(
-      localStorage.getItem("token") || ""
-    );
-
-  /* ================= LOAD USER ================= */
-
+  /* ================= LOAD USER FROM LOCALSTORAGE ================= */
   useEffect(() => {
-
     try {
+      const storedUser = localStorage.getItem("jobpulse_user");
 
-      const storedUser =
-        localStorage.getItem(
-          "jobpulse_user"
-        );
-
-      // SAFE CHECK
-
-      if (
-        storedUser &&
-        storedUser !== "undefined"
-      ) {
-
-        const parsedUser =
-          JSON.parse(storedUser);
-
-        setUser(parsedUser);
+      if (storedUser && storedUser !== "undefined") {
+        setUser(JSON.parse(storedUser));
       }
-
     } catch (err) {
-
-      console.error(
-        "LocalStorage parse error:",
-        err
-      );
-
-      localStorage.removeItem(
-        "jobpulse_user"
-      );
+      console.error("LocalStorage parse error:", err);
+      localStorage.removeItem("jobpulse_user");
     }
-
   }, []);
 
   /* ================= LOGOUT ================= */
-
   const logout = () => {
-
-    localStorage.removeItem(
-      "token"
-    );
-
-    localStorage.removeItem(
-      "jobpulse_user"
-    );
+    localStorage.removeItem("token");
+    localStorage.removeItem("jobpulse_user");
 
     setToken("");
-
     setUser(null);
   };
 
   /* ================= FETCH PROFILE ================= */
+  const fetchUserProfile = async () => {
+    if (!token) return;
 
-  const fetchUserProfile =
-    async () => {
+    try {
+      const res = await API.get("/users/profile", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-      if (!token) return;
+      const data = res.data;
 
-      try {
+      if (data?.user) {
+        setUser(data.user);
 
-        const res = await fetch(
-          "http://localhost:5012/api/users/fetch-user-profile",
-          {
-            headers: {
-              Authorization:
-                `Bearer ${token}`,
-            },
-          }
-        );
-
-        if (res.status === 401) {
-
-          logout();
-
-          return;
-        }
-
-        const data =
-          await res.json();
-
-        if (data?.user) {
-
-          setUser(data.user);
-
-          localStorage.setItem(
-            "jobpulse_user",
-            JSON.stringify(
-              data.user
-            )
-          );
-        }
-
-      } catch (err) {
-
-        console.error(
-          "Profile fetching error:",
-          err
+        localStorage.setItem(
+          "jobpulse_user",
+          JSON.stringify(data.user)
         );
       }
-    };
+    } catch (err) {
+      console.error("Profile fetching error:", err.message);
+
+      /* ✅ if token invalid → auto logout */
+      if (err.response?.status === 401) {
+        logout();
+      }
+    }
+  };
 
   /* ================= AUTO FETCH ================= */
-
   useEffect(() => {
-
     fetchUserProfile();
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
-
   }, [token]);
 
-  /* ================= RETURN ================= */
-
+  /* ================= PROVIDER VALUE ================= */
   return (
-
     <UserContext.Provider
       value={{
-
         user,
         setUser,
-
         token,
         setToken,
-
         logout,
         fetchUserProfile,
-
       }}
     >
-
       {children}
-
     </UserContext.Provider>
   );
 };
 
 /* ================= CUSTOM HOOK ================= */
-
 export const useUser = () => {
-
-  return useContext(
-    UserContext
-  );
+  return useContext(UserContext);
 };

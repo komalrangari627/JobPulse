@@ -4,6 +4,7 @@ import "./message.scss"
 
 import { useMessage } from "../../../context/messageContext.jsx"
 
+
 const Message = () => {
 
     let { message } = useMessage()
