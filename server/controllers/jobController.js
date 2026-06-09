@@ -28,22 +28,20 @@ export const createJob = async (req, res) => {
 /* GET ALL JOBS */
 export const getAllJobs = async (req, res) => {
   try {
-    const jobs = await jobModel.find().populate({
-      path: "company",
-      select: "name logo location",
-    });
+    const jobs = await jobModel
+      .find()
+      .populate("company", "name logo location");
 
     res.status(200).json({
       success: true,
       jobs,
     });
-
   } catch (error) {
     console.error("GET JOBS ERROR:", error);
 
     res.status(500).json({
       success: false,
-      message: "Failed to fetch jobs",
+      message: "Server error while fetching jobs",
       error: error.message,
     });
   }
