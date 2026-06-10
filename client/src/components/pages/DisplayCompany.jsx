@@ -1,8 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import axios from "axios";
-import "../sections/styles/display-company.scss";
 import API from "../../api/axios";
+import "../sections/styles/display-company.scss";
 
 const DisplayCompany = () => {
   const { companyId } = useParams();
@@ -18,11 +17,11 @@ const DisplayCompany = () => {
       try {
         setLoading(true);
 
-        const res = await axios.get(
-          `${import.meta.env.VITE_BASE_API_URL}/company-detail/${companyId}`
-        );
+        const res = await API.get(`/company-detail/${companyId}`);
+
         setCompany(res.data.company);
-      } catch {
+      } catch (err) {
+        console.error(err);
         setError("Unable to load company");
       } finally {
         setLoading(false);

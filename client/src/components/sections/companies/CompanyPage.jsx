@@ -10,40 +10,29 @@ const CompanyPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  /* ================= FETCH ALL COMPANIES (OPTIONAL DEBUG) ================= */
-  useEffect(() => {
-    const fetchCompanies = async () => {
-      try {
-        const res = await API.get("/companies");
-        console.log("All companies:", res.data);
-      } catch (err) {
-        console.log("Error fetching companies list:", err.message);
-      }
-    };
-
-    fetchCompanies();
-  }, []);
-
   /* ================= FETCH SINGLE COMPANY ================= */
   useEffect(() => {
-    if (!companyId) return;
-
     const fetchCompany = async () => {
       try {
         setLoading(true);
+        setError("");
 
-        const res = await API.get(`/companies/${companyId}`);
+        const { data } = await API.get(`/companies/${companyId}`);
 
-        setCompany(res.data.company);
+        setCompany(data?.company || null);
       } catch (err) {
-        console.log(err.message);
-        setError("Unable to load company details.");
+        console.error("Company fetch error:", err);
+
+        setError(
+          err?.response?.data?.message ||
+          "Unable to load company details."
+        );
       } finally {
         setLoading(false);
       }
     };
 
-    fetchCompany();
+    if (companyId) fetchCompany();
   }, [companyId]);
 
   /* ================= LOADING ================= */
@@ -66,12 +55,11 @@ const CompanyPage = () => {
     <section className="company-page">
       <div className="company-card">
 
-        {/* ===== HEADER ===== */}
         <div className="header">
           {company.logo && (
             <img
               src={company.logo}
-              alt={company.name || "Company Logo"}
+              alt={company.name}
               className="company-logo"
             />
           )}
@@ -90,12 +78,10 @@ const CompanyPage = () => {
           </div>
         </div>
 
-        {/* ===== DESCRIPTION ===== */}
         {company.description && (
           <p className="about">{company.description}</p>
         )}
 
-        {/* ===== EXTENDED DESCRIPTION ===== */}
         {company.extendedDescription && (
           <div className="section">
             <h3>About the Company</h3>
@@ -103,7 +89,6 @@ const CompanyPage = () => {
           </div>
         )}
 
-        {/* ===== INTERNSHIP DETAILS ===== */}
         {company.internshipDetails && (
           <div className="section">
             <h3>Internship Details</h3>
@@ -111,7 +96,6 @@ const CompanyPage = () => {
           </div>
         )}
 
-        {/* ===== OFFERS ===== */}
         {company.offers && (
           <div className="section">
             <h3>What We Offer</h3>
@@ -119,7 +103,6 @@ const CompanyPage = () => {
           </div>
         )}
 
-        {/* ===== CRACK SYLLABUS ===== */}
         {company.crackSyllabus && (
           <div className="section">
             <h3>Crack Syllabus</h3>
@@ -127,7 +110,6 @@ const CompanyPage = () => {
           </div>
         )}
 
-        {/* ===== INTERVIEW PROCESS ===== */}
         {company.interviewProcess && (
           <div className="section">
             <h3>Interview Process</h3>
@@ -135,7 +117,6 @@ const CompanyPage = () => {
           </div>
         )}
 
-        {/* ===== RESUME TIPS ===== */}
         {company.resumeTips && (
           <div className="section">
             <h3>Resume Tips</h3>

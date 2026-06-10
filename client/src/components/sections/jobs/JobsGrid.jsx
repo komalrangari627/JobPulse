@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
-import { getAllJobs } from "../../../api/jobAPI";
-import { getAllCompanies } from "../../../api/companyAPI";
+import axios from "axios";
 
 import "../styles/job-grid.scss";
 
@@ -16,11 +14,16 @@ const JobsGrid = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const jobsData = await getAllJobs();
-        const companiesData = await getAllCompanies();
+        const jobsRes = await axios.get(
+          "https://jobpulse-server.up.railway.app/api/jobs"
+        );
 
-        setJobs(jobsData);
-        setCompanies(companiesData);
+        const companiesRes = await axios.get(
+          "https://jobpulse-server.up.railway.app/api/companies"
+        );
+
+        setJobs(jobsRes.data.jobs || []);
+        setCompanies(companiesRes.data.companies || []);
       } catch (err) {
         console.error("Error fetching jobs or companies:", err);
       }

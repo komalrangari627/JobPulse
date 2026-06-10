@@ -3,9 +3,11 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import "../sections/styles/display-job.scss";
 
+const API_BASE = "https://jobpulse-server.up.railway.app/api";
+
 const DisplayJob = () => {
   const { jobId } = useParams();
-  const navigate = useNavigate(); //  MUST be inside component
+  const navigate = useNavigate();
 
   const [job, setJob] = useState(null);
   const [company, setCompany] = useState(null);
@@ -18,13 +20,18 @@ const DisplayJob = () => {
     const fetchJobDetail = async () => {
       try {
         setLoading(true);
-        const res = await axios.get(
-          `https://jobpulse-server.up.railway.app/api/jobs/job-detail/${jobId}`
-        );
+        setError("");
 
-        setJob(res.data.job || null);
-        setCompany(res.data.company || null);
+        const res = await axios.get(`${API_BASE}/jobs/${jobId}`);
+
+        const jobData = res?.data?.job;
+
+        setJob(jobData || null);
+
+        // FIX: company comes from populated job object
+        setCompany(jobData?.company || null);
       } catch (err) {
+        console.log("Job detail error:", err);
         setError("Unable to load job details.");
       } finally {
         setLoading(false);
@@ -34,11 +41,10 @@ const DisplayJob = () => {
     fetchJobDetail();
   }, [jobId]);
 
-  /* ================= HANDLERS ================= */
-
   const handleViewCompany = () => {
-    if (!company?._id) return;
-    navigate(`/company/${company._id}`);
+    const companyId = company?._id || job?.company?._id;
+    if (!companyId) return;
+    navigate(`/company/${companyId}`);
   };
 
   /* ================= UI STATES ================= */
@@ -47,71 +53,75 @@ const DisplayJob = () => {
   if (error) return <div className="display-job error">{error}</div>;
   if (!job) return <div className="display-job error">Job not found</div>;
 
-  /* ================= UI ================= */
-
   return (
     <section className="display-job">
       <div className="card">
-        {/* Header */}
+
+        {/* HEADER */}
         <div className="header">
           <div className="logo">
-            <img src={job.logo} alt={job.title} />
+            <img
+              src={job?.company?.logo || "/default-logo.png"}
+              alt={job.title}
+            />
           </div>
+
           <div className="title-block">
             <h1>{job.title}</h1>
             <span className="location">
-              {job.jobRequirements?.location || job.location}
+              {job?.location || "Remote"}
             </span>
           </div>
         </div>
 
-        {/* Meta */}
+        {/* META */}
         <div className="job-meta">
-          <span className="badge"> {job.jobType || "Full Time"}</span>
-          <span className="badge">
-            {job.jobRequirements?.experience || job.experience}
-          </span>
-          <span className="badge">
-            {job.jobRequirements?.offeredSalary || job.salary}
-          </span>
+          <span className="badge">{job.jobType || "Full Time"}</span>
+          <span className="badge">{job.experience || "Fresher"}</span>
+          <span className="badge">{job.salary || "Not Disclosed"}</span>
         </div>
 
-        {/* Description */}
+        {/* DESCRIPTION */}
         <div className="job-description">
           <h3>Job Description</h3>
           <p>{job.description}</p>
 
-          <h3>More Details</h3>
-          <p>{job.extendedDescription}</p>
+          {job.extendedDescription && (
+            <>
+              <h3>More Details</h3>
+              <p>{job.extendedDescription}</p>
+            </>
+          )}
         </div>
 
-        {/* Buttons */}
+        {/* ACTION BUTTONS */}
         <div className="action-buttons">
+
           <button
             className="apply-btn"
             onClick={() => navigate(`/apply/${job._id}`)}
           >
             Apply Now
           </button>
-          <div className="action-buttons">
-            {job.companyId && (
-              <button
-                className="view-company-btn"
-                onClick={() => navigate(`/company/${job.companyId}`)}
-              >
-                View Company
-              </button>
-            )}
-          </div>
+
+          {job?.company?._id && (
+            <button
+              className="view-company-btn"
+              onClick={handleViewCompany}
+            >
+              View Company
+            </button>
+          )}
         </div>
 
-        {/* Company Info */}
-        {company && (
+        {/* COMPANY INFO */}
+        {job?.company && (
           <div className="company-box">
-            <h3>{company.companyDetails?.name || company.companyName}</h3>
-            <p>{company.companyDetails?.about}</p>
+            <h3>{job.company.name}</h3>
+            <p>{job.company.about || "No company info available"}</p>
           </div>
         )}
+
       </div>
     </section>
   );
